@@ -1,0 +1,44 @@
+//-----------------------------------------------------------------
+// Space Out Resources
+// RC Source - SpaceOut.rc
+//-----------------------------------------------------------------
+
+//-----------------------------------------------------------------
+// Include Files
+//-----------------------------------------------------------------
+#include "Resource.h"
+
+//-----------------------------------------------------------------
+// Icons
+//-----------------------------------------------------------------
+IDI_SPACEOUT          ICON         "SpaceOut.ico"
+IDI_SPACEOUT_SM       ICON         "SpaceOut_sm.ico"
+
+//-----------------------------------------------------------------
+// Bitmaps
+//-----------------------------------------------------------------
+//IDB_DESERT            BITMAP       "assets/archive/Desert.bmp"
+//IDB_CAR               BITMAP       "assets/archive/Car.bmp"
+//IDB_SMCAR             BITMAP       "assets/archive/SmCar.bmp"
+//IDB_MISSILE           BITMAP       "assets/archive/Missile.bmp"
+//IDB_BLOBBO            BITMAP       "assets/archive/Blobbo.bmp"
+//IDB_BMISSILE          BITMAP       "assets/archive/BMissile.bmp"
+//IDB_JELLY             BITMAP       "assets/archive/Jelly.bmp"
+//IDB_JMISSILE          BITMAP       "assets/archive/JMissile.bmp"
+//IDB_TIMMY             BITMAP       "assets/archive/Timmy.bmp"
+//IDB_TMISSILE          BITMAP       "assets/archive/TMissile.bmp"
+//IDB_SMEXPLOSION       BITMAP       "assets/archive/SmExplosion.bmp"
+//IDB_LGEXPLOSION       BITMAP       "assets/archive/LgExplosion.bmp"
+//IDB_GAMEOVER          BITMAP       "assets/archive/GameOver.bmp"
+IDB_WALL              BITMAP       "assets/tiles/wall.bmp"
+
+//-----------------------------------------------------------------
+// Wave Sounds
+//-----------------------------------------------------------------
+//IDW_MISSILE           WAVE         "assets/archive/Missile.wav"
+//IDW_BMISSILE          WAVE         "assets/archive/BMissile.wav"
+//IDW_JMISSILE          WAVE         "assets/archive/JMissile.wav"
+//IDW_TMISSILE          WAVE         "assets/archive/TMissile.wav"
+//IDW_SMEXPLODE         WAVE         "assets/archive/SmExplode.wav"
+//IDW_LGEXPLODE         WAVE         "assets/archive/LgExplode.wav"
+//IDW_GAMEOVER          WAVE         "assets/archive/GameOver.wav"
