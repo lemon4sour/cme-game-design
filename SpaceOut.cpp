@@ -73,7 +73,7 @@ void GameStart(HWND hWindow)
 
   _pLevel = new Level(layout, 32, 1);
   _pLevel->MapTile(0, _pEmptyBitmap);
-  _pLevel->MapTile(1, _pWallBitmap);
+  _pLevel->MapTile(1, _pWallBitmap, FALSE);
 
   // Play the background music
   //_pGame->PlayMIDISong(TEXT("Music.mid"));
