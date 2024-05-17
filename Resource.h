@@ -12,7 +12,8 @@
 //-----------------------------------------------------------------
 // Bitmaps                    Range : 2000 - 2999
 //-----------------------------------------------------------------
-#define IDB_WALL              2000
+#define IDB_EMPTY             2000
+#define IDB_WALL              2001
 //#define IDB_DESERT            2000
 //#define IDB_CAR               2001
 //#define IDB_SMCAR             2002

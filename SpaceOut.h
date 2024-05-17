@@ -24,6 +24,7 @@ HDC               _hOffscreenDC;
 HBITMAP           _hOffscreenBitmap;
 
 Level*            _pLevel;
+Bitmap*           _pEmptyBitmap;
 Bitmap*	          _pWallBitmap;
 //-----------------------------------------------------------------
 // Function Declarations

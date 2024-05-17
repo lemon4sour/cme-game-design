@@ -41,6 +41,7 @@ void GameStart(HWND hWindow)
 
   // Create and load the bitmaps
   HDC hDC = GetDC(hWindow);
+  _pEmptyBitmap = new Bitmap(hDC, IDB_EMPTY, _hInstance);
   _pWallBitmap = new Bitmap(hDC, IDB_WALL, _hInstance);
 
   std::vector<std::vector<int>> layout = {
@@ -71,6 +72,7 @@ void GameStart(HWND hWindow)
   };
 
   _pLevel = new Level(layout, 32, 1);
+  _pLevel->MapTile(0, _pEmptyBitmap);
   _pLevel->MapTile(1, _pWallBitmap);
 
   // Play the background music

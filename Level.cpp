@@ -43,7 +43,6 @@ void Level::Draw(HDC hDC)
     for (int x = 0; x < m_layout[y].size(); x++)
     {
       Tile* tile = m_tileMap[m_layout[y][x]];
-      if (m_layout[y][x] == 0) continue;
       tile->Draw(hDC, (x * m_iTileSize), (y * m_iTileSize));
     }
   }
