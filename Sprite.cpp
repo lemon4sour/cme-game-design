@@ -189,3 +189,9 @@ void Sprite::Draw(HDC hDC)
         m_iCurFrame * GetWidth(), 0, GetWidth(), GetHeight(), TRUE);
   }
 }
+
+void Sprite::SetBitmap(Bitmap* bmpBitmap) {
+  if (bmpBitmap != NULL) {
+    m_pBitmap = bmpBitmap;
+  }
+}

@@ -88,6 +88,7 @@ public:
   int     GetWidth()
     { return (m_pBitmap->GetWidth() / m_iNumFrames); };
   int     GetHeight()               { return m_pBitmap->GetHeight(); };
+  void    SetBitmap(Bitmap* bmpBitmap);
 };
 
 //-----------------------------------------------------------------
