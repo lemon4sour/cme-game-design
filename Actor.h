@@ -14,17 +14,16 @@
 //-----------------------------------------------------------------
 // Actor Class
 //-----------------------------------------------------------------
-class Actor {
+class Actor : public Sprite {
 protected:
-	Sprite* m_pSprite;
 	Bitmap* m_pSpriteStates[256];
 	int m_iState;
 	int m_iSize;
+	Actor::Actor(Bitmap* bmpBitmap);
 
 public:
 	void Actor::LinkBitmapToState(int iState, Bitmap* bmpBitmap);
 	void Actor::SetState(int iState);
-	Sprite* Actor::GetSprite() { return m_pSprite; };
 };
 
 enum enumPlayer : int {
@@ -38,10 +37,13 @@ enum enumPlayer : int {
 class Player : public Actor {
 protected:
 	int m_iHealth;
+	POINT m_ptTargetVelocity;
 public:
-	Player::Player(HDC hDC);
-	Player::~Player();
+	Player::Player(Bitmap* bmpBitmap);
 	void Player::Move(int iDirectionX, int iDirectionY);
 	void Player::SubtractHealth(int value);
 	void Player::AddHealth(int value);
+	void Player::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
+	POINT Player::GetTargetVelocity() { return m_ptTargetVelocity; };
+	void Player::UpdateVelocity();
 };
