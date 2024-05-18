@@ -29,7 +29,7 @@ public:
 
   // General Methods
   void Draw(HDC hDC, int iPosX, int iPosY);
-  BOOL CanCollide();
+  BOOL CanCollide() { return m_bCollidable; };
 
 };
 
@@ -55,9 +55,9 @@ public:
   virtual ~Level();
 
   // General Methods
-  void MapTile(int iValue, Bitmap* bmpTile, BOOL bCollision = true);
+  void MapTile(int iValue, Bitmap* bmpTile, BOOL bCollidable = true);
   void Draw(HDC hDC);
-  BOOL CheckCollision(float f_xPos, float f_yPos);
+  BOOL Level::IsPointCollidable(POINT ptPosition);
 };
 
 

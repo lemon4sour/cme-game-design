@@ -76,7 +76,8 @@ void GameStart(HWND hWindow)
   _pLevel->MapTile(1, _pWallBitmap, FALSE);
 
   Bitmap* bitmap = new Bitmap(hDC, 24, 24, RGB(255, 1, 255));
-  _pPlayer = new Player(bitmap);
+  _pPlayer = new Player(bitmap,_pLevel);
+  _pPlayer->SetPosition(POINT{256,256});
   _pGame->AddSprite(_pPlayer);
   //Play the background music
   _pGame->PlayMIDISong(TEXT("Music.mid"));
@@ -116,8 +117,10 @@ void GameDeactivate(HWND hWindow)
 void GamePaint(HDC hDC)
 {
   _pLevel->Draw(hDC);
+
   // Draw the sprites
   _pGame->DrawSprites(hDC);
+
 }
 
 void GameCycle()

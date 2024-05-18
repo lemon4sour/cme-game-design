@@ -30,9 +30,9 @@ Level::~Level()
 // Level General Methods
 //-----------------------------------------------------------------
 
-void Level::MapTile(int iValue, Bitmap* bmpTile, BOOL bCollision)
+void Level::MapTile(int iValue, Bitmap* bmpTile, BOOL bCollidable)
 {
-  m_tileMap[iValue] = new Tile(bmpTile);
+  m_tileMap[iValue] = new Tile(bmpTile, bCollidable);
 }
 
 
@@ -46,6 +46,13 @@ void Level::Draw(HDC hDC)
       tile->Draw(hDC, (x * m_iTileSize), (y * m_iTileSize));
     }
   }
+}
+
+BOOL Level::IsPointCollidable(POINT ptPosition) {
+  int x = ptPosition.x / 128;
+  int y = ptPosition.y / 128;
+  Tile* tile = m_tileMap[m_layout[ptPosition.y / 128][ptPosition.x / 128]];
+  return m_tileMap[m_layout[ptPosition.y / 128][ptPosition.x / 128]]->CanCollide();
 }
 
 //-----------------------------------------------------------------

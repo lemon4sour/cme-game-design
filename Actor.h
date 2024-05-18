@@ -10,6 +10,7 @@
 //-----------------------------------------------------------------
 #include <windows.h>
 #include "Sprite.h"
+#include "Level.h"
 
 //-----------------------------------------------------------------
 // Actor Class
@@ -19,11 +20,13 @@ protected:
 	Bitmap* m_pSpriteStates[256];
 	int m_iState;
 	int m_iSize;
-	Actor::Actor(Bitmap* bmpBitmap);
+	Level* m_pLevel;
+	Actor::Actor(Bitmap* bmpBitmap, Level* pLevel);
 
 public:
 	void Actor::LinkBitmapToState(int iState, Bitmap* bmpBitmap);
 	void Actor::SetState(int iState);
+	SPRITEACTION Actor::Update() override;
 };
 
 enum enumPlayer : int {
@@ -39,7 +42,7 @@ protected:
 	int m_iHealth;
 	POINT m_ptTargetVelocity;
 public:
-	Player::Player(Bitmap* bmpBitmap);
+	Player::Player(Bitmap* bmpBitmap, Level* pLevel);
 	void Player::Move(int iDirectionX, int iDirectionY);
 	void Player::SubtractHealth(int value);
 	void Player::AddHealth(int value);
