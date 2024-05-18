@@ -1,34 +1,33 @@
 //-----------------------------------------------------------------
-// Space Out Application
-// C++ Header - SpaceOut.h
+// Actor Object
+// C++ Source - Actor.cpp
 //-----------------------------------------------------------------
-
-#pragma once
 
 //-----------------------------------------------------------------
 // Include Files
 //-----------------------------------------------------------------
-#include <windows.h>
-#include "Resource.h"
-#include "GameEngine.h"
-#include "Level.h"
-#include "Bitmap.h"
-#include "Sprite.h"
 #include "Actor.h"
 
-//-----------------------------------------------------------------
-// Global Variables
-//-----------------------------------------------------------------
-HINSTANCE         _hInstance;
-GameEngine*       _pGame;
-HDC               _hOffscreenDC;
-HBITMAP           _hOffscreenBitmap;
 
-Level*            _pLevel;
-Bitmap*           _pEmptyBitmap;
-Bitmap*	          _pWallBitmap;
+//-----------------------------------------------------------------
+// Actor General Methods
+//-----------------------------------------------------------------
+void Actor::LinkBitmapToState(int iState, Bitmap* bmpBitmap) {
+	m_pSpriteStates[iState] = bmpBitmap;
+}
 
-Player*           _pPlayer;
 //-----------------------------------------------------------------
-// Function Declarations
+// Player Constructor(s)/Destructor
 //-----------------------------------------------------------------
+Player::Player(HDC hDC) {
+	m_iState = 0;
+	m_iSize = 16;
+	m_iHealth = 100;
+	Bitmap* bitmap = new Bitmap(hDC, 16, 16, RGB(255, 255, 255));
+	m_pSpriteStates[0] = bitmap;
+	m_pSprite = new Sprite(bitmap);
+}
+
+Player::~Player() {
+	delete m_pSprite;
+}

@@ -98,6 +98,7 @@
     <ClCompile Include="Bitmap.cpp" />
     <ClCompile Include="GameEngine.cpp" />
     <ClCompile Include="Level.cpp" />
+    <ClCompile Include="Actor.cpp" />
     <ClCompile Include="SpaceOut.cpp" />
     <ClCompile Include="Sprite.cpp" />
   </ItemGroup>

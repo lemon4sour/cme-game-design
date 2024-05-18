@@ -23,10 +23,11 @@ protected:
 
 public:
 	void Actor::LinkBitmapToState(int iState, Bitmap* bmpBitmap);
-
+	void Actor::SetState(int iState);
+	Sprite* Actor::GetSprite() { return m_pSprite; };
 };
 
-enum enumPlayer {
+enum enumPlayer : int {
 	PLR_STAND = 0,
 	PLR_DOWN = 1,
 	PLR_UP = 2,
@@ -38,7 +39,7 @@ class Player : public Actor {
 protected:
 	int m_iHealth;
 public:
-	Player::Player(Bitmap* bmpBitmap);
+	Player::Player(HDC hDC);
 	Player::~Player();
 	void Player::Move(int iDirectionX, int iDirectionY);
 	void Player::SubtractHealth(int value);
