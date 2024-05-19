@@ -74,6 +74,7 @@ public:
   void    SetPosition(int x, int y);
   void    SetPosition(POINT ptPosition);
   void    SetPosition(RECT& rcPosition);
+  void    SetPositionFromCenter(POINT ptPosition);
   void    OffsetPosition(int x, int y);
   RECT&   GetCollision()            { return m_rcCollision; };
   POINT   GetVelocity()             { return m_ptVelocity; };
@@ -173,6 +174,10 @@ inline void Sprite::SetPosition(RECT& rcPosition)
 {
   CopyRect(&m_rcPosition, &rcPosition);
   CalcCollisionRect();
+}
+
+inline void Sprite::SetPositionFromCenter(POINT ptPosition) {
+  SetPosition(POINT {ptPosition.x - ((GetPosition().right - GetPosition().left)/2), ptPosition.y - ((GetPosition().bottom - GetPosition().top) / 2) });
 }
 
 inline void Sprite::OffsetPosition(int x, int y)

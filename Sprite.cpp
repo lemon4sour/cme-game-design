@@ -38,8 +38,8 @@ Sprite::Sprite(Bitmap* pBitmap, RECT& rcBounds, BOUNDSACTION baBoundsAction)
   m_pBitmap = pBitmap;
   m_iNumFrames = 1;
   m_iCurFrame = m_iFrameDelay = m_iFrameTrigger = 0;
-  SetRect(&m_rcPosition, iXPos, iYPos, iXPos + pBitmap->GetWidth(),
-    iYPos + pBitmap->GetHeight());
+  SetRect(&m_rcPosition, iXPos * 4, iYPos * 4, (iXPos + pBitmap->GetWidth()) * 4,
+    (iYPos + pBitmap->GetHeight()) * 4);
   CalcCollisionRect();
   m_ptVelocity.x = m_ptVelocity.y = 0;
   m_iZOrder = 0;
@@ -57,8 +57,8 @@ Sprite::Sprite(Bitmap* pBitmap, POINT ptPosition, POINT ptVelocity, int iZOrder,
   m_pBitmap = pBitmap;
   m_iNumFrames = 1;
   m_iCurFrame = m_iFrameDelay = m_iFrameTrigger = 0;
-  SetRect(&m_rcPosition, ptPosition.x, ptPosition.y, pBitmap->GetWidth(),
-    pBitmap->GetHeight());
+  SetRect(&m_rcPosition, ptPosition.x * 4, ptPosition.y * 4, pBitmap->GetWidth() * 4,
+    pBitmap->GetHeight() * 4);
   CalcCollisionRect();
   m_ptVelocity = ptPosition;
   m_iZOrder = iZOrder;

@@ -32,6 +32,10 @@ IDI_SPACEOUT_SM       ICON         "SpaceOut_sm.ico"
 //IDB_GAMEOVER          BITMAP       "assets/archive/GameOver.bmp"
 IDB_WALL              BITMAP       "assets/tiles/wall.bmp"
 IDB_EMPTY             BITMAP       "assets/tiles/empty.bmp"
+IDB_WATERRES          BITMAP       "assets/sprites/water_resource.bmp"
+IDB_AIRRES            BITMAP       "assets/sprites/air_resource.bmp"
+IDB_EARTHRES          BITMAP       "assets/sprites/earth_resource.bmp"
+IDB_FIRERES           BITMAP       "assets/sprites/fire_resource.bmp"
 
 //-----------------------------------------------------------------
 // Wave Sounds

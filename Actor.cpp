@@ -43,6 +43,7 @@ SPRITEACTION Actor::Update() {
 // Player Constructor(s)/Destructor
 //-----------------------------------------------------------------
 Player::Player(Bitmap* bmpBitmap, Level* pLevel) : Actor(bmpBitmap, pLevel) {
+	m_ptTargetVelocity = POINT{ 0,0 };
 	m_iState = 0;
 	m_iSize = 24;
 	m_iHealth = 100;
@@ -56,4 +57,18 @@ void Player::UpdateVelocity() {
 
 	if (m_ptTargetVelocity.y < m_ptVelocity.y) m_ptVelocity.y = max(m_ptTargetVelocity.y, m_ptVelocity.y - 5);
 	else if (m_ptTargetVelocity.y > m_ptVelocity.y) m_ptVelocity.y = min(m_ptTargetVelocity.y, m_ptVelocity.y + 5);
+}
+
+//-----------------------------------------------------------------
+// Swing Constructor(s)/Destructor
+//-----------------------------------------------------------------
+Swing::Swing(Bitmap* bmpBitmap, Level* pLevel) : Actor(bmpBitmap, pLevel) {
+	m_iActiveTime = 5;
+}
+SPRITEACTION Swing::Update() {
+	SPRITEACTION out = Actor::Update();
+	if (m_iActiveTime-- <= 0) {
+		return SA_KILL;
+	}
+	return out;
 }

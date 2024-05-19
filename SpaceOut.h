@@ -27,6 +27,10 @@ HBITMAP           _hOffscreenBitmap;
 Level*            _pLevel;
 Bitmap*           _pEmptyBitmap;
 Bitmap*	          _pWallBitmap;
+Bitmap*           _pSwingLeftBitmap;
+Bitmap*           _pSwingRightBitmap;
+Bitmap*           _pSwingDownBitmap;
+Bitmap*           _pSwingUpBitmap;
 
 Player*           _pPlayer;
 //-----------------------------------------------------------------

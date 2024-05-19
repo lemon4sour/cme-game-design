@@ -14,6 +14,10 @@
 //-----------------------------------------------------------------
 #define IDB_EMPTY             2000
 #define IDB_WALL              2001
+#define IDB_WATERRES          2101
+#define IDB_FIRERES           2102
+#define IDB_EARTHRES          2103
+#define IDB_AIRRES            2104
 //#define IDB_DESERT            2000
 //#define IDB_CAR               2001
 //#define IDB_SMCAR             2002

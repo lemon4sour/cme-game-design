@@ -50,3 +50,11 @@ public:
 	POINT Player::GetTargetVelocity() { return m_ptTargetVelocity; };
 	void Player::UpdateVelocity();
 };
+
+class Swing : public Actor {
+protected:
+	int m_iActiveTime;
+public:
+	Swing::Swing(Bitmap* bmpBitmap, Level* pLevel);
+	SPRITEACTION Swing::Update() override;
+};

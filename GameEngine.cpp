@@ -212,27 +212,27 @@ LRESULT GameEngine::HandleEvent(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lP
 
     case WM_LBUTTONDOWN:
       // Handle left mouse button press
-      MouseButtonDown(LOWORD(lParam), HIWORD(lParam), TRUE);
+      MouseButtonDown(LOWORD(lParam) * 4, HIWORD(lParam) * 4, TRUE);
       return 0;
 
     case WM_LBUTTONUP:
       // Handle left mouse button release
-      MouseButtonUp(LOWORD(lParam), HIWORD(lParam), TRUE);
+      MouseButtonUp(LOWORD(lParam) * 4, HIWORD(lParam) * 4, TRUE);
       return 0;
 
     case WM_RBUTTONDOWN:
       // Handle right mouse button press
-      MouseButtonDown(LOWORD(lParam), HIWORD(lParam), FALSE);
+      MouseButtonDown(LOWORD(lParam) * 4, HIWORD(lParam) * 4, FALSE);
       return 0;
 
     case WM_RBUTTONUP:
       // Handle right mouse button release
-      MouseButtonUp(LOWORD(lParam), HIWORD(lParam), FALSE);
+      MouseButtonUp(LOWORD(lParam) * 4, HIWORD(lParam) * 4, FALSE);
       return 0;
 
     case WM_MOUSEMOVE:
       // Handle mouse movement
-      MouseMove(LOWORD(lParam), HIWORD(lParam));
+      MouseMove(LOWORD(lParam) * 4, HIWORD(lParam) * 4);
       return 0;
 
     case WM_DESTROY:
