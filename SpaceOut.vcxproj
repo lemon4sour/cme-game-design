@@ -97,6 +97,7 @@
   <ItemGroup>
     <ClCompile Include="Bitmap.cpp" />
     <ClCompile Include="GameEngine.cpp" />
+    <ClCompile Include="Gui.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="Actor.cpp" />
     <ClCompile Include="SpaceOut.cpp" />
@@ -106,6 +107,7 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="Bitmap.h" />
     <ClInclude Include="GameEngine.h" />
+    <ClInclude Include="Gui.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SpaceOut.h" />

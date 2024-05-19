@@ -79,6 +79,10 @@ void GameStart(HWND hWindow)
   _pPlayer = new Player(bitmap,_pLevel);
   _pPlayer->SetPosition(POINT{256,256});
   _pGame->AddSprite(_pPlayer);
+
+  _pElementQueue = new ElementQueue(hWindow, hDC, _pEmptyBitmap, _pEmptyBitmap, _pEmptyBitmap, _pEmptyBitmap);
+  _pElementQueue->FillRandom();
+
   //Play the background music
   _pGame->PlayMIDISong(TEXT("Music.mid"));
 }
@@ -137,9 +141,15 @@ void GameCycle()
   // Paint the game to the offscreen device context
   GamePaint(_hOffscreenDC);
 
+
   // Blit the offscreen bitmap to the game screen
   BitBlt(hDC, 0, 0, _pGame->GetWidth(), _pGame->GetHeight(),
          _hOffscreenDC, 0, 0, SRCCOPY);
+
+  // Paint the GUI
+  PaintHealthBar(hWindow, hDC, _pPlayer->GetMaxHealth(), _pPlayer->GetCurrentHealth());
+  PrintTime(hWindow, hDC);
+  _pElementQueue->DrawQueue();
 
   // Cleanup
   ReleaseDC(hWindow, hDC);
@@ -164,6 +174,17 @@ void HandleKeys()
   if (GetAsyncKeyState('D') < 0) {
     ptVelocity.x += 32;
   }
+  if (GetAsyncKeyState('K') < 0) {
+      _pPlayer->ReduceHealth(10);
+  }
+  if (GetAsyncKeyState('U') < 0) {
+      _pElementQueue->UseElement();
+  }
+  if (GetAsyncKeyState('Y') < 0) {
+      _pElementQueue->AddRandomElement();
+  }
+
+
   _pPlayer->SetTargetVelocity(ptVelocity);
 }
 

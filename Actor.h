@@ -39,7 +39,8 @@ enum enumPlayer : int {
 
 class Player : public Actor {
 protected:
-	int m_iHealth;
+	int m_iMaxHealth;
+	int m_iCurrentHealth;
 	POINT m_ptTargetVelocity;
 public:
 	Player::Player(Bitmap* bmpBitmap, Level* pLevel);
@@ -49,4 +50,7 @@ public:
 	void Player::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
 	POINT Player::GetTargetVelocity() { return m_ptTargetVelocity; };
 	void Player::UpdateVelocity();
+	int Player::GetMaxHealth() { return m_iMaxHealth; };
+	int Player::GetCurrentHealth() { return m_iCurrentHealth; };
+	void Player::ReduceHealth(int value);
 };

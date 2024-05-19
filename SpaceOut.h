@@ -15,6 +15,7 @@
 #include "Bitmap.h"
 #include "Sprite.h"
 #include "Actor.h"
+#include "Gui.h"
 
 //-----------------------------------------------------------------
 // Global Variables
@@ -29,6 +30,8 @@ Bitmap*           _pEmptyBitmap;
 Bitmap*	          _pWallBitmap;
 
 Player*           _pPlayer;
+
+ElementQueue*     _pElementQueue;
 //-----------------------------------------------------------------
 // Function Declarations
 //-----------------------------------------------------------------
