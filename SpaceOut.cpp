@@ -200,7 +200,7 @@ void MouseButtonDown(int x, int y, BOOL bLeft)
     pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerCenterPos.x, ptPlayerCenterPos.y - 96 });
     _pGame->AddSprite(pSwingSprite);
     //UP
-  }d
+  }
   
 }
 
