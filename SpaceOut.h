@@ -14,7 +14,8 @@
 #include "Level.h"
 #include "Resource.h"
 #include "Sprite.h"
-#include <windows.h>
+#include "Actor.h"
+#include "Gui.h"
 
 //-----------------------------------------------------------------
 // Global Variables
@@ -36,6 +37,7 @@ Player* _pPlayer;
 
 std::vector<Enemy*> _enemies;
 
+ElementQueue*     _pElementQueue;
 //-----------------------------------------------------------------
 // Function Declarations
 //-----------------------------------------------------------------

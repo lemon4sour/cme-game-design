@@ -43,35 +43,40 @@ enum enumPlayer : int
 class Player : public Actor
 {
 protected:
-  int m_iHealth;
-  POINT m_ptTargetVelocity;
+	int m_iMaxHealth;
+	int m_iCurrentHealth;
+	POINT m_ptTargetVelocity;
 public:
-  Player::Player(Bitmap* bmpBitmap, Level* pLevel);
-  void Player::SubtractHealth(int value);
-  void Player::AddHealth(int value);
-  void Player::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
-  POINT Player::GetTargetVelocity() { return m_ptTargetVelocity; };
-  void Player::UpdateVelocity();
+	Player::Player(Bitmap* bmpBitmap, Level* pLevel);
+	void Player::Move(int iDirectionX, int iDirectionY);
+	void Player::SubtractHealth(int value);
+	void Player::AddHealth(int value);
+	void Player::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
+	POINT Player::GetTargetVelocity() { return m_ptTargetVelocity; };
+	void Player::UpdateVelocity();
+	int Player::GetMaxHealth() { return m_iMaxHealth; };
+	int Player::GetCurrentHealth() { return m_iCurrentHealth; };
+	void Player::ReduceHealth(int value);
 };
 
 class Enemy : public Actor
 {
 protected:
-  POINT m_ptTargetVelocity;
-  int m_difficulty{ 10 };
+	POINT m_ptTargetVelocity;
+	int m_difficulty{ 10 };
 public:
-  Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel);
-  void 	Enemy::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
-  POINT Enemy::GetTargetVelocity() { return m_ptTargetVelocity; };
-  void Enemy::Catch(Player* pPlayer);
-  void 	Enemy::UpdateVelocity();
+	Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel);
+	void 	Enemy::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
+	POINT Enemy::GetTargetVelocity() { return m_ptTargetVelocity; };
+	void Enemy::Catch(Player* pPlayer);
+	void 	Enemy::UpdateVelocity();
 };
 
 class Swing : public Actor
 {
 protected:
-  int m_iActiveTime;
+	int m_iActiveTime;
 public:
-  Swing::Swing(Bitmap* bmpBitmap, Level* pLevel);
-  SPRITEACTION Swing::Update() override;
+	Swing::Swing(Bitmap* bmpBitmap, Level* pLevel);
+	SPRITEACTION Swing::Update() override;
 };
