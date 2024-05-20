@@ -43,6 +43,20 @@ SPRITEACTION Actor::Update()
   return out;
 }
 
+bool Actor::AmIStuck()
+{
+  BOOL bTopLeft = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.left, m_rcPosition.top });
+  BOOL bTopRight = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.right, m_rcPosition.top });
+  BOOL bBottomLeft = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.left, m_rcPosition.bottom });
+  BOOL bBottomRight = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.right, m_rcPosition.bottom });
+
+  if (!bTopLeft || !bTopRight || !bBottomLeft || !bBottomRight)
+  {
+    return true;
+  }
+  return false;
+}
+
 //-----------------------------------------------------------------
 // Player Constructor(s)/Destructor
 //-----------------------------------------------------------------

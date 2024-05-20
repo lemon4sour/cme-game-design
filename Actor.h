@@ -27,6 +27,7 @@ protected:
 public:
   void Actor::LinkBitmapToState(int iState, Bitmap* bmpBitmap);
   void Actor::SetState(int iState);
+  bool Actor::AmIStuck();
   SPRITEACTION Actor::Update() override;
 };
 

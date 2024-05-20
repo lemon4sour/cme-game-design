@@ -97,8 +97,18 @@ void GameStart(HWND hWindow)
 
     // Random position between 0 and 1024
     enemy->SetPosition(POINT{ dis(gen), dis(gen) });
-    _pGame->AddSprite(enemy);
-    _enemies.push_back(enemy);
+
+    if (enemy->AmIStuck())
+    {
+      delete enemy;
+      delete bitmap2;
+      i--;
+    }
+    else
+    {
+      _pGame->AddSprite(enemy);
+      _enemies.push_back(enemy);
+    }
   }
 
   Sprite* _pWater = new Sprite(_pWaterBitmap);
