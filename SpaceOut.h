@@ -8,31 +8,34 @@
 //-----------------------------------------------------------------
 // Include Files
 //-----------------------------------------------------------------
-#include <windows.h>
-#include "Resource.h"
+#include "Actor.h"
+#include "Bitmap.h"
 #include "GameEngine.h"
 #include "Level.h"
-#include "Bitmap.h"
+#include "Resource.h"
 #include "Sprite.h"
-#include "Actor.h"
+#include <windows.h>
 
 //-----------------------------------------------------------------
 // Global Variables
 //-----------------------------------------------------------------
 HINSTANCE         _hInstance;
-GameEngine*       _pGame;
+GameEngine* _pGame;
 HDC               _hOffscreenDC;
 HBITMAP           _hOffscreenBitmap;
 
-Level*            _pLevel;
-Bitmap*           _pEmptyBitmap;
-Bitmap*	          _pWallBitmap;
-Bitmap*           _pSwingLeftBitmap;
-Bitmap*           _pSwingRightBitmap;
-Bitmap*           _pSwingDownBitmap;
-Bitmap*           _pSwingUpBitmap;
+Level* _pLevel;
+Bitmap* _pEmptyBitmap;
+Bitmap* _pWallBitmap;
+Bitmap* _pSwingLeftBitmap;
+Bitmap* _pSwingRightBitmap;
+Bitmap* _pSwingDownBitmap;
+Bitmap* _pSwingUpBitmap;
 
-Player*           _pPlayer;
+Player* _pPlayer;
+
+std::vector<Enemy*> _enemies;
+
 //-----------------------------------------------------------------
 // Function Declarations
 //-----------------------------------------------------------------
