@@ -74,6 +74,7 @@ public:
   void    SetPosition(int x, int y);
   void    SetPosition(POINT ptPosition);
   void    SetPosition(RECT& rcPosition);
+  POINT   GetPositionFromCenter() { return POINT{ (m_rcPosition.left + m_rcPosition.right) / 2, (m_rcPosition.top + m_rcPosition.bottom) / 2 }; };
   void    SetPositionFromCenter(POINT ptPosition);
   void    OffsetPosition(int x, int y);
   RECT&   GetCollision()            { return m_rcCollision; };

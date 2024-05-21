@@ -11,6 +11,7 @@
 #include "Level.h"
 #include "Sprite.h"
 #include <windows.h>
+#include <vector>
 
 //-----------------------------------------------------------------
 // Actor Class
@@ -25,11 +26,15 @@ protected:
   Actor::Actor(Bitmap* bmpBitmap, Level* pLevel);
 
 public:
+  static std::vector<Sprite*>* _vcSprites;
+  static void initializeSprites(std::vector<Sprite*>* pSpriteVector) { _vcSprites = pSpriteVector; };
   void Actor::LinkBitmapToState(int iState, Bitmap* bmpBitmap);
-  void Actor::SetState(int iState);
+  void Actor::SetState(int iState) { m_iState = iState; };
   bool Actor::AmIStuck();
   SPRITEACTION Actor::Update() override;
 };
+
+std::vector<Sprite*>* Actor::_vcSprites = nullptr;
 
 enum enumPlayer : int
 {
@@ -40,6 +45,9 @@ enum enumPlayer : int
   PLR_RIGHT = 4,
 };
 
+//-----------------------------------------------------------------
+// Player Class
+//-----------------------------------------------------------------
 class Player : public Actor
 {
 protected:
@@ -48,30 +56,18 @@ protected:
 	POINT m_ptTargetVelocity;
 public:
 	Player::Player(Bitmap* bmpBitmap, Level* pLevel);
-	void Player::Move(int iDirectionX, int iDirectionY);
-	void Player::SubtractHealth(int value);
-	void Player::AddHealth(int value);
 	void Player::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
 	POINT Player::GetTargetVelocity() { return m_ptTargetVelocity; };
 	void Player::UpdateVelocity();
 	int Player::GetMaxHealth() { return m_iMaxHealth; };
 	int Player::GetCurrentHealth() { return m_iCurrentHealth; };
-	void Player::ReduceHealth(int value);
+	void Player::SubtractHealth(int value);
+	SPRITEACTION Player::Update() override;
 };
 
-class Enemy : public Actor
-{
-protected:
-	POINT m_ptTargetVelocity;
-	int m_difficulty{ 10 };
-public:
-	Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel);
-	void 	Enemy::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
-	POINT Enemy::GetTargetVelocity() { return m_ptTargetVelocity; };
-	void Enemy::Catch(Player* pPlayer);
-	void 	Enemy::UpdateVelocity();
-};
-
+//-----------------------------------------------------------------
+// Swing Class
+//-----------------------------------------------------------------
 class Swing : public Actor
 {
 protected:
@@ -79,4 +75,23 @@ protected:
 public:
 	Swing::Swing(Bitmap* bmpBitmap, Level* pLevel);
 	SPRITEACTION Swing::Update() override;
+};
+
+//-----------------------------------------------------------------
+// Enemy Class
+//-----------------------------------------------------------------
+class Enemy : public Actor
+{
+protected:
+	POINT m_ptTargetVelocity;
+	int m_difficulty{ 10 };
+	Player* m_pTarget;
+public:
+	Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel);
+	void 	Enemy::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
+	POINT Enemy::GetTargetVelocity() { return m_ptTargetVelocity; };
+	void Enemy::Catch();
+	void 	Enemy::UpdateVelocity();
+	void Enemy::SetTarget(Player* pActor) { m_pTarget = pActor; };
+	SPRITEACTION Enemy::Update() override;
 };

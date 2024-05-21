@@ -94,6 +94,7 @@ public:
   void                AddSprite(Sprite* pSprite);
   void                DrawSprites(HDC hDC);
   void                UpdateSprites();
+  vector<Sprite*>*    GetSpritesListPointer() { return &m_vSprites; };
   void                CleanupSprites();
   Sprite*             IsPointInSprite(int x, int y);
   void                PlayMIDISong(LPTSTR szMIDIFileName = TEXT(""),

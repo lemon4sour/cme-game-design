@@ -32,7 +32,7 @@ BOOL GameInitialize(HINSTANCE hInstance)
 void GameStart(HWND hWindow)
 {
   // Seed the random number generator
-  srand(GetTickCount());
+  srand(GetTickCount64());
 
 
   // Create the offscreen device context and bitmap
@@ -49,7 +49,10 @@ void GameStart(HWND hWindow)
   _pSwingRightBitmap = new Bitmap(hDC, 24, 48, RGB(255, 0, 0));
   _pSwingUpBitmap = new Bitmap(hDC, 48, 24, RGB(255, 0, 0));
   _pSwingDownBitmap = new Bitmap(hDC, 48, 24, RGB(255, 0, 0));
+  Bitmap* _pFireBitmap = new Bitmap(hDC, IDB_FIRERES, _hInstance);
   Bitmap* _pWaterBitmap = new Bitmap(hDC, IDB_WATERRES, _hInstance);
+  Bitmap* _pEarthBitmap = new Bitmap(hDC, IDB_EARTHRES, _hInstance);
+  Bitmap* _pAirBitmap = new Bitmap(hDC, IDB_AIRRES, _hInstance);
 
   std::vector<std::vector<int>> layout = {
       {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
@@ -92,7 +95,7 @@ void GameStart(HWND hWindow)
     // Modern C++ random generator
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(0, 2048);
+    std::uniform_int_distribution<> dis(0, 3072);
 
     // Random color for the enemy
     Bitmap* bitmap2 = new Bitmap(hDC, 24, 24, RGB(dis(gen) % 256, dis(gen) % 256, dis(gen) % 256));
@@ -110,18 +113,18 @@ void GameStart(HWND hWindow)
     else
     {
       _pGame->AddSprite(enemy);
-      _enemies.push_back(enemy);
+      enemy->SetTarget(_pPlayer);
+      _vEnemies.push_back(enemy);
     }
   }
 
-  Sprite* _pWater = new Sprite(_pWaterBitmap);
-  _pGame->AddSprite(_pWater);
-
-  _pElementQueue = new ElementQueue(hWindow, hDC, _pEmptyBitmap, _pEmptyBitmap, _pEmptyBitmap, _pEmptyBitmap);
+  _pElementQueue = new ElementQueue(hWindow, hDC, _pEarthBitmap, _pFireBitmap, _pWaterBitmap, _pAirBitmap);
   _pElementQueue->FillRandom();
 
   //Play the background music
   _pGame->PlayMIDISong(TEXT("Music.mid"));
+
+  Actor::initializeSprites(_pGame->GetSpritesListPointer());
 }
 
 void GameEnd()
@@ -166,14 +169,6 @@ void GamePaint(HDC hDC)
 
 void GameCycle()
 {
-  _pPlayer->UpdateVelocity();
-
-  for (Enemy* _pEnemy : _enemies)
-  {
-    _pEnemy->Catch(_pPlayer);
-    _pEnemy->UpdateVelocity();
-  }
-
   // Update the sprites
   _pGame->UpdateSprites();
 
@@ -218,7 +213,7 @@ void HandleKeys()
     ptVelocity.x += 32;
   }
   if (GetAsyncKeyState('K') < 0) {
-      _pPlayer->ReduceHealth(10);
+      _pPlayer->SubtractHealth(10);
   }
   if (GetAsyncKeyState('U') < 0) {
       _pElementQueue->UseElement();
@@ -265,18 +260,6 @@ void MouseButtonDown(int x, int y, BOOL bLeft)
     pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerCenterPos.x, ptPlayerCenterPos.y - 96 });
     _pGame->AddSprite(pSwingSprite);
     //UP
-  }
-
-  if (pSwingSprite != nullptr)
-  {
-    // Check for collision with enemies
-    for (Enemy* _pEnemy : _enemies)
-    {
-      if (_pEnemy->TestCollision(pSwingSprite))
-      {
-        _pEnemy->Kill();
-      }
-    }
   }
 }
 

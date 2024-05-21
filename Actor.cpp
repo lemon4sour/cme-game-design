@@ -70,6 +70,9 @@ Player::Player(Bitmap* bmpBitmap, Level* pLevel) : Actor(bmpBitmap, pLevel) {
 	m_pSpriteStates[0] = bmpBitmap;
 }
 
+//-----------------------------------------------------------------
+// Player General Methods
+//-----------------------------------------------------------------
 void Player::UpdateVelocity()
 {
   if (m_ptTargetVelocity.x < m_ptVelocity.x) m_ptVelocity.x = max(m_ptTargetVelocity.x, m_ptVelocity.x - 5);
@@ -79,16 +82,63 @@ void Player::UpdateVelocity()
   else if (m_ptTargetVelocity.y > m_ptVelocity.y) m_ptVelocity.y = min(m_ptTargetVelocity.y, m_ptVelocity.y + 5);
 }
 
+void Player::SubtractHealth(int value) {
+	if (m_iCurrentHealth > 0) {
+		m_iCurrentHealth = m_iCurrentHealth - value > 0 ? m_iCurrentHealth - value : 0;
+	}
+}
+
+SPRITEACTION Player::Update() {
+	SPRITEACTION out = Actor::Update();
+	UpdateVelocity();
+	return out;
+}
+
+//-----------------------------------------------------------------
+// Swing Constructor(s)/Destructor
+//-----------------------------------------------------------------
+Swing::Swing(Bitmap* bmpBitmap, Level* pLevel) : Actor(bmpBitmap, pLevel)
+{
+	m_iActiveTime = 3;
+}
+
+//-----------------------------------------------------------------
+// Swing General Methods
+//-----------------------------------------------------------------
+SPRITEACTION Swing::Update()
+{
+	SPRITEACTION out = Actor::Update();
+	for (Sprite* sprite : (*_vcSprites)) {
+		Enemy* enemy = dynamic_cast<Enemy*>(sprite);
+		if (enemy) {
+			if (enemy->TestCollision(this)) {
+				enemy->Kill();
+			}
+		}
+	}
+	if (m_iActiveTime-- <= 0)
+	{
+		return SA_KILL;
+	}
+	return out;
+}
+
+//-----------------------------------------------------------------
+// Enemy Constructor(s)/Destructor
+//-----------------------------------------------------------------
 Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel) : Actor(bmpBitmap, pLevel)
 {
   m_ptTargetVelocity = POINT{ 0,0 };
   m_iState = 0;
   m_iSize = 24;
+  m_pTarget = NULL;
 
   m_pSpriteStates[0] = bmpBitmap;
 }
 
-
+//-----------------------------------------------------------------
+// Enemy General Methods
+//-----------------------------------------------------------------
 void Enemy::UpdateVelocity()
 {
   if (m_ptTargetVelocity.x < m_ptVelocity.x) m_ptVelocity.x = max(m_ptTargetVelocity.x, m_ptVelocity.x - 5);
@@ -98,17 +148,13 @@ void Enemy::UpdateVelocity()
 	else if (m_ptTargetVelocity.y > m_ptVelocity.y) m_ptVelocity.y = min(m_ptTargetVelocity.y, m_ptVelocity.y + 5);
 }
 
-void Player::ReduceHealth(int value) {
-	if (m_iCurrentHealth > 0) {
-		m_iCurrentHealth = m_iCurrentHealth - value > 0 ? m_iCurrentHealth - value: 0;
-	}
-}
-
-void Enemy::Catch(Player* pPlayer)
+void Enemy::Catch()
 {
+	if (m_pTarget == NULL) return;
+
 	// TODO: Avoid obstacles, USE A* ALGORITHM
-	POINT ptPlayerCenterPos = POINT{ (pPlayer->GetPosition().left + pPlayer->GetPosition().right) / 2, (pPlayer->GetPosition().top + pPlayer->GetPosition().bottom) / 2 };
-	POINT ptEnemyCenterPos = POINT{ (m_rcPosition.left + m_rcPosition.right) / 2, (m_rcPosition.top + m_rcPosition.bottom) / 2 };
+	POINT ptPlayerCenterPos = m_pTarget->GetPositionFromCenter();
+	POINT ptEnemyCenterPos = GetPositionFromCenter();
 
 	if (ptPlayerCenterPos.x < ptEnemyCenterPos.x)
 	{
@@ -129,21 +175,15 @@ void Enemy::Catch(Player* pPlayer)
 	}
 }
 
-
-
-//-----------------------------------------------------------------
-// Swing Constructor(s)/Destructor
-//-----------------------------------------------------------------
-Swing::Swing(Bitmap* bmpBitmap, Level* pLevel) : Actor(bmpBitmap, pLevel)
-{
-	m_iActiveTime = 5;
-}
-SPRITEACTION Swing::Update()
-{
+SPRITEACTION Enemy::Update() {
 	SPRITEACTION out = Actor::Update();
-	if (m_iActiveTime-- <= 0)
-	{
-		return SA_KILL;
+	Catch();
+	UpdateVelocity();
+	if (m_pTarget != NULL) {
+		if (TestCollision(m_pTarget))
+		{
+			m_pTarget->SubtractHealth(1);
+		}
 	}
 	return out;
 }

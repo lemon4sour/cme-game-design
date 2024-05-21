@@ -35,7 +35,7 @@ Bitmap* _pSwingUpBitmap;
 
 Player* _pPlayer;
 
-std::vector<Enemy*> _enemies;
+std::vector<Enemy*> _vEnemies;
 
 ElementQueue*     _pElementQueue;
 //-----------------------------------------------------------------
