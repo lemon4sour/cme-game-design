@@ -34,7 +34,7 @@ public:
   SPRITEACTION Actor::Update() override;
 };
 
-std::vector<Sprite*>* Actor::_vcSprites = nullptr;
+// std::vector<Sprite*>* Actor::_vcSprites = nullptr;
 
 enum enumPlayer : int
 {
