@@ -88,9 +88,9 @@ void GameStart(HWND hWindow)
   _pLevel->MapTile(1, _pWallBitmap, FALSE);
 
   Bitmap* bmpPlayerDown = new Bitmap(hDC, IDB_PLAYERMOVEDOWN, _hInstance);
-  Bitmap* bmpPlayerUp = new Bitmap(hDC, IDB_PLAYERMOVEDOWN, _hInstance);
-  Bitmap* bmpPlayerLeft = new Bitmap(hDC, IDB_PLAYERMOVEDOWN, _hInstance);
-  Bitmap* bmpPlayerRight = new Bitmap(hDC, IDB_PLAYERMOVEDOWN, _hInstance);
+  Bitmap* bmpPlayerUp = new Bitmap(hDC, IDB_PLAYERMOVEUP, _hInstance);
+  Bitmap* bmpPlayerLeft = new Bitmap(hDC, IDB_PLAYERMOVELEFT, _hInstance);
+  Bitmap* bmpPlayerRight = new Bitmap(hDC, IDB_PLAYERMOVERIGHT, _hInstance);
   _pPlayer = new Player(bmpPlayerDown, _pLevel);
   _pPlayer->LinkBitmapToState(PLR_DOWN, bmpPlayerDown);
   _pPlayer->LinkBitmapToState(PLR_UP, bmpPlayerUp);

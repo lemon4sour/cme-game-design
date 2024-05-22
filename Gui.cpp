@@ -81,7 +81,7 @@ void ElementQueue::DrawQueue() {
         int position = 205;
         while (!m_qElementBitmaps.empty()) {
             tempBitmap = m_qElementBitmaps.front();
-            tempBitmap->Draw(m_hDC, 821, position);
+            tempBitmap->Draw(m_hDC, 821, position, TRUE);
             tempQueue.push(tempBitmap);
             m_qElementBitmaps.pop();
             position += 69;
