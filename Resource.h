@@ -14,10 +14,16 @@
 //-----------------------------------------------------------------
 #define IDB_EMPTY             2000
 #define IDB_WALL              2001
+#define IDB_ROCK              2002
 #define IDB_WATERRES          2101
 #define IDB_FIRERES           2102
 #define IDB_EARTHRES          2103
 #define IDB_AIRRES            2104
+#define IDB_PLAYERMOVEUP      2210
+#define IDB_PLAYERMOVEDOWN    2216
+#define IDB_PLAYERMOVELEFT    2212
+#define IDB_PLAYERMOVERIGHT   2213
+
 //#define IDB_DESERT            2000
 //#define IDB_CAR               2001
 //#define IDB_SMCAR             2002

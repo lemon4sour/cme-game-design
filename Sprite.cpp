@@ -185,7 +185,7 @@ void Sprite::Draw(HDC hDC)
     if (m_iNumFrames == 1)
       m_pBitmap->Draw(hDC, (m_rcPosition.left + 2) / 4, (m_rcPosition.top + 2) / 4, TRUE);
     else
-      m_pBitmap->DrawPart(hDC, m_rcPosition.left, m_rcPosition.top,
+      m_pBitmap->DrawPart(hDC, (m_rcPosition.left + 2) / 4, (m_rcPosition.top + 2) / 4,
         m_iCurFrame * GetWidth(), 0, GetWidth(), GetHeight(), TRUE);
   }
 }

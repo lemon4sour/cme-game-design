@@ -32,6 +32,7 @@ Bitmap* _pSwingLeftBitmap;
 Bitmap* _pSwingRightBitmap;
 Bitmap* _pSwingDownBitmap;
 Bitmap* _pSwingUpBitmap;
+Bitmap* _pRockBitmap;
 
 Player* _pPlayer;
 

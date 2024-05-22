@@ -98,10 +98,10 @@ public:
 //-----------------------------------------------------------------
 inline void Sprite::UpdateFrame()
 {
-  if ((m_iFrameDelay >= 0) && (--m_iFrameTrigger <= 0))
+  if ((m_iFrameDelay >= 0) && (++m_iFrameTrigger >= m_iFrameDelay))
   {
     // Reset the frame trigger;
-    m_iFrameTrigger = m_iFrameDelay;
+    m_iFrameTrigger = 0;
 
     // Increment the frame
     if (++m_iCurFrame >= m_iNumFrames)

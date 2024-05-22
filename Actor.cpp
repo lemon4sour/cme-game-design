@@ -8,6 +8,8 @@
 //-----------------------------------------------------------------
 #include "Actor.h"
 
+std::vector<Sprite*>* Actor::_vcSprites = nullptr;
+
 Actor::Actor(Bitmap* bmpBitmap, Level* pLevel) : Sprite(bmpBitmap)
 {
   m_pLevel = pLevel;
@@ -39,6 +41,8 @@ SPRITEACTION Actor::Update()
   {
     SetPosition(ptOldPosition);
   }
+
+
 
   return out;
 }
@@ -91,15 +95,41 @@ void Player::SubtractHealth(int value) {
 SPRITEACTION Player::Update() {
 	SPRITEACTION out = Actor::Update();
 	UpdateVelocity();
+	POINT ptPlayerCenterPos = GetPositionFromCenter();
+
+	POINT ptMouseOffset = POINT{ m_ptMousePos.x - ptPlayerCenterPos.x, m_ptMousePos.y - ptPlayerCenterPos.y };
+
+	if (ptMouseOffset.y >= ptMouseOffset.x && ptMouseOffset.y >= -ptMouseOffset.x)
+	{
+		SetState(PLR_DOWN);
+		//DOWN
+	}
+	if (ptMouseOffset.y >= ptMouseOffset.x && ptMouseOffset.y <= -ptMouseOffset.x)
+	{
+		SetState(PLR_LEFT);
+		//LEFT
+	}
+	if (ptMouseOffset.y <= ptMouseOffset.x && ptMouseOffset.y >= -ptMouseOffset.x)
+	{
+		SetState(PLR_RIGHT);
+		//RIGHT
+	}
+	if (ptMouseOffset.y <= ptMouseOffset.x && ptMouseOffset.y <= -ptMouseOffset.x)
+	{
+		SetState(PLR_UP);
+		//UP
+	}
+
 	return out;
 }
 
 //-----------------------------------------------------------------
 // Swing Constructor(s)/Destructor
 //-----------------------------------------------------------------
-Swing::Swing(Bitmap* bmpBitmap, Level* pLevel) : Actor(bmpBitmap, pLevel)
+Swing::Swing(Bitmap* bmpBitmap, Level* pLevel, POINT ptDirection) : Actor(bmpBitmap, pLevel)
 {
 	m_iActiveTime = 3;
+	m_ptDirection = ptDirection;
 }
 
 //-----------------------------------------------------------------
@@ -114,6 +144,29 @@ SPRITEACTION Swing::Update()
 			if (enemy->TestCollision(this)) {
 				enemy->Kill();
 			}
+			continue;
+		}
+		Rock* rock = dynamic_cast<Rock*>(sprite);
+		if (rock) {
+			if (rock->GetCooldown() > 0) continue;
+			rock->SetCooldown(3);
+			if (rock->TestCollision(this)) {
+				int hits = rock->GetNumHits();
+				if (hits >= rock->GetMaxHits()) {
+					rock->Kill();
+					continue;
+				}
+				rock->GetNumHits(++hits);
+
+				if (m_ptDirection.x == 0) {
+					rock->SetVelocity((rock->GetPositionFromCenter().x - GetPositionFromCenter().x) + (rand() % 17) - 9, m_ptDirection.y * 100);
+				}
+				else {
+					rock->SetVelocity(m_ptDirection.x * 100, (rock->GetPositionFromCenter().y - GetPositionFromCenter().y) + (rand() % 17) - 9);
+				}
+				
+			}
+			continue;
 		}
 	}
 	if (m_iActiveTime-- <= 0)
@@ -144,8 +197,8 @@ void Enemy::UpdateVelocity()
   if (m_ptTargetVelocity.x < m_ptVelocity.x) m_ptVelocity.x = max(m_ptTargetVelocity.x, m_ptVelocity.x - 5);
   else if (m_ptTargetVelocity.x > m_ptVelocity.x) m_ptVelocity.x = min(m_ptTargetVelocity.x, m_ptVelocity.x + 5);
 
-	if (m_ptTargetVelocity.y < m_ptVelocity.y) m_ptVelocity.y = max(m_ptTargetVelocity.y, m_ptVelocity.y - 5);
-	else if (m_ptTargetVelocity.y > m_ptVelocity.y) m_ptVelocity.y = min(m_ptTargetVelocity.y, m_ptVelocity.y + 5);
+  if (m_ptTargetVelocity.y < m_ptVelocity.y) m_ptVelocity.y = max(m_ptTargetVelocity.y, m_ptVelocity.y - 5);
+  else if (m_ptTargetVelocity.y > m_ptVelocity.y) m_ptVelocity.y = min(m_ptTargetVelocity.y, m_ptVelocity.y + 5);
 }
 
 void Enemy::Catch()
@@ -156,8 +209,7 @@ void Enemy::Catch()
 	POINT ptPlayerCenterPos = m_pTarget->GetPositionFromCenter();
 	POINT ptEnemyCenterPos = GetPositionFromCenter();
 
-	if (ptPlayerCenterPos.x < ptEnemyCenterPos.x)
-	{
+	if (ptPlayerCenterPos.x < ptEnemyCenterPos.x) {
 		m_ptTargetVelocity.x = -m_difficulty;
 	}
 	else if (ptPlayerCenterPos.x > ptEnemyCenterPos.x)
@@ -185,5 +237,63 @@ SPRITEACTION Enemy::Update() {
 			m_pTarget->SubtractHealth(1);
 		}
 	}
+	return out;
+}
+
+//-----------------------------------------------------------------
+// Rock Constructor(s)/Destructor
+//-----------------------------------------------------------------
+Rock::Rock(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel) {
+	m_iNumHits = 0;
+	m_iMaxHits = 3;
+}
+
+
+//-----------------------------------------------------------------
+// Rock General Methods
+//-----------------------------------------------------------------
+void Rock::UpdateVelocity()
+{
+	if (m_ptVelocity.x == 0 && m_ptVelocity.y == 0) return;
+
+	float multiplier = 8 / sqrt((m_ptVelocity.x * m_ptVelocity.x) + (m_ptVelocity.y * m_ptVelocity.y));
+
+	int decrease_x = (m_ptVelocity.x * multiplier);
+	int decrease_y = (m_ptVelocity.y * multiplier);
+
+	if (0 < m_ptVelocity.x) m_ptVelocity.x = max(0, m_ptVelocity.x - (m_ptVelocity.x * multiplier));
+	else if (0 > m_ptVelocity.x) m_ptVelocity.x = min(0, m_ptVelocity.x - (m_ptVelocity.x * multiplier));
+
+	if (0 < m_ptVelocity.y) m_ptVelocity.y = max(0, m_ptVelocity.y - (m_ptVelocity.y * multiplier));
+	else if (0 > m_ptVelocity.y) m_ptVelocity.y = min(0, m_ptVelocity.y - (m_ptVelocity.y * multiplier));
+}
+
+SPRITEACTION Rock::Update() {
+
+	SPRITEACTION out = Sprite::Update();
+	UpdateVelocity();
+
+	if (m_iCooldown > 0) m_iCooldown--;
+
+	BOOL bTopLeft = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.left, m_rcPosition.top });
+	BOOL bTopRight = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.right, m_rcPosition.top });
+	BOOL bBottomLeft = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.left, m_rcPosition.bottom });
+	BOOL bBottomRight = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.right, m_rcPosition.bottom });
+
+	if ((!bTopLeft && !bTopRight) || (!bBottomLeft && !bBottomRight))
+	{
+		m_ptVelocity.y = -m_ptVelocity.y;
+		POINT position = GetPositionFromCenter();
+		position.y += m_ptVelocity.y;
+		SetPositionFromCenter(position);
+	}
+	if ((!bTopLeft && !bBottomLeft) || (!bTopRight && !bBottomRight))
+	{
+		m_ptVelocity.x = -m_ptVelocity.x;
+		POINT position = GetPositionFromCenter();
+		position.x += m_ptVelocity.x;
+		SetPositionFromCenter(position);
+	}
+
 	return out;
 }

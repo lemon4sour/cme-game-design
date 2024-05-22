@@ -53,6 +53,8 @@ void GameStart(HWND hWindow)
   Bitmap* _pWaterBitmap = new Bitmap(hDC, IDB_WATERRES, _hInstance);
   Bitmap* _pEarthBitmap = new Bitmap(hDC, IDB_EARTHRES, _hInstance);
   Bitmap* _pAirBitmap = new Bitmap(hDC, IDB_AIRRES, _hInstance);
+  
+  _pRockBitmap = new Bitmap(hDC, IDB_ROCK, _hInstance);
 
   std::vector<std::vector<int>> layout = {
       {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
@@ -85,8 +87,18 @@ void GameStart(HWND hWindow)
   _pLevel->MapTile(0, _pEmptyBitmap);
   _pLevel->MapTile(1, _pWallBitmap, FALSE);
 
-  Bitmap* bitmap = new Bitmap(hDC, 24, 24, RGB(255, 1, 255));
-  _pPlayer = new Player(bitmap, _pLevel);
+  Bitmap* bmpPlayerDown = new Bitmap(hDC, IDB_PLAYERMOVEDOWN, _hInstance);
+  Bitmap* bmpPlayerUp = new Bitmap(hDC, IDB_PLAYERMOVEDOWN, _hInstance);
+  Bitmap* bmpPlayerLeft = new Bitmap(hDC, IDB_PLAYERMOVEDOWN, _hInstance);
+  Bitmap* bmpPlayerRight = new Bitmap(hDC, IDB_PLAYERMOVEDOWN, _hInstance);
+  _pPlayer = new Player(bmpPlayerDown, _pLevel);
+  _pPlayer->LinkBitmapToState(PLR_DOWN, bmpPlayerDown);
+  _pPlayer->LinkBitmapToState(PLR_UP, bmpPlayerUp);
+  _pPlayer->LinkBitmapToState(PLR_LEFT, bmpPlayerLeft);
+  _pPlayer->LinkBitmapToState(PLR_RIGHT, bmpPlayerRight);
+  _pPlayer->SetState(PLR_DOWN);
+  _pPlayer->SetNumFrames(4);
+  _pPlayer->SetFrameDelay(3);
   _pPlayer->SetPosition(POINT{ 256,256 });
   _pGame->AddSprite(_pPlayer);
 
@@ -164,7 +176,7 @@ void GamePaint(HDC hDC)
 
   // Draw the sprites
   _pGame->DrawSprites(hDC);
-
+  
 }
 
 void GameCycle()
@@ -212,6 +224,14 @@ void HandleKeys()
   {
     ptVelocity.x += 32;
   }
+
+  if (ptVelocity.x == 0 && ptVelocity.y == 0) {
+      _pPlayer->SetFrameDelay(100);
+  }
+  else {
+      _pPlayer->SetFrameDelay(3);
+  }
+
   if (GetAsyncKeyState('K') < 0) {
       _pPlayer->SubtractHealth(10);
   }
@@ -228,46 +248,55 @@ void HandleKeys()
 
 void MouseButtonDown(int x, int y, BOOL bLeft)
 {
-  RECT rtPlayerPos = _pPlayer->GetPosition();
-  POINT ptPlayerCenterPos = POINT{ (rtPlayerPos.left + rtPlayerPos.right) / 2, (rtPlayerPos.top + rtPlayerPos.bottom) / 2 };
-  POINT ptMouseOffset = POINT{ x - ptPlayerCenterPos.x, y - ptPlayerCenterPos.y };
+    if (bLeft) {
+        RECT rtPlayerPos = _pPlayer->GetPosition();
+        POINT ptPlayerCenterPos = POINT{ (rtPlayerPos.left + rtPlayerPos.right) / 2, (rtPlayerPos.top + rtPlayerPos.bottom) / 2 };
+        POINT ptMouseOffset = POINT{ x - ptPlayerCenterPos.x, y - ptPlayerCenterPos.y };
 
-  Swing* pSwingSprite;
-  if (ptMouseOffset.y >= ptMouseOffset.x && ptMouseOffset.y >= -ptMouseOffset.x)
-  {
-    pSwingSprite = new Swing(_pSwingDownBitmap, _pLevel);
-    pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerCenterPos.x, ptPlayerCenterPos.y + 96 });
-    _pGame->AddSprite(pSwingSprite);
-    //DOWN
-  }
-  if (ptMouseOffset.y >= ptMouseOffset.x && ptMouseOffset.y <= -ptMouseOffset.x)
-  {
-    pSwingSprite = new Swing(_pSwingLeftBitmap, _pLevel);
-    pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerCenterPos.x - 96, ptPlayerCenterPos.y });
-    _pGame->AddSprite(pSwingSprite);
-    //LEFT
-  }
-  if (ptMouseOffset.y <= ptMouseOffset.x && ptMouseOffset.y >= -ptMouseOffset.x)
-  {
-    pSwingSprite = new Swing(_pSwingRightBitmap, _pLevel);
-    pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerCenterPos.x + 96, ptPlayerCenterPos.y });
-    _pGame->AddSprite(pSwingSprite);
-    //RIGHT
-  }
-  if (ptMouseOffset.y <= ptMouseOffset.x && ptMouseOffset.y <= -ptMouseOffset.x)
-  {
-    pSwingSprite = new Swing(_pSwingUpBitmap, _pLevel);
-    pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerCenterPos.x, ptPlayerCenterPos.y - 96 });
-    _pGame->AddSprite(pSwingSprite);
-    //UP
-  }
+        Swing* pSwingSprite;
+        if (ptMouseOffset.y >= ptMouseOffset.x && ptMouseOffset.y >= -ptMouseOffset.x)
+        {
+            pSwingSprite = new Swing(_pSwingDownBitmap, _pLevel, POINT{0,1});
+            pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerCenterPos.x, ptPlayerCenterPos.y + 96 });
+            _pGame->AddSprite(pSwingSprite);
+            //DOWN
+        }
+        if (ptMouseOffset.y >= ptMouseOffset.x && ptMouseOffset.y <= -ptMouseOffset.x)
+        {
+            pSwingSprite = new Swing(_pSwingLeftBitmap, _pLevel, POINT{ -1,0 });
+            pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerCenterPos.x - 96, ptPlayerCenterPos.y });
+            _pGame->AddSprite(pSwingSprite);
+            //LEFT
+        }
+        if (ptMouseOffset.y <= ptMouseOffset.x && ptMouseOffset.y >= -ptMouseOffset.x)
+        {
+            pSwingSprite = new Swing(_pSwingRightBitmap, _pLevel, POINT{ 1,0 });
+            pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerCenterPos.x + 96, ptPlayerCenterPos.y });
+            _pGame->AddSprite(pSwingSprite);
+            //RIGHT
+        }
+        if (ptMouseOffset.y <= ptMouseOffset.x && ptMouseOffset.y <= -ptMouseOffset.x)
+        {
+            pSwingSprite = new Swing(_pSwingUpBitmap, _pLevel, POINT{ 0,-1 });
+            pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerCenterPos.x, ptPlayerCenterPos.y - 96 });
+            _pGame->AddSprite(pSwingSprite);
+            //UP
+        }
+    }
+    else {
+        Rock* pRock = new Rock(_pRockBitmap, _pLevel);
+        pRock->SetPositionFromCenter(_pPlayer->GetPositionFromCenter());
+        _pGame->AddSprite(pRock);
+    }
 }
 
 void MouseButtonUp(int x, int y, BOOL bLeft)
 {}
 
 void MouseMove(int x, int y)
-{}
+{
+    _pPlayer->SetMousePos(x, y);
+}
 
 void HandleJoystick(JOYSTATE jsJoystickState)
 {}
