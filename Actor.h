@@ -10,6 +10,7 @@
 //-----------------------------------------------------------------
 #include "Level.h"
 #include "Sprite.h"
+#include "GameEngine.h"
 #include <windows.h>
 #include <vector>
 
@@ -26,8 +27,8 @@ protected:
   Actor::Actor(Bitmap* bmpBitmap, Level* pLevel);
 
 public:
-  static std::vector<Sprite*>* _vcSprites;
-  static void initializeSprites(std::vector<Sprite*>* pSpriteVector) { _vcSprites = pSpriteVector; };
+  static GameEngine* _pGame;
+  static void initializeGame(GameEngine* pGame) { _pGame = pGame; };
   void Actor::LinkBitmapToState(int iState, Bitmap* bmpBitmap);
   void Actor::SetState(int iState) { m_iState = iState; SetBitmap(m_pSpriteStates[m_iState]); };
   bool Actor::AmIStuck();
@@ -115,4 +116,54 @@ public:
 	int Rock::GetMaxHits() { return m_iMaxHits; };
 	void Rock::GetNumHits(int iNumHits) { m_iNumHits = iNumHits; };
 	SPRITEACTION Rock::Update() override;
+};
+
+//-----------------------------------------------------------------
+// Fireball Class
+//-----------------------------------------------------------------
+class Fireball : public Actor
+{
+protected:
+public:
+	Fireball::Fireball(Bitmap* bmpBitmap, Level* pLevel);
+	SPRITEACTION Fireball::Update() override;
+};
+
+//-----------------------------------------------------------------
+// Flame Class
+//-----------------------------------------------------------------
+class Flame : public Actor
+{
+protected:
+	int m_iTime;
+public:
+	static Bitmap* m_pFlameBitmap;
+	static void setFlameBitmap(Bitmap* pFlameBitmap) { m_pFlameBitmap = pFlameBitmap; };
+	Flame::Flame(Bitmap* bmpBitmap, Level* pLevel);
+	void Flame::UpdateVelocity();
+	SPRITEACTION Flame::Update() override;
+};
+
+//-----------------------------------------------------------------
+// Water Class
+//-----------------------------------------------------------------
+class Puddle : public Actor
+{
+protected:
+	int m_iTime;
+public:
+	Puddle::Puddle(Bitmap* bmpBitmap, Level* pLevel);
+	SPRITEACTION Puddle::Update() override;
+};
+
+//-----------------------------------------------------------------
+// Gust Class
+//-----------------------------------------------------------------
+class Gust : public Actor
+{
+protected:
+	int m_iTime;
+public:
+	Gust::Gust(Bitmap* bmpBitmap, Level* pLevel);
+	SPRITEACTION Gust::Update() override;
 };

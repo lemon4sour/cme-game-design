@@ -15,6 +15,13 @@
 #define IDB_EMPTY             2000
 #define IDB_WALL              2001
 #define IDB_ROCK              2002
+#define IDB_FIREBALL          2003
+#define IDB_FLAME             2004
+#define IDB_WATER             2005
+#define IDB_GUSTUP            2006
+#define IDB_GUSTDOWN          2007
+#define IDB_GUSTLEFT          2008
+#define IDB_GUSTRIGHT         2009
 #define IDB_WATERRES          2101
 #define IDB_FIRERES           2102
 #define IDB_EARTHRES          2103
@@ -23,6 +30,7 @@
 #define IDB_PLAYERMOVEDOWN    2216
 #define IDB_PLAYERMOVELEFT    2212
 #define IDB_PLAYERMOVERIGHT   2213
+#define IDB_POINT             2400
 
 //#define IDB_DESERT            2000
 //#define IDB_CAR               2001

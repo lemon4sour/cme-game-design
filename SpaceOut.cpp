@@ -34,6 +34,8 @@ void GameStart(HWND hWindow)
   // Seed the random number generator
   srand(GetTickCount64());
 
+  Actor::initializeGame(_pGame);
+
 
   // Create the offscreen device context and bitmap
   _hOffscreenDC = CreateCompatibleDC(GetDC(hWindow));
@@ -49,12 +51,22 @@ void GameStart(HWND hWindow)
   _pSwingRightBitmap = new Bitmap(hDC, 24, 48, RGB(255, 0, 0));
   _pSwingUpBitmap = new Bitmap(hDC, 48, 24, RGB(255, 0, 0));
   _pSwingDownBitmap = new Bitmap(hDC, 48, 24, RGB(255, 0, 0));
-  Bitmap* _pFireBitmap = new Bitmap(hDC, IDB_FIRERES, _hInstance);
-  Bitmap* _pWaterBitmap = new Bitmap(hDC, IDB_WATERRES, _hInstance);
-  Bitmap* _pEarthBitmap = new Bitmap(hDC, IDB_EARTHRES, _hInstance);
-  Bitmap* _pAirBitmap = new Bitmap(hDC, IDB_AIRRES, _hInstance);
+  Bitmap* _pFireResBitmap = new Bitmap(hDC, IDB_FIRERES, _hInstance);
+  Bitmap* _pWaterResBitmap = new Bitmap(hDC, IDB_WATERRES, _hInstance);
+  Bitmap* _pEarthResBitmap = new Bitmap(hDC, IDB_EARTHRES, _hInstance);
+  Bitmap* _pAirResBitmap = new Bitmap(hDC, IDB_AIRRES, _hInstance);
   
   _pRockBitmap = new Bitmap(hDC, IDB_ROCK, _hInstance);
+  _pFireballBitmap = new Bitmap(hDC, IDB_FIREBALL, _hInstance);
+  _pFlameBitmap = new Bitmap(hDC, IDB_FLAME, _hInstance);
+  Flame::setFlameBitmap(_pFlameBitmap);
+  _pWaterBitmap = new Bitmap(hDC, IDB_WATER, _hInstance);
+  _pGustUpBitmap = new Bitmap(hDC, IDB_GUSTUP, _hInstance);
+  _pGustDownBitmap = new Bitmap(hDC, IDB_GUSTDOWN, _hInstance);
+  _pGustLeftBitmap = new Bitmap(hDC, IDB_GUSTLEFT, _hInstance);
+  _pGustRightBitmap = new Bitmap(hDC, IDB_GUSTRIGHT, _hInstance);
+
+  _pPointBitmap = new Bitmap(hDC, IDB_POINT, _hInstance);
 
   std::vector<std::vector<int>> layout = {
       {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
@@ -99,6 +111,7 @@ void GameStart(HWND hWindow)
   _pPlayer->SetState(PLR_DOWN);
   _pPlayer->SetNumFrames(4);
   _pPlayer->SetFrameDelay(3);
+  _pPlayer->SetZOrder(10);
   _pPlayer->SetPosition(POINT{ 256,256 });
   _pGame->AddSprite(_pPlayer);
 
@@ -130,13 +143,14 @@ void GameStart(HWND hWindow)
     }
   }
 
-  _pElementQueue = new ElementQueue(hWindow, hDC, _pEarthBitmap, _pFireBitmap, _pWaterBitmap, _pAirBitmap);
+  _pElementQueue = new ElementQueue(hWindow, hDC, _pEarthResBitmap, _pFireResBitmap, _pWaterResBitmap, _pAirResBitmap);
+  _pElementQueue->SetPointBitmap(_pPointBitmap);
   _pElementQueue->FillRandom();
 
   //Play the background music
   _pGame->PlayMIDISong(TEXT("Music.mid"));
 
-  Actor::initializeSprites(_pGame->GetSpritesListPointer());
+  
 }
 
 void GameEnd()
@@ -225,11 +239,30 @@ void HandleKeys()
     ptVelocity.x += 32;
   }
 
+  _pPlayer->SetTargetVelocity(ptVelocity);
+
   if (ptVelocity.x == 0 && ptVelocity.y == 0) {
-      _pPlayer->SetFrameDelay(100);
+      _pPlayer->SetFrameDelay(1000);
   }
   else {
       _pPlayer->SetFrameDelay(3);
+  }
+
+  if (GetAsyncKeyState('1') < 0)
+  {
+      iSelect = 0;
+  }
+  if (GetAsyncKeyState('2') < 0)
+  {
+      iSelect = 1;
+  }
+  if (GetAsyncKeyState('3') < 0)
+  {
+      iSelect = 2;
+  }
+  if (GetAsyncKeyState('4') < 0)
+  {
+      iSelect = 3;
   }
 
   if (GetAsyncKeyState('K') < 0) {
@@ -243,7 +276,7 @@ void HandleKeys()
   }
 
 
-  _pPlayer->SetTargetVelocity(ptVelocity);
+  
 }
 
 void MouseButtonDown(int x, int y, BOOL bLeft)
@@ -284,9 +317,89 @@ void MouseButtonDown(int x, int y, BOOL bLeft)
         }
     }
     else {
-        Rock* pRock = new Rock(_pRockBitmap, _pLevel);
-        pRock->SetPositionFromCenter(_pPlayer->GetPositionFromCenter());
-        _pGame->AddSprite(pRock);
+        if (iSelect == 0) {
+            Rock* pRock = new Rock(_pRockBitmap, _pLevel);
+            pRock->SetPositionFromCenter(_pPlayer->GetPositionFromCenter());
+            _pGame->AddSprite(pRock);
+        }
+        if (iSelect == 1) {
+            POINT ptPlayerPos = _pPlayer->GetPositionFromCenter();
+            POINT ptMouseOffset = POINT{ x - ptPlayerPos.x, y - ptPlayerPos.y };
+
+            Fireball* pFireball = new Fireball(_pFireballBitmap, _pLevel);
+            pFireball->SetNumFrames(3);
+            pFireball->SetFrameDelay(3);
+            pFireball->SetPositionFromCenter(ptPlayerPos);
+
+            if (ptMouseOffset.y >= ptMouseOffset.x && ptMouseOffset.y >= -ptMouseOffset.x)
+            {
+                pFireball->SetVelocity(POINT{0, 60});                
+                //DOWN
+            }
+            if (ptMouseOffset.y >= ptMouseOffset.x && ptMouseOffset.y <= -ptMouseOffset.x)
+            {
+                pFireball->SetVelocity(POINT{ -60, 0 });
+                //LEFT
+            }
+            if (ptMouseOffset.y <= ptMouseOffset.x && ptMouseOffset.y >= -ptMouseOffset.x)
+            {
+                pFireball->SetVelocity(POINT{ 60, 0 });
+                //RIGHT
+            }
+            if (ptMouseOffset.y <= ptMouseOffset.x && ptMouseOffset.y <= -ptMouseOffset.x)
+            {
+                pFireball->SetVelocity(POINT{ 0, -60 });
+                //UP
+            }
+            _pGame->AddSprite(pFireball);
+        }
+        if (iSelect == 2) {
+            Puddle* pPuddle = new Puddle(_pWaterBitmap, _pLevel);
+            pPuddle->SetPositionFromCenter(_pPlayer->GetPositionFromCenter());
+            _pGame->AddSprite(pPuddle);
+        }
+        if (iSelect == 3) {
+            POINT ptPlayerPos = _pPlayer->GetPositionFromCenter();
+            POINT ptMouseOffset = POINT{ x - ptPlayerPos.x, y - ptPlayerPos.y };
+
+            Gust* pGust;
+            POINT ptGustVelocity;
+            
+            if (ptMouseOffset.y >= ptMouseOffset.x && ptMouseOffset.y >= -ptMouseOffset.x)
+            {
+                pGust = new Gust(_pGustDownBitmap, _pLevel);               
+                ptGustVelocity = POINT{ 0, 30 };
+                //DOWN
+            }
+            if (ptMouseOffset.y >= ptMouseOffset.x && ptMouseOffset.y <= -ptMouseOffset.x)
+            {
+                pGust = new Gust(_pGustLeftBitmap, _pLevel);
+                ptGustVelocity = POINT{ -30, 0 };
+                //LEFT
+            }
+            if (ptMouseOffset.y <= ptMouseOffset.x && ptMouseOffset.y >= -ptMouseOffset.x)
+            {
+                pGust = new Gust(_pGustRightBitmap, _pLevel);
+                ptGustVelocity = POINT{ 30, 0 };
+                //RIGHT
+            }
+            if (ptMouseOffset.y <= ptMouseOffset.x && ptMouseOffset.y <= -ptMouseOffset.x)
+            {
+                pGust = new Gust(_pGustUpBitmap, _pLevel);
+                ptGustVelocity = POINT{ 0, -30 };
+                //UP
+            }
+
+            
+            pGust->SetVelocity(ptGustVelocity);
+            pGust->SetBoundsAction(BA_DIE);
+            POINT ptPlayerVelocity = _pPlayer->GetVelocity();
+            _pPlayer->SetVelocity(POINT{ ptPlayerVelocity.x - (ptGustVelocity.x*2),ptPlayerVelocity.y - (ptGustVelocity.y*2) });
+
+            pGust->SetPositionFromCenter(ptPlayerPos);
+            _pGame->AddSprite(pGust);
+
+        }
     }
 }
 

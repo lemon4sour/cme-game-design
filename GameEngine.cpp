@@ -117,7 +117,7 @@ GameEngine::GameEngine(HINSTANCE hInstance, LPTSTR szWindowClass,
   m_iFrameDelay = 50;   // 20 FPS default
   m_bSleep = TRUE;
   m_uiJoystickID = 0;
-  m_vSprites.reserve(50);
+  m_vSprites.reserve(1024);
   m_uiMIDIPlayerID = 0;
 }
 

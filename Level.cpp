@@ -51,8 +51,9 @@ void Level::Draw(HDC hDC)
 BOOL Level::IsPointCollidable(POINT ptPosition) {
   int x = ptPosition.x / 128;
   int y = ptPosition.y / 128;
-  Tile* tile = m_tileMap[m_layout[ptPosition.y / 128][ptPosition.x / 128]];
-  return m_tileMap[m_layout[ptPosition.y / 128][ptPosition.x / 128]]->CanCollide();
+  if (x < 0 || y < 0 || (x >= m_iWidth) || (y >= m_iHeight)) return false;
+  Tile* tile = m_tileMap[m_layout[y][x]];
+  return tile->CanCollide();
 }
 
 //-----------------------------------------------------------------

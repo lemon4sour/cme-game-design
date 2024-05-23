@@ -33,6 +33,15 @@ Bitmap* _pSwingRightBitmap;
 Bitmap* _pSwingDownBitmap;
 Bitmap* _pSwingUpBitmap;
 Bitmap* _pRockBitmap;
+Bitmap* _pFireballBitmap;
+Bitmap* _pFlameBitmap;
+Bitmap* _pWaterBitmap;
+Bitmap* _pGustUpBitmap;
+Bitmap* _pGustDownBitmap;
+Bitmap* _pGustLeftBitmap;
+Bitmap* _pGustRightBitmap;
+
+Bitmap* _pPointBitmap;
 
 Player* _pPlayer;
 

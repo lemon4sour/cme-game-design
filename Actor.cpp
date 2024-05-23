@@ -8,7 +8,7 @@
 //-----------------------------------------------------------------
 #include "Actor.h"
 
-std::vector<Sprite*>* Actor::_vcSprites = nullptr;
+GameEngine* Actor::_pGame = nullptr;
 
 Actor::Actor(Bitmap* bmpBitmap, Level* pLevel) : Sprite(bmpBitmap)
 {
@@ -138,7 +138,7 @@ Swing::Swing(Bitmap* bmpBitmap, Level* pLevel, POINT ptDirection) : Actor(bmpBit
 SPRITEACTION Swing::Update()
 {
 	SPRITEACTION out = Actor::Update();
-	for (Sprite* sprite : (*_vcSprites)) {
+	for (Sprite* sprite : *(_pGame->GetSpritesListPointer())) {
 		Enemy* enemy = dynamic_cast<Enemy*>(sprite);
 		if (enemy) {
 			if (enemy->TestCollision(this)) {
@@ -297,3 +297,161 @@ SPRITEACTION Rock::Update() {
 
 	return out;
 }
+
+//-----------------------------------------------------------------
+// Fireball Constructor(s)/Destructor
+//-----------------------------------------------------------------
+Fireball::Fireball(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel) {
+}
+
+Bitmap* Flame::m_pFlameBitmap = nullptr;
+
+//-----------------------------------------------------------------
+// Fireball General Methods
+//-----------------------------------------------------------------
+SPRITEACTION Fireball::Update() {
+
+	SPRITEACTION out = Sprite::Update();
+
+	for (Sprite* sprite : *(_pGame->GetSpritesListPointer())) {
+		Enemy* enemy = dynamic_cast<Enemy*>(sprite);
+		if (enemy) {
+			if (enemy->TestCollision(this)) {
+				enemy->Kill();
+			}
+			continue;
+		}
+	}
+
+	if (AmIStuck()) {
+		Flame* pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
+		pFlame->SetNumFrames(3);
+		pFlame->SetPositionFromCenter(GetPositionFromCenter().x - GetVelocity().x, GetPositionFromCenter().y - GetVelocity().y);
+		pFlame->SetVelocity((-GetVelocity().x / 3) + (rand() % 40) - 20, (-GetVelocity().y / 3) + (rand() % 40) - 20);
+		_pGame->AddSprite(pFlame);
+		pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
+		pFlame->SetNumFrames(3);
+		pFlame->SetPositionFromCenter(GetPositionFromCenter().x - GetVelocity().x, GetPositionFromCenter().y - GetVelocity().y);
+		pFlame->SetVelocity((-GetVelocity().x / 3) + (rand() % 40) - 20, (-GetVelocity().y / 3) + (rand() % 40) - 20);
+		_pGame->AddSprite(pFlame);
+		return SA_KILL;		
+	}
+
+	return out;
+}
+
+//-----------------------------------------------------------------
+// Flame Constructor(s)/Destructor
+//-----------------------------------------------------------------
+Flame::Flame(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel) {
+	m_iTime = (rand() % 40) + 80;
+}
+
+//-----------------------------------------------------------------
+// Flame General Methods
+//-----------------------------------------------------------------
+SPRITEACTION Flame::Update() {
+
+	SPRITEACTION out = Actor::Update();
+	UpdateVelocity();
+
+	if (--m_iTime < 0) {
+		return SA_KILL;
+	}
+
+	for (Sprite* sprite : *(_pGame->GetSpritesListPointer())) {
+		Enemy* enemy = dynamic_cast<Enemy*>(sprite);
+		if (enemy) {
+			if (enemy->TestCollision(this)) {
+				enemy->Kill();
+			}
+			continue;
+		}
+	}
+
+	return out;
+}
+
+void Flame::UpdateVelocity()
+{
+	if (m_ptVelocity.x == 0 && m_ptVelocity.y == 0) return;
+
+	float multiplier = 8 / sqrt((m_ptVelocity.x * m_ptVelocity.x) + (m_ptVelocity.y * m_ptVelocity.y));
+
+	int decrease_x = (m_ptVelocity.x * multiplier);
+	int decrease_y = (m_ptVelocity.y * multiplier);
+
+	if (0 < m_ptVelocity.x) m_ptVelocity.x = max(0, m_ptVelocity.x - (m_ptVelocity.x * multiplier));
+	else if (0 > m_ptVelocity.x) m_ptVelocity.x = min(0, m_ptVelocity.x - (m_ptVelocity.x * multiplier));
+
+	if (0 < m_ptVelocity.y) m_ptVelocity.y = max(0, m_ptVelocity.y - (m_ptVelocity.y * multiplier));
+	else if (0 > m_ptVelocity.y) m_ptVelocity.y = min(0, m_ptVelocity.y - (m_ptVelocity.y * multiplier));
+}
+
+//-----------------------------------------------------------------
+// Puddle Constructor(s)/Destructor
+//-----------------------------------------------------------------
+Puddle::Puddle(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel) {
+	m_iTime = 100;
+}
+
+
+//-----------------------------------------------------------------
+// Puddle General Methods
+//-----------------------------------------------------------------
+SPRITEACTION Puddle::Update() {
+
+	SPRITEACTION out = Sprite::Update();
+
+	if (--m_iTime < 0) {
+		return SA_KILL;
+	}
+
+	for (Sprite* sprite : *(_pGame->GetSpritesListPointer())) {
+		Enemy* enemy = dynamic_cast<Enemy*>(sprite);
+		if (enemy) {
+			if (enemy->TestCollision(this)) {
+				enemy->Kill();
+			}
+			continue;
+		}
+	}
+
+	return out;
+}
+
+//-----------------------------------------------------------------
+// Gust Constructor(s)/Destructor
+//-----------------------------------------------------------------
+Gust::Gust(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel) {
+	m_iTime = 10;
+}
+
+
+//-----------------------------------------------------------------
+// Gust General Methods
+//-----------------------------------------------------------------
+SPRITEACTION Gust::Update() {
+
+	SPRITEACTION out = Sprite::Update();
+
+	if (!m_pLevel->IsPointCollidable(GetPositionFromCenter())) return SA_KILL;
+
+	if (--m_iTime < 0) {
+		return SA_KILL;
+	}
+
+	for (Sprite* sprite : *(_pGame->GetSpritesListPointer())) {
+		Enemy* enemy = dynamic_cast<Enemy*>(sprite);
+		if (enemy) {
+			if (enemy->TestCollision(this)) {
+				enemy->Kill();
+			}
+			continue;
+		}
+	}
+
+	return out;
+}
+
+

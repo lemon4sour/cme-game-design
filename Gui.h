@@ -29,6 +29,8 @@ extern DWORD wTickStart;
 extern TCHAR cpTimerText[10];
 extern RECT  rTimerTextRect;
 
+extern int iSelect;
+
 enum ElementType
 {
 	EMPTY = -1,
@@ -47,6 +49,7 @@ private:
 	std::queue<Bitmap*> m_qElementBitmaps;
 	std::queue<ElementType> m_qElementTypes;
 	Bitmap* m_pElementBitmaps[4];
+	Bitmap* m_pPointBitmap;
 	const int iQueueSize = 4;
 
 	HWND m_hWindow;
@@ -55,6 +58,7 @@ private:
 
 public:
 	ElementQueue::ElementQueue(HWND hWindow, HDC hDC, Bitmap* earth, Bitmap* fire, Bitmap* water, Bitmap* Air);
+	void SetPointBitmap(Bitmap* pPointBitmap) { m_pPointBitmap = pPointBitmap; };
 	void FillRandom();
 	ElementType UseElement();
 	void AddRandomElement();

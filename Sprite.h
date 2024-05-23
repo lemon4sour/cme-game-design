@@ -74,6 +74,7 @@ public:
   void    SetPosition(int x, int y);
   void    SetPosition(POINT ptPosition);
   void    SetPosition(RECT& rcPosition);
+  void SetPositionFromCenter(int x, int y);
   POINT   GetPositionFromCenter() { return POINT{ (m_rcPosition.left + m_rcPosition.right) / 2, (m_rcPosition.top + m_rcPosition.bottom) / 2 }; };
   void    SetPositionFromCenter(POINT ptPosition);
   void    OffsetPosition(int x, int y);
@@ -175,6 +176,10 @@ inline void Sprite::SetPosition(RECT& rcPosition)
 {
   CopyRect(&m_rcPosition, &rcPosition);
   CalcCollisionRect();
+}
+
+inline void Sprite::SetPositionFromCenter(int x, int y) {
+    SetPositionFromCenter(POINT{ x,y });
 }
 
 inline void Sprite::SetPositionFromCenter(POINT ptPosition) {

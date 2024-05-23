@@ -13,6 +13,8 @@ DWORD iTickStart = GetTickCount();
 TCHAR cpTimerText[10];
 RECT rTimerTextRect = {800, 50, 900, 70};
 
+int iSelect = 0;
+
 void PaintHealthBar(HWND hWindow, HDC hDC, int maxHealth, int currentHealth) {   
     iPercentage = currentHealth * 192 / maxHealth;
     
@@ -92,6 +94,8 @@ void ElementQueue::DrawQueue() {
             tempQueue.pop();
         }
     }
+
+    m_pPointBitmap->Draw(m_hDC,900,205 + (iSelect * 69), TRUE);
 }
 
 ElementType ElementQueue::UseElement() {
