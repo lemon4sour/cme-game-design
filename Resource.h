@@ -22,6 +22,7 @@
 #define IDB_GUSTDOWN          2007
 #define IDB_GUSTLEFT          2008
 #define IDB_GUSTRIGHT         2009
+#define IDB_MUD               2010
 #define IDB_WATERRES          2101
 #define IDB_FIRERES           2102
 #define IDB_EARTHRES          2103

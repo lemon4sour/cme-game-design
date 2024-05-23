@@ -159,10 +159,10 @@ SPRITEACTION Swing::Update()
 				rock->GetNumHits(++hits);
 
 				if (m_ptDirection.x == 0) {
-					rock->SetVelocity((rock->GetPositionFromCenter().x - GetPositionFromCenter().x) + (rand() % 17) - 9, m_ptDirection.y * 100);
+					rock->SetVelocity((rock->GetPositionFromCenter().x - GetPositionFromCenter().x) + (rand() % 17) - 9, m_ptDirection.y * 120);
 				}
 				else {
-					rock->SetVelocity(m_ptDirection.x * 100, (rock->GetPositionFromCenter().y - GetPositionFromCenter().y) + (rand() % 17) - 9);
+					rock->SetVelocity(m_ptDirection.x * 120, (rock->GetPositionFromCenter().y - GetPositionFromCenter().y) + (rand() % 17) - 9);
 				}
 				
 			}
@@ -295,6 +295,21 @@ SPRITEACTION Rock::Update() {
 		SetPositionFromCenter(position);
 	}
 
+	for (Sprite* sprite : *(_pGame->GetSpritesListPointer())) {
+		Puddle* puddle = dynamic_cast<Puddle*>(sprite);
+		if (puddle) {
+			if (puddle->TestCollision(this)) {
+				Mud* _pMud = new Mud(Mud::m_pMudBitmap, m_pLevel);
+				_pMud->SetPositionFromCenter(puddle->GetPositionFromCenter());
+				_pGame->AddSprite(_pMud);
+				puddle->Kill();
+
+				return SA_KILL;
+			}
+			continue;
+		}
+	}
+
 	return out;
 }
 
@@ -318,6 +333,72 @@ SPRITEACTION Fireball::Update() {
 		if (enemy) {
 			if (enemy->TestCollision(this)) {
 				enemy->Kill();
+			}
+			continue;
+		}
+		Rock* rock = dynamic_cast<Rock*>(sprite);
+		if (rock) {
+			if (rock->TestCollision(this)) {
+				rock->Kill();
+
+				{
+					Flame* pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
+					pFlame->SetNumFrames(3);
+					pFlame->SetPositionFromCenter(rock->GetPositionFromCenter());
+					pFlame->SetVelocity(40 + (rand() % 20), 40 + (rand() % 20));
+					_pGame->AddSprite(pFlame);
+
+					pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
+					pFlame->SetNumFrames(3);
+					pFlame->SetPositionFromCenter(rock->GetPositionFromCenter());
+					pFlame->SetVelocity(0 + (rand() % 20), 40 + (rand() % 20));
+					_pGame->AddSprite(pFlame);
+
+					pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
+					pFlame->SetNumFrames(3);
+					pFlame->SetPositionFromCenter(rock->GetPositionFromCenter());
+					pFlame->SetVelocity(-60 + (rand() % 20), 40 + (rand() % 20));
+					_pGame->AddSprite(pFlame);
+
+					pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
+					pFlame->SetNumFrames(3);
+					pFlame->SetPositionFromCenter(rock->GetPositionFromCenter());
+					pFlame->SetVelocity(-60 + (rand() % 20), 0 + (rand() % 20));
+					_pGame->AddSprite(pFlame);
+
+					pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
+					pFlame->SetNumFrames(3);
+					pFlame->SetPositionFromCenter(rock->GetPositionFromCenter());
+					pFlame->SetVelocity(-60 + (rand() % 20), -60 + (rand() % 20));
+					_pGame->AddSprite(pFlame);
+
+					pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
+					pFlame->SetNumFrames(3);
+					pFlame->SetPositionFromCenter(rock->GetPositionFromCenter());
+					pFlame->SetVelocity(0 + (rand() % 20), -60 + (rand() % 20));
+					_pGame->AddSprite(pFlame);
+
+					pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
+					pFlame->SetNumFrames(3);
+					pFlame->SetPositionFromCenter(rock->GetPositionFromCenter());
+					pFlame->SetVelocity(40 + (rand() % 20), -60 + (rand() % 20));
+					_pGame->AddSprite(pFlame);
+
+					pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
+					pFlame->SetNumFrames(3);
+					pFlame->SetPositionFromCenter(rock->GetPositionFromCenter());
+					pFlame->SetVelocity(40 + (rand() % 20), 0 + (rand() % 20));
+					_pGame->AddSprite(pFlame);
+				}
+
+				return SA_KILL;
+			}
+			continue;
+		}
+		Puddle* puddle = dynamic_cast<Puddle*>(sprite);
+		if (puddle) {
+			if (puddle->TestCollision(this)) {
+				return SA_KILL;
 			}
 			continue;
 		}
@@ -395,7 +476,6 @@ Puddle::Puddle(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel) {
 	m_iTime = 100;
 }
 
-
 //-----------------------------------------------------------------
 // Puddle General Methods
 //-----------------------------------------------------------------
@@ -419,6 +499,40 @@ SPRITEACTION Puddle::Update() {
 
 	return out;
 }
+
+//-----------------------------------------------------------------
+// Mud Constructor(s)/Destructor
+//-----------------------------------------------------------------
+Mud::Mud(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel) {
+	m_iTime = 100;
+}
+
+Bitmap* Mud::m_pMudBitmap = nullptr;
+
+//-----------------------------------------------------------------
+// Mud General Methods
+//-----------------------------------------------------------------
+SPRITEACTION Mud::Update() {
+
+	SPRITEACTION out = Sprite::Update();
+
+	if (--m_iTime < 0) {
+		return SA_KILL;
+	}
+
+	for (Sprite* sprite : *(_pGame->GetSpritesListPointer())) {
+		Enemy* enemy = dynamic_cast<Enemy*>(sprite);
+		if (enemy) {
+			if (enemy->TestCollision(this)) {
+				enemy->Kill();
+			}
+			continue;
+		}
+	}
+
+	return out;
+}
+
 
 //-----------------------------------------------------------------
 // Gust Constructor(s)/Destructor

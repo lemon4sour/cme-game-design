@@ -36,6 +36,7 @@ Bitmap* _pRockBitmap;
 Bitmap* _pFireballBitmap;
 Bitmap* _pFlameBitmap;
 Bitmap* _pWaterBitmap;
+Bitmap* _pMudBitmap;
 Bitmap* _pGustUpBitmap;
 Bitmap* _pGustDownBitmap;
 Bitmap* _pGustLeftBitmap;

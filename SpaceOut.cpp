@@ -60,6 +60,8 @@ void GameStart(HWND hWindow)
   _pFireballBitmap = new Bitmap(hDC, IDB_FIREBALL, _hInstance);
   _pFlameBitmap = new Bitmap(hDC, IDB_FLAME, _hInstance);
   Flame::setFlameBitmap(_pFlameBitmap);
+  _pMudBitmap = new Bitmap(hDC, IDB_MUD, _hInstance);
+  Mud::setMudBitmap(_pMudBitmap);
   _pWaterBitmap = new Bitmap(hDC, IDB_WATER, _hInstance);
   _pGustUpBitmap = new Bitmap(hDC, IDB_GUSTUP, _hInstance);
   _pGustDownBitmap = new Bitmap(hDC, IDB_GUSTDOWN, _hInstance);

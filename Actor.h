@@ -157,6 +157,20 @@ public:
 };
 
 //-----------------------------------------------------------------
+// Mud Class
+//-----------------------------------------------------------------
+class Mud : public Actor
+{
+protected:
+	int m_iTime;
+public:
+	static Bitmap* m_pMudBitmap;
+	static void setMudBitmap(Bitmap* pMudBitmap) { m_pMudBitmap = pMudBitmap; };
+	Mud::Mud(Bitmap* bmpBitmap, Level* pLevel);
+	SPRITEACTION Mud::Update() override;
+};
+
+//-----------------------------------------------------------------
 // Gust Class
 //-----------------------------------------------------------------
 class Gust : public Actor
