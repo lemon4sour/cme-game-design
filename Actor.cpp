@@ -148,9 +148,9 @@ SPRITEACTION Swing::Update()
 		}
 		Rock* rock = dynamic_cast<Rock*>(sprite);
 		if (rock) {
-			if (rock->GetCooldown() > 0) continue;
-			rock->SetCooldown(3);
 			if (rock->TestCollision(this)) {
+				if (rock->GetCooldown() > 0) continue;
+				rock->SetCooldown(3);
 				int hits = rock->GetNumHits();
 				if (hits >= rock->GetMaxHits()) {
 					rock->Kill();
@@ -426,6 +426,9 @@ SPRITEACTION Fireball::Update() {
 //-----------------------------------------------------------------
 Flame::Flame(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel) {
 	m_iTime = (rand() % 40) + 80;
+	m_bCloned = false;
+	m_iCloneAgain = 0;
+	m_iCloneDepth = 0;
 }
 
 //-----------------------------------------------------------------
@@ -440,11 +443,31 @@ SPRITEACTION Flame::Update() {
 		return SA_KILL;
 	}
 
+	if (m_bCloned) {
+		if (m_ptVelocity.x == 0 && m_ptVelocity.y == 0) {
+			m_iCloneAgain++;
+			if (m_iCloneAgain > 2) {
+				m_bCloned = false;
+				m_iCloneAgain = 0;
+			}
+		}
+		else {
+			m_iCloneAgain = 0;
+		}
+	}
+
 	for (Sprite* sprite : *(_pGame->GetSpritesListPointer())) {
 		Enemy* enemy = dynamic_cast<Enemy*>(sprite);
 		if (enemy) {
 			if (enemy->TestCollision(this)) {
 				enemy->Kill();
+			}
+			continue;
+		}
+		Puddle* puddle = dynamic_cast<Puddle*>(sprite);
+		if (puddle) {
+			if (puddle->TestCollision(this)) {
+				return SA_KILL;
 			}
 			continue;
 		}
@@ -504,7 +527,8 @@ SPRITEACTION Puddle::Update() {
 // Mud Constructor(s)/Destructor
 //-----------------------------------------------------------------
 Mud::Mud(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel) {
-	m_iTime = 100;
+	m_iTime = 200;
+	m_iSpreadCooldown = 3;
 }
 
 Bitmap* Mud::m_pMudBitmap = nullptr;
@@ -520,11 +544,31 @@ SPRITEACTION Mud::Update() {
 		return SA_KILL;
 	}
 
+	bool spread = false;
+	if (m_iSpreadCooldown <= 0) {
+		spread = true;
+	}
+	else {
+		m_iSpreadCooldown--;
+	}
+
 	for (Sprite* sprite : *(_pGame->GetSpritesListPointer())) {
 		Enemy* enemy = dynamic_cast<Enemy*>(sprite);
 		if (enemy) {
 			if (enemy->TestCollision(this)) {
 				enemy->Kill();
+			}
+			continue;
+		}
+		Puddle* puddle = dynamic_cast<Puddle*>(sprite);
+		if (puddle) {
+			if (spread) {
+				if (puddle->TestCollision(this)) {
+					Mud* _pMud = new Mud(Mud::m_pMudBitmap, m_pLevel);
+					_pMud->SetPositionFromCenter(puddle->GetPositionFromCenter());
+					_pGame->AddSprite(_pMud);
+					puddle->Kill();
+				}
 			}
 			continue;
 		}
@@ -560,6 +604,50 @@ SPRITEACTION Gust::Update() {
 		if (enemy) {
 			if (enemy->TestCollision(this)) {
 				enemy->Kill();
+			}
+			continue;
+		}
+		Flame* flame = dynamic_cast<Flame*>(sprite);
+		if (flame) {
+			if (flame->TestCollision(this)) {
+				if (!flame->IsCloned() && flame->GetCloneDepth() < 4) {
+					
+					Flame* pFlame = new Flame(flame->GetBitmap(), m_pLevel);
+					flame->SetCloneDepth(flame->GetCloneDepth() + 1);
+					pFlame->SetCloneDepth(flame->GetCloneDepth());
+					flame->SetCloned(true);
+					pFlame->SetCloned(true);
+					pFlame->SetNumFrames(3);
+					if (m_ptVelocity.x == 0) {
+						pFlame->SetPositionFromCenter(flame->GetPositionFromCenter().x - 40, flame->GetPositionFromCenter().y);
+						flame->SetPositionFromCenter(flame->GetPositionFromCenter().x + 40, flame->GetPositionFromCenter().y);
+					}
+					else {
+						pFlame->SetPositionFromCenter(flame->GetPositionFromCenter().x, flame->GetPositionFromCenter().y - 40);
+						flame->SetPositionFromCenter(flame->GetPositionFromCenter().x, flame->GetPositionFromCenter().y + 40);
+					}
+					_pGame->AddSprite(pFlame);
+				}
+
+				if (m_ptVelocity.x == 0) {
+					flame->SetVelocity(m_ptVelocity.x - ((GetPositionFromCenter().x - flame->GetPositionFromCenter().x) / 6), (m_ptVelocity.y / 2) + flame->GetVelocity().y);
+				}
+				else {
+					flame->SetVelocity((m_ptVelocity.x / 2) + flame->GetVelocity().x, m_ptVelocity.y - ((GetPositionFromCenter().y - flame->GetPositionFromCenter().y) / 6));
+				}
+				flame->SetTime((rand() % 40) + 80);
+			}
+			continue;
+		}
+		Rock* rock = dynamic_cast<Rock*>(sprite);
+		if (rock) {
+			if (rock->TestCollision(this)) {
+				if (m_ptVelocity.x == 0) {
+					rock->SetVelocity(m_ptVelocity.x - ((GetPositionFromCenter().x - rock->GetPositionFromCenter().x) / 6), ((3 * m_ptVelocity.y) / 2) + rock->GetVelocity().y);
+				}
+				else {
+					rock->SetVelocity(((3 * m_ptVelocity.x) / 2) + rock->GetVelocity().x, m_ptVelocity.y - ((GetPositionFromCenter().y - rock->GetPositionFromCenter().y) / 6));
+				}
 			}
 			continue;
 		}
