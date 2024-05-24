@@ -60,7 +60,6 @@ void GameStart(HWND hWindow)
   _pFlameBitmap = new Bitmap(hDC, IDB_FLAME, _hInstance);
   Flame::setFlameBitmap(_pFlameBitmap);
   _pMudBitmap = new Bitmap(hDC, IDB_MUD, _hInstance);
-  Mud::setMudBitmap(_pMudBitmap);
   _pWaterBitmap = new Bitmap(hDC, IDB_WATER, _hInstance);
   _pGustUpBitmap = new Bitmap(hDC, IDB_GUSTUP, _hInstance);
   _pGustDownBitmap = new Bitmap(hDC, IDB_GUSTDOWN, _hInstance);
@@ -449,7 +448,178 @@ void HandleJoystick(JOYSTATE jsJoystickState)
 
 BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
 {
-  return FALSE;
+    Swing* swing = dynamic_cast<Swing*>(pSpriteHitter);
+    // SWING INTERACTION
+    if (swing) {
+        Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
+        // SWING TO ENEMY
+        if (enemy) {
+            enemy->Kill();
+            return false;
+        }
+        Rock* rock = dynamic_cast<Rock*>(pSpriteHittee);
+        // SWING TO ROCK
+        if (rock) {
+            if (rock->GetCooldown() > 0) return false;
+            rock->SetCooldown(3);
+            int hits = rock->GetNumHits();
+            if (hits >= rock->GetMaxHits()) {
+                rock->Kill();
+                return false;
+            }
+            rock->GetNumHits(++hits);
+
+            if (swing->GetDirection().x == 0) {
+                rock->SetVelocity((rock->GetPositionFromCenter().x - swing->GetPositionFromCenter().x) + (rand() % 17) - 9, swing->GetDirection().y * 120);
+            }
+            else {
+                rock->SetVelocity(swing->GetDirection().x * 120, (rock->GetPositionFromCenter().y - swing->GetPositionFromCenter().y) + (rand() % 17) - 9);
+            }
+
+            return false;
+        }
+    }
+
+    Rock* rock = dynamic_cast<Rock*>(pSpriteHitter);
+    // ROCK INTERACTION
+    if (rock) {
+        Puddle* puddle = dynamic_cast<Puddle*>(pSpriteHittee);
+        // ROCK TO PUDDLE
+        if (puddle) {
+            Mud* _pMud = new Mud(_pMudBitmap, _pLevel);
+            _pMud->SetPositionFromCenter(puddle->GetPositionFromCenter());
+            _pGame->AddSprite(_pMud);
+            puddle->Kill();
+            rock->Kill();
+            return false;
+        }
+    }
+
+    Fireball* fireball = dynamic_cast<Fireball*>(pSpriteHitter);
+    // FIREBALL INTERACTION
+    if (fireball) {
+        Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
+        // FIREBALL TO ENEMY
+        if (enemy) {
+            enemy->Kill();
+            return false;
+        }
+        Rock* rock = dynamic_cast<Rock*>(pSpriteHittee);
+        // FIREBALL TO ROCK
+        if (rock) {
+            rock->Kill();
+
+            vector<POINT> directions = {
+            POINT {40 + (rand() % 20), 40 + (rand() % 20)},
+            POINT {0 + (rand() % 20), 40 + (rand() % 20)},
+            POINT {-60 + (rand() % 20), 40 + (rand() % 20)},
+            POINT {-60 + (rand() % 20), 0 + (rand() % 20)},
+            POINT {-60 + (rand() % 20), -60 + (rand() % 20)},
+            POINT {0 + (rand() % 20), -60 + (rand() % 20)},
+            POINT {40 + (rand() % 20), -60 + (rand() % 20)},
+            POINT {40 + (rand() % 20), 0 + (rand() % 20)},
+            };
+
+            for (POINT point : directions) {
+                Flame* pFlame = new Flame(Flame::m_pFlameBitmap, _pLevel);
+                pFlame->SetNumFrames(3);
+                pFlame->SetPositionFromCenter(rock->GetPositionFromCenter());
+                pFlame->SetVelocity(point);
+                _pGame->AddSprite(pFlame);
+            }
+
+            fireball->Kill();
+            return false;
+        }
+        Puddle* puddle = dynamic_cast<Puddle*>(pSpriteHittee);
+        // FIREBALL TO PUDDLE
+        if (puddle) {
+            fireball->Kill();
+            return false;
+        }
+    }
+
+    Flame* flame = dynamic_cast<Flame*>(pSpriteHitter);
+    if (flame) {
+        Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
+        if (enemy) {
+            enemy->Kill();
+            return false;
+        }
+        Puddle* puddle = dynamic_cast<Puddle*>(pSpriteHittee);
+        if (puddle) {
+            flame->Kill();
+            return false;
+        }
+    }
+
+    Mud* mud = dynamic_cast<Mud*>(pSpriteHitter);
+    if (mud) {
+        Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
+        if (enemy) {
+            enemy->Kill();
+            return false;
+        }
+        Puddle* puddle = dynamic_cast<Puddle*>(pSpriteHittee);
+        if (puddle) {
+            if (mud->getSpreadCooldown()) {
+                Mud* _pMud = new Mud(_pMudBitmap, _pLevel);
+                _pMud->SetPositionFromCenter(puddle->GetPositionFromCenter());
+                _pGame->AddSprite(_pMud);
+                puddle->Kill();
+            }
+            return false;
+        }
+    }
+
+    Gust* gust = dynamic_cast<Gust*>(pSpriteHitter);
+    if (gust) {
+        Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
+        if (enemy) {
+                enemy->Kill();
+            return false;
+        }
+        Flame* flame = dynamic_cast<Flame*>(pSpriteHittee);
+        if (flame) {
+                if (!flame->IsCloned() && flame->GetCloneDepth() < 4) {
+
+                    Flame* pFlame = new Flame(flame->GetBitmap(), _pLevel);
+                    flame->SetCloneDepth(flame->GetCloneDepth() + 1);
+                    pFlame->SetCloneDepth(flame->GetCloneDepth());
+                    flame->SetCloned(true);
+                    pFlame->SetCloned(true);
+                    pFlame->SetNumFrames(3);
+                    if (gust->GetVelocity().x == 0) {
+                        pFlame->SetPositionFromCenter(flame->GetPositionFromCenter().x - 40, flame->GetPositionFromCenter().y);
+                        flame->SetPositionFromCenter(flame->GetPositionFromCenter().x + 40, flame->GetPositionFromCenter().y);
+                    }
+                    else {
+                        pFlame->SetPositionFromCenter(flame->GetPositionFromCenter().x, flame->GetPositionFromCenter().y - 40);
+                        flame->SetPositionFromCenter(flame->GetPositionFromCenter().x, flame->GetPositionFromCenter().y + 40);
+                    }
+                    _pGame->AddSprite(pFlame);
+                }
+
+                if (gust->GetVelocity().x == 0) {
+                    flame->SetVelocity(gust->GetVelocity().x - ((gust->GetPositionFromCenter().x - flame->GetPositionFromCenter().x) / 6), (gust->GetVelocity().y / 2) + flame->GetVelocity().y);
+                }
+                else {
+                    flame->SetVelocity((gust->GetVelocity().x / 2) + flame->GetVelocity().x, gust->GetVelocity().y - ((gust->GetPositionFromCenter().y - flame->GetPositionFromCenter().y) / 6));
+                }
+                flame->SetTime((rand() % 40) + 80);
+            return false;
+        }
+        Rock* rock = dynamic_cast<Rock*>(pSpriteHittee);
+        if (rock) {
+                if (gust->GetVelocity().x == 0) {
+                    rock->SetVelocity(gust->GetVelocity().x - ((gust->GetPositionFromCenter().x - rock->GetPositionFromCenter().x) / 6), ((3 * gust->GetVelocity().y) / 2) + rock->GetVelocity().y);
+                }
+                else {
+                    rock->SetVelocity(((3 * gust->GetVelocity().x) / 2) + rock->GetVelocity().x, gust->GetVelocity().y - ((gust->GetPositionFromCenter().y - rock->GetPositionFromCenter().y) / 6));
+                }
+            return false;
+        }
+    }
 }
 
 //-----------------------------------------------------------------

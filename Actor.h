@@ -78,6 +78,7 @@ protected:
   POINT m_ptDirection;
 public:
   Swing::Swing(Bitmap* bmpBitmap, Level* pLevel, POINT ptDirection);
+  POINT Swing::GetDirection() { return m_ptDirection; };
   SPRITEACTION Swing::Update() override;
 };
 
@@ -185,9 +186,8 @@ protected:
 	int m_iTime;
 	int m_iSpreadCooldown;
 public:
-	static Bitmap* m_pMudBitmap;
-	static void setMudBitmap(Bitmap* pMudBitmap) { m_pMudBitmap = pMudBitmap; };
 	Mud::Mud(Bitmap* bmpBitmap, Level* pLevel);
+	int getSpreadCooldown() { return m_iSpreadCooldown; };
 	SPRITEACTION Mud::Update() override;
 };
 

@@ -389,8 +389,9 @@ void GameEngine::UpdateSprites()
     }
 
     // See if the sprite collided with any others
-    if (CheckSpriteCollision(*siSprite))
-      (*siSprite)->SetPosition(rcOldSpritePos);  // Restore the old sprite position
+    //if (CheckSpriteCollision(*siSprite))
+      //(*siSprite)->SetPosition(rcOldSpritePos);  // Restore the old sprite position
+    CheckSpriteCollision(*siSprite);
 
     siSprite++;
   }
