@@ -144,6 +144,7 @@ void GameStart(HWND hWindow)
       _vEnemies.push_back(enemy);
     }
   }
+  
 
   _pElementQueue = new ElementQueue(hWindow, hDC, _pEarthResBitmap, _pFireResBitmap, _pWaterResBitmap, _pAirResBitmap);
   _pElementQueue->SetPointBitmap(_pPointBitmap);

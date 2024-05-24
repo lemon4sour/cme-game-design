@@ -37,12 +37,123 @@ SPRITEACTION Actor::Update()
   BOOL bBottomLeft = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.left, m_rcPosition.bottom });
   BOOL bBottomRight = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.right, m_rcPosition.bottom });
 
+  POINT position = GetPositionFromCenter();
+  POINT size = { m_rcPosition.right - m_rcPosition.left , m_rcPosition.bottom - m_rcPosition.top };
+
   if (!bTopLeft || !bTopRight || !bBottomLeft || !bBottomRight)
   {
     SetPosition(ptOldPosition);
   }
 
+  //ONE CORNER
+  if (!bTopLeft && bTopRight && bBottomLeft && bBottomRight)
+  {
+	  //TOP LEFT
+  }
+  else if (bTopLeft && !bTopRight && bBottomLeft && bBottomRight)
+  {
+	  //TOP RIGHT
+  }
+  else if (bTopLeft && bTopRight && !bBottomLeft && bBottomRight)
+  {
+	  //BOTTOM LEFT
+  }
+  else if (bTopLeft && bTopRight && bBottomLeft && !bBottomRight)
+  {
+	  int hello = Sprite::m_rcPosition.right / 128;
+	  int yeah = Sprite::m_rcPosition.bottom / 128;
+	  //BOTTOM RIGHT
+	  if (position.x % 128 < position.y % 128) {
+		  //PUSH FROM Y
+		  position.y = position.y / 128;
+		  position.y *= 128;
+		  SetPositionFromCenter(position.x, position.y - (size.y / 2) + 128);
+		  m_ptVelocity.y = 0;
+	  }
+	  else {
+		  //PUSH FROM X
+		  position.x = position.x / 128;
+		  position.x *= 128;
+		  SetPositionFromCenter(position.x - (size.x / 2) + 128, position.y);
+		  m_ptVelocity.x = 0;
+	  }
+  }
 
+  //ONE SIDE
+  else if (!bTopLeft && !bTopRight && bBottomLeft && bBottomRight)
+  {
+	  //TOP
+	  position.y = position.y / 128;
+	  position.y *= 128;
+	  SetPositionFromCenter(position.x, position.y + (size.y / 2));
+	  m_ptVelocity.y = 0;
+  }
+  else if (bTopLeft && bTopRight && !bBottomLeft && !bBottomRight)
+  {
+	  //BOTTOM
+	  position.y = position.y / 128;
+	  position.y *= 128;
+	  SetPositionFromCenter(position.x, position.y - (size.y / 2) + 128);
+	  m_ptVelocity.y = 0;
+  }
+  else if (!bTopLeft && bTopRight && !bBottomLeft && bBottomRight)
+  {
+	  //LEFT
+	  position.x = position.x / 128;
+	  position.x *= 128;
+	  SetPositionFromCenter(position.x + (size.x / 2), position.y);
+	  m_ptVelocity.x = 0;
+  }
+  else if (bTopLeft && !bTopRight && bBottomLeft && !bBottomRight)
+  {
+	  //RIGHT
+	  position.x = position.x / 128;
+	  position.x *= 128;
+	  SetPositionFromCenter(position.x - (size.x / 2) + 128, position.y);
+	  m_ptVelocity.x = 0;
+  }
+
+  //THREE CORNERS
+  else if (!bTopLeft && !bTopRight && !bBottomLeft && bBottomRight)
+  {
+	  //TOP LEFT
+	  position.x = position.x / 128;
+	  position.y = position.y / 128;
+	  position.x *= 128;
+	  position.y *= 128;
+	  SetPositionFromCenter(position.x + (size.x / 2), position.y + (size.y / 2));
+	  SetVelocity(0, 0);
+  }
+  else if (!bTopLeft && !bTopRight && bBottomLeft && !bBottomRight)
+  {
+	  //TOP RIGHT
+	  position.x = position.x / 128;
+	  position.y = position.y / 128;
+	  position.x *= 128;
+	  position.y *= 128;
+	  SetPositionFromCenter(position.x - (size.x / 2) + 128, position.y + (size.y / 2));
+	  SetVelocity(0, 0);
+  }
+  else if (!bTopLeft && bTopRight && !bBottomLeft && !bBottomRight)
+  {
+	  //BOTTOM LEFT
+	  position.x = position.x / 128;
+	  position.y = position.y / 128;
+	  position.x *= 128;
+	  position.y *= 128;
+	  SetPositionFromCenter(position.x + (size.x / 2), position.y - (size.y / 2) + 128);
+	  SetVelocity(0, 0);
+  }
+  else if (bTopLeft && !bTopRight && !bBottomLeft && !bBottomRight)
+  {
+	  //BOTTOM RIGHT
+	  position.x = position.x / 128;
+	  position.y = position.y / 128;
+	  position.x *= 128;
+	  position.y *= 128;
+	  SetPositionFromCenter(position.x - (size.x / 2) + 128, position.y - (size.y / 2) + 128);
+	  SetVelocity(0, 0);
+  }
 
   return out;
 }
@@ -137,7 +248,6 @@ Swing::Swing(Bitmap* bmpBitmap, Level* pLevel, POINT ptDirection) : Actor(bmpBit
 //-----------------------------------------------------------------
 SPRITEACTION Swing::Update()
 {
-	SPRITEACTION out = Actor::Update();
 	for (Sprite* sprite : *(_pGame->GetSpritesListPointer())) {
 		Enemy* enemy = dynamic_cast<Enemy*>(sprite);
 		if (enemy) {
@@ -173,7 +283,7 @@ SPRITEACTION Swing::Update()
 	{
 		return SA_KILL;
 	}
-	return out;
+	return SA_NONE;
 }
 
 //-----------------------------------------------------------------
@@ -436,7 +546,7 @@ Flame::Flame(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel) {
 //-----------------------------------------------------------------
 SPRITEACTION Flame::Update() {
 
-	SPRITEACTION out = Actor::Update();
+	SPRITEACTION out = Sprite::Update();
 	UpdateVelocity();
 
 	if (--m_iTime < 0) {
