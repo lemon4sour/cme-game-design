@@ -49,8 +49,8 @@ void Level::Draw(HDC hDC)
 }
 
 BOOL Level::IsPointCollidable(POINT ptPosition) {
-  int x = ptPosition.x / 128;
-  int y = ptPosition.y / 128;
+  int x = ptPosition.x / 32;
+  int y = ptPosition.y / 32;
 
   if (x < 0 || y < 0 || (x >= m_iWidth) || (y >= m_iHeight)) return false;
   Tile* tile = m_tileMap[m_layout[y][x]];
@@ -59,7 +59,7 @@ BOOL Level::IsPointCollidable(POINT ptPosition) {
 
 POINT Level::GetNodeFromPosition(POINT ptPosition)
 {
-  return POINT{ ptPosition.x / 128, ptPosition.y / 128 };
+  return POINT{ ptPosition.x / 32, ptPosition.y / 32 };
 }
 
 //-----------------------------------------------------------------

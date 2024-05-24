@@ -89,7 +89,7 @@ BOOL GameEngine::CheckSpriteCollision(Sprite* pTestSprite)
     // Test the collision
     if (pTestSprite->TestCollision(*siSprite))
       // Collision detected
-      return SpriteCollision((*siSprite), pTestSprite);
+      SpriteCollision((*siSprite), pTestSprite);
   }
 
   // No collision
@@ -212,27 +212,27 @@ LRESULT GameEngine::HandleEvent(HWND hWindow, UINT msg, WPARAM wParam, LPARAM lP
 
     case WM_LBUTTONDOWN:
       // Handle left mouse button press
-      MouseButtonDown(LOWORD(lParam) * 4, HIWORD(lParam) * 4, TRUE);
+      MouseButtonDown(LOWORD(lParam), HIWORD(lParam), TRUE);
       return 0;
 
     case WM_LBUTTONUP:
       // Handle left mouse button release
-      MouseButtonUp(LOWORD(lParam) * 4, HIWORD(lParam) * 4, TRUE);
+      MouseButtonUp(LOWORD(lParam), HIWORD(lParam), TRUE);
       return 0;
 
     case WM_RBUTTONDOWN:
       // Handle right mouse button press
-      MouseButtonDown(LOWORD(lParam) * 4, HIWORD(lParam) * 4, FALSE);
+      MouseButtonDown(LOWORD(lParam), HIWORD(lParam), FALSE);
       return 0;
 
     case WM_RBUTTONUP:
       // Handle right mouse button release
-      MouseButtonUp(LOWORD(lParam) * 4, HIWORD(lParam) * 4, FALSE);
+      MouseButtonUp(LOWORD(lParam), HIWORD(lParam), FALSE);
       return 0;
 
     case WM_MOUSEMOVE:
       // Handle mouse movement
-      MouseMove(LOWORD(lParam) * 4, HIWORD(lParam) * 4);
+      MouseMove(LOWORD(lParam), HIWORD(lParam));
       return 0;
 
     case WM_DESTROY:
@@ -369,6 +369,8 @@ void GameEngine::UpdateSprites()
     // Update the sprite
     saSpriteAction = (*siSprite)->Update();
 
+    CheckSpriteCollision(*siSprite);
+
     // Handle the SA_ADDSPRITE sprite action
     if (saSpriteAction & SA_ADDSPRITE)
       // Allow the sprite to add its sprite
@@ -391,7 +393,6 @@ void GameEngine::UpdateSprites()
     // See if the sprite collided with any others
     //if (CheckSpriteCollision(*siSprite))
       //(*siSprite)->SetPosition(rcOldSpritePos);  // Restore the old sprite position
-    CheckSpriteCollision(*siSprite);
 
     siSprite++;
   }
