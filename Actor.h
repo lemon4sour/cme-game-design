@@ -9,9 +9,10 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "Level.h"
+#include "PathFinding.hpp"
 #include "Sprite.h"
-#include <windows.h>
 #include <vector>
+#include <windows.h>
 
 //-----------------------------------------------------------------
 // Actor Class
@@ -49,20 +50,20 @@ enum enumPlayer : int
 class Player : public Actor
 {
 protected:
-	int m_iMaxHealth;
-	int m_iCurrentHealth;
-	POINT m_ptTargetVelocity;
-	POINT m_ptMousePos;
+  int m_iMaxHealth;
+  int m_iCurrentHealth;
+  POINT m_ptTargetVelocity;
+  POINT m_ptMousePos;
 public:
-	Player::Player(Bitmap* bmpBitmap, Level* pLevel);
-	void Player::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
-	POINT Player::GetTargetVelocity() { return m_ptTargetVelocity; };
-	void Player::UpdateVelocity();
-	int Player::GetMaxHealth() { return m_iMaxHealth; };
-	int Player::GetCurrentHealth() { return m_iCurrentHealth; };
-	void Player::SubtractHealth(int value);
-	void Player::SetMousePos(int x, int y) { m_ptMousePos = POINT{ x,y }; };
-	SPRITEACTION Player::Update() override;
+  Player::Player(Bitmap* bmpBitmap, Level* pLevel);
+  void Player::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
+  POINT Player::GetTargetVelocity() { return m_ptTargetVelocity; };
+  void Player::UpdateVelocity();
+  int Player::GetMaxHealth() { return m_iMaxHealth; };
+  int Player::GetCurrentHealth() { return m_iCurrentHealth; };
+  void Player::SubtractHealth(int value);
+  void Player::SetMousePos(int x, int y) { m_ptMousePos = POINT{ x,y }; };
+  SPRITEACTION Player::Update() override;
 };
 
 //-----------------------------------------------------------------
@@ -71,30 +72,40 @@ public:
 class Swing : public Actor
 {
 protected:
-	int m_iActiveTime;
-	POINT m_ptDirection;
+  int m_iActiveTime;
+  POINT m_ptDirection;
 public:
-	Swing::Swing(Bitmap* bmpBitmap, Level* pLevel, POINT ptDirection);
-	SPRITEACTION Swing::Update() override;
+  Swing::Swing(Bitmap* bmpBitmap, Level* pLevel, POINT ptDirection);
+  SPRITEACTION Swing::Update() override;
 };
 
 //-----------------------------------------------------------------
 // Enemy Class
 //-----------------------------------------------------------------
+
+enum class EnemyType : std::uint8_t
+{
+  FIRE,
+  WATER,
+  EARTH,
+  AIR
+};
+
 class Enemy : public Actor
 {
 protected:
-	POINT m_ptTargetVelocity;
-	int m_difficulty{ 10 };
-	Player* m_pTarget;
+  POINT m_ptTargetVelocity;
+  int m_speed;
+  Player* m_pTarget;
+  AStar m_aStar;
+  EnemyType m_type;
 public:
-	Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel);
-	void 	Enemy::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
-	POINT Enemy::GetTargetVelocity() { return m_ptTargetVelocity; };
-	void Enemy::Catch();
-	void 	Enemy::UpdateVelocity();
-	void Enemy::SetTarget(Player* pActor) { m_pTarget = pActor; };
-	SPRITEACTION Enemy::Update() override;
+  Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget);
+  void 	Enemy::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
+  POINT Enemy::GetTargetVelocity() { return m_ptTargetVelocity; };
+  void Enemy::Catch();
+  void 	Enemy::UpdateVelocity();
+  SPRITEACTION Enemy::Update() override;
 };
 
 //-----------------------------------------------------------------
@@ -103,16 +114,16 @@ public:
 class Rock : public Actor
 {
 protected:
-	int m_iNumHits;
-	int m_iMaxHits;
-	int m_iCooldown;
+  int m_iNumHits;
+  int m_iMaxHits;
+  int m_iCooldown;
 public:
-	Rock::Rock(Bitmap* bmpBitmap, Level* pLevel);
-	void Rock::UpdateVelocity();
-	void Rock::SetCooldown(int iCooldown) { m_iCooldown = iCooldown; };
-	int Rock::GetCooldown() { return m_iCooldown; };
-	int Rock::GetNumHits() { return m_iNumHits; };
-	int Rock::GetMaxHits() { return m_iMaxHits; };
-	void Rock::GetNumHits(int iNumHits) { m_iNumHits = iNumHits; };
-	SPRITEACTION Rock::Update() override;
+  Rock::Rock(Bitmap* bmpBitmap, Level* pLevel);
+  void Rock::UpdateVelocity();
+  void Rock::SetCooldown(int iCooldown) { m_iCooldown = iCooldown; };
+  int Rock::GetCooldown() { return m_iCooldown; };
+  int Rock::GetNumHits() { return m_iNumHits; };
+  int Rock::GetMaxHits() { return m_iMaxHits; };
+  void Rock::GetNumHits(int iNumHits) { m_iNumHits = iNumHits; };
+  SPRITEACTION Rock::Update() override;
 };

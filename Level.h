@@ -40,7 +40,6 @@ class Level
 {
 protected:
   // Member variables
-  std::vector<std::vector<int>> m_layout;
   int   m_iTileSize;
   int   m_iLevelNumber;
 
@@ -50,6 +49,8 @@ protected:
   int m_iHeight;
 
 public:
+  std::vector<std::vector<int>> m_layout;
+
   // Constructor/Destructor
   Level(std::vector<std::vector<int>> layout, int iTileSize, int iLevelNumber);
   virtual ~Level();
@@ -58,6 +59,7 @@ public:
   void MapTile(int iValue, Bitmap* bmpTile, BOOL bCollidable = true);
   void Draw(HDC hDC);
   BOOL Level::IsPointCollidable(POINT ptPosition);
+  POINT Level::GetNodeFromPosition(POINT ptPosition);
 };
 
 

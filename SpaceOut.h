@@ -9,13 +9,14 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "Actor.h"
+#include "Actor.h"
 #include "Bitmap.h"
 #include "GameEngine.h"
+#include "Gui.h"
 #include "Level.h"
 #include "Resource.h"
 #include "Sprite.h"
-#include "Actor.h"
-#include "Gui.h"
+#include <random>
 
 //-----------------------------------------------------------------
 // Global Variables
@@ -38,7 +39,7 @@ Player* _pPlayer;
 
 std::vector<Enemy*> _vEnemies;
 
-ElementQueue*     _pElementQueue;
+ElementQueue* _pElementQueue;
 //-----------------------------------------------------------------
 // Function Declarations
 //-----------------------------------------------------------------
