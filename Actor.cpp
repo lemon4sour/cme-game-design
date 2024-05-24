@@ -25,135 +25,52 @@ void Actor::LinkBitmapToState(int iState, Bitmap* bmpBitmap)
 
 SPRITEACTION Actor::Update()
 {
+  // Because we are using integer instead of float, we should add a buffer to the collision detection
+  constexpr int BUFFER{ 8 };
 
-  POINT ptOldPosition, ptNewPosition, ptSpriteSize;
-  ptOldPosition.x = m_rcPosition.left;
-  ptOldPosition.y = m_rcPosition.top;
+  if (m_ptVelocity.x > 0)
+  {
+    // We are moving right, do we collide with the right wall?
+    POINT nextPosition{ m_rcPosition.right + m_ptVelocity.x + BUFFER, m_rcPosition.top };
+    if (m_pLevel->m_layout[nextPosition.y / 128][nextPosition.x / 128] != 0)
+    {
+      // Yes, we do collide, zero out the x velocity
+      m_ptVelocity.x = 0;
+    }
+  }
+  else if (m_ptVelocity.x < 0)
+  {
+    // We are moving left, do we collide with the left wall?
+    POINT nextPosition{ m_rcPosition.left + m_ptVelocity.x - BUFFER, m_rcPosition.top };
+    if (m_pLevel->m_layout[nextPosition.y / 128][nextPosition.x / 128] != 0)
+    {
+      // Yes, we do collide, zero out the x velocity
+      m_ptVelocity.x = 0;
+    }
+  }
+
+  if (m_ptVelocity.y > 0)
+  {
+    // We are moving down, do we collide with the bottom wall?
+    POINT nextPosition{ m_rcPosition.left, m_rcPosition.bottom + m_ptVelocity.y + BUFFER };
+    if (m_pLevel->m_layout[nextPosition.y / 128][nextPosition.x / 128] != 0)
+    {
+      // Yes, we do collide, zero out the y velocity
+      m_ptVelocity.y = 0;
+    }
+  }
+  else if (m_ptVelocity.y < 0)
+  {
+    // We are moving up, do we collide with the top wall?
+    POINT nextPosition{ m_rcPosition.left, m_rcPosition.top + m_ptVelocity.y - BUFFER };
+    if (m_pLevel->m_layout[nextPosition.y / 128][nextPosition.x / 128] != 0)
+    {
+      // Yes, we do collide, zero out the y velocity
+      m_ptVelocity.y = 0;
+    }
+  }
 
   SPRITEACTION out = Sprite::Update();
-
-  BOOL bTopLeft = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.left, m_rcPosition.top });
-  BOOL bTopRight = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.right, m_rcPosition.top });
-  BOOL bBottomLeft = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.left, m_rcPosition.bottom });
-  BOOL bBottomRight = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.right, m_rcPosition.bottom });
-
-  POINT position = GetPositionFromCenter();
-  POINT size = { m_rcPosition.right - m_rcPosition.left , m_rcPosition.bottom - m_rcPosition.top };
-
-  if (!bTopLeft || !bTopRight || !bBottomLeft || !bBottomRight)
-  {
-    SetPosition(ptOldPosition);
-  }
-
-  //ONE CORNER
-  if (!bTopLeft && bTopRight && bBottomLeft && bBottomRight)
-  {
-	  //TOP LEFT
-  }
-  else if (bTopLeft && !bTopRight && bBottomLeft && bBottomRight)
-  {
-	  //TOP RIGHT
-  }
-  else if (bTopLeft && bTopRight && !bBottomLeft && bBottomRight)
-  {
-	  //BOTTOM LEFT
-  }
-  else if (bTopLeft && bTopRight && bBottomLeft && !bBottomRight)
-  {
-	  int hello = Sprite::m_rcPosition.right / 128;
-	  int yeah = Sprite::m_rcPosition.bottom / 128;
-	  //BOTTOM RIGHT
-	  if (position.x % 128 < position.y % 128) {
-		  //PUSH FROM Y
-		  position.y = position.y / 128;
-		  position.y *= 128;
-		  SetPositionFromCenter(position.x, position.y - (size.y / 2) + 128);
-		  m_ptVelocity.y = 0;
-	  }
-	  else {
-		  //PUSH FROM X
-		  position.x = position.x / 128;
-		  position.x *= 128;
-		  SetPositionFromCenter(position.x - (size.x / 2) + 128, position.y);
-		  m_ptVelocity.x = 0;
-	  }
-  }
-
-  //ONE SIDE
-  else if (!bTopLeft && !bTopRight && bBottomLeft && bBottomRight)
-  {
-	  //TOP
-	  position.y = position.y / 128;
-	  position.y *= 128;
-	  SetPositionFromCenter(position.x, position.y + (size.y / 2));
-	  m_ptVelocity.y = 0;
-  }
-  else if (bTopLeft && bTopRight && !bBottomLeft && !bBottomRight)
-  {
-	  //BOTTOM
-	  position.y = position.y / 128;
-	  position.y *= 128;
-	  SetPositionFromCenter(position.x, position.y - (size.y / 2) + 128);
-	  m_ptVelocity.y = 0;
-  }
-  else if (!bTopLeft && bTopRight && !bBottomLeft && bBottomRight)
-  {
-	  //LEFT
-	  position.x = position.x / 128;
-	  position.x *= 128;
-	  SetPositionFromCenter(position.x + (size.x / 2), position.y);
-	  m_ptVelocity.x = 0;
-  }
-  else if (bTopLeft && !bTopRight && bBottomLeft && !bBottomRight)
-  {
-	  //RIGHT
-	  position.x = position.x / 128;
-	  position.x *= 128;
-	  SetPositionFromCenter(position.x - (size.x / 2) + 128, position.y);
-	  m_ptVelocity.x = 0;
-  }
-
-  //THREE CORNERS
-  else if (!bTopLeft && !bTopRight && !bBottomLeft && bBottomRight)
-  {
-	  //TOP LEFT
-	  position.x = position.x / 128;
-	  position.y = position.y / 128;
-	  position.x *= 128;
-	  position.y *= 128;
-	  SetPositionFromCenter(position.x + (size.x / 2), position.y + (size.y / 2));
-	  SetVelocity(0, 0);
-  }
-  else if (!bTopLeft && !bTopRight && bBottomLeft && !bBottomRight)
-  {
-	  //TOP RIGHT
-	  position.x = position.x / 128;
-	  position.y = position.y / 128;
-	  position.x *= 128;
-	  position.y *= 128;
-	  SetPositionFromCenter(position.x - (size.x / 2) + 128, position.y + (size.y / 2));
-	  SetVelocity(0, 0);
-  }
-  else if (!bTopLeft && bTopRight && !bBottomLeft && !bBottomRight)
-  {
-	  //BOTTOM LEFT
-	  position.x = position.x / 128;
-	  position.y = position.y / 128;
-	  position.x *= 128;
-	  position.y *= 128;
-	  SetPositionFromCenter(position.x + (size.x / 2), position.y - (size.y / 2) + 128);
-	  SetVelocity(0, 0);
-  }
-  else if (bTopLeft && !bTopRight && !bBottomLeft && !bBottomRight)
-  {
-	  //BOTTOM RIGHT
-	  position.x = position.x / 128;
-	  position.y = position.y / 128;
-	  position.x *= 128;
-	  position.y *= 128;
-	  SetPositionFromCenter(position.x - (size.x / 2) + 128, position.y - (size.y / 2) + 128);
-	  SetVelocity(0, 0);
-  }
 
   return out;
 }
@@ -175,14 +92,15 @@ bool Actor::AmIStuck()
 //-----------------------------------------------------------------
 // Player Constructor(s)/Destructor
 //-----------------------------------------------------------------
-Player::Player(Bitmap* bmpBitmap, Level* pLevel) : Actor(bmpBitmap, pLevel) {
-	m_ptTargetVelocity = POINT{ 0,0 };
-	m_iState = 0;
-	m_iSize = 24;
-	m_iMaxHealth = 100;
-	m_iCurrentHealth = m_iMaxHealth;
-	
-	m_pSpriteStates[0] = bmpBitmap;
+Player::Player(Bitmap* bmpBitmap, Level* pLevel) : Actor(bmpBitmap, pLevel)
+{
+  m_ptTargetVelocity = POINT{ 0,0 };
+  m_iState = 0;
+  m_iSize = 24;
+  m_iMaxHealth = 100;
+  m_iCurrentHealth = m_iMaxHealth;
+
+  m_pSpriteStates[0] = bmpBitmap;
 }
 
 //-----------------------------------------------------------------
@@ -190,48 +108,55 @@ Player::Player(Bitmap* bmpBitmap, Level* pLevel) : Actor(bmpBitmap, pLevel) {
 //-----------------------------------------------------------------
 void Player::UpdateVelocity()
 {
-  if (m_ptTargetVelocity.x < m_ptVelocity.x) m_ptVelocity.x = max(m_ptTargetVelocity.x, m_ptVelocity.x - 5);
-  else if (m_ptTargetVelocity.x > m_ptVelocity.x) m_ptVelocity.x = min(m_ptTargetVelocity.x, m_ptVelocity.x + 5);
+  if (m_ptTargetVelocity.x < m_ptVelocity.x)
+    m_ptVelocity.x = max(m_ptTargetVelocity.x, m_ptVelocity.x - 5);
+  else if (m_ptTargetVelocity.x > m_ptVelocity.x)
+    m_ptVelocity.x = min(m_ptTargetVelocity.x, m_ptVelocity.x + 5);
 
-  if (m_ptTargetVelocity.y < m_ptVelocity.y) m_ptVelocity.y = max(m_ptTargetVelocity.y, m_ptVelocity.y - 5);
-  else if (m_ptTargetVelocity.y > m_ptVelocity.y) m_ptVelocity.y = min(m_ptTargetVelocity.y, m_ptVelocity.y + 5);
+  if (m_ptTargetVelocity.y < m_ptVelocity.y)
+    m_ptVelocity.y = max(m_ptTargetVelocity.y, m_ptVelocity.y - 5);
+  else if (m_ptTargetVelocity.y > m_ptVelocity.y)
+    m_ptVelocity.y = min(m_ptTargetVelocity.y, m_ptVelocity.y + 5);
 }
 
-void Player::SubtractHealth(int value) {
-	if (m_iCurrentHealth > 0) {
-		m_iCurrentHealth = m_iCurrentHealth - value > 0 ? m_iCurrentHealth - value : 0;
-	}
+void Player::SubtractHealth(int value)
+{
+  if (m_iCurrentHealth > 0)
+  {
+    m_iCurrentHealth = m_iCurrentHealth - value > 0 ? m_iCurrentHealth - value : 0;
+  }
 }
 
-SPRITEACTION Player::Update() {
-	SPRITEACTION out = Actor::Update();
-	UpdateVelocity();
-	POINT ptPlayerCenterPos = GetPositionFromCenter();
+SPRITEACTION Player::Update()
+{
+  UpdateVelocity();
+  SPRITEACTION out = Actor::Update();
+  POINT ptPlayerCenterPos = GetPositionFromCenter();
 
-	POINT ptMouseOffset = POINT{ m_ptMousePos.x - ptPlayerCenterPos.x, m_ptMousePos.y - ptPlayerCenterPos.y };
+  POINT ptMouseOffset = POINT{ m_ptMousePos.x - ptPlayerCenterPos.x, m_ptMousePos.y - ptPlayerCenterPos.y };
 
-	if (ptMouseOffset.y >= ptMouseOffset.x && ptMouseOffset.y >= -ptMouseOffset.x)
-	{
-		SetState(PLR_DOWN);
-		//DOWN
-	}
-	if (ptMouseOffset.y >= ptMouseOffset.x && ptMouseOffset.y <= -ptMouseOffset.x)
-	{
-		SetState(PLR_LEFT);
-		//LEFT
-	}
-	if (ptMouseOffset.y <= ptMouseOffset.x && ptMouseOffset.y >= -ptMouseOffset.x)
-	{
-		SetState(PLR_RIGHT);
-		//RIGHT
-	}
-	if (ptMouseOffset.y <= ptMouseOffset.x && ptMouseOffset.y <= -ptMouseOffset.x)
-	{
-		SetState(PLR_UP);
-		//UP
-	}
+  if (ptMouseOffset.y >= ptMouseOffset.x && ptMouseOffset.y >= -ptMouseOffset.x)
+  {
+    SetState(PLR_DOWN);
+    //DOWN
+  }
+  if (ptMouseOffset.y >= ptMouseOffset.x && ptMouseOffset.y <= -ptMouseOffset.x)
+  {
+    SetState(PLR_LEFT);
+    //LEFT
+  }
+  if (ptMouseOffset.y <= ptMouseOffset.x && ptMouseOffset.y >= -ptMouseOffset.x)
+  {
+    SetState(PLR_RIGHT);
+    //RIGHT
+  }
+  if (ptMouseOffset.y <= ptMouseOffset.x && ptMouseOffset.y <= -ptMouseOffset.x)
+  {
+    SetState(PLR_UP);
+    //UP
+  }
 
-	return out;
+  return out;
 }
 
 //-----------------------------------------------------------------
@@ -239,8 +164,8 @@ SPRITEACTION Player::Update() {
 //-----------------------------------------------------------------
 Swing::Swing(Bitmap* bmpBitmap, Level* pLevel, POINT ptDirection) : Actor(bmpBitmap, pLevel)
 {
-	m_iActiveTime = 3;
-	m_ptDirection = ptDirection;
+  m_iActiveTime = 3;
+  m_ptDirection = ptDirection;
 }
 
 //-----------------------------------------------------------------
@@ -289,14 +214,29 @@ SPRITEACTION Swing::Update()
 //-----------------------------------------------------------------
 // Enemy Constructor(s)/Destructor
 //-----------------------------------------------------------------
-Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel) : Actor(bmpBitmap, pLevel)
+Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
+  : Actor(bmpBitmap, pLevel), m_type(type), m_pTarget(pTarget)
 {
+  m_aStar = AStar(pLevel);
   m_ptTargetVelocity = POINT{ 0,0 };
   m_iState = 0;
   m_iSize = 24;
-  m_pTarget = NULL;
-
   m_pSpriteStates[0] = bmpBitmap;
+  switch (type)
+  {
+    case EnemyType::FIRE:
+      m_speed = 10;
+      break;
+    case EnemyType::WATER:
+      m_speed = 7;
+      break;
+    case EnemyType::EARTH:
+      m_speed = 2;
+      break;
+    case EnemyType::AIR:
+      m_speed = 11;
+      break;
+  }
 }
 
 //-----------------------------------------------------------------
@@ -313,49 +253,62 @@ void Enemy::UpdateVelocity()
 
 void Enemy::Catch()
 {
-	if (m_pTarget == NULL) return;
+  if (m_pTarget == NULL) return;
 
-	// TODO: Avoid obstacles, USE A* ALGORITHM
-	POINT ptPlayerCenterPos = m_pTarget->GetPositionFromCenter();
-	POINT ptEnemyCenterPos = GetPositionFromCenter();
+  // Which node am I on?
+  POINT startNode = m_pLevel->GetNodeFromPosition(GetPositionFromCenter());
 
-	if (ptPlayerCenterPos.x < ptEnemyCenterPos.x) {
-		m_ptTargetVelocity.x = -m_difficulty;
-	}
-	else if (ptPlayerCenterPos.x > ptEnemyCenterPos.x)
-	{
-		m_ptTargetVelocity.x = m_difficulty;
-	}
+  // Which node is target on?
+  POINT endNode = m_pLevel->GetNodeFromPosition(m_pTarget->GetPositionFromCenter());
 
-	if (ptPlayerCenterPos.y < ptEnemyCenterPos.y)
-	{
-		m_ptTargetVelocity.y = -m_difficulty;
-	}
-	else if (ptPlayerCenterPos.y > ptEnemyCenterPos.y)
-	{
-		m_ptTargetVelocity.y = m_difficulty;
-	}
+  // Find path
+  std::vector<POINT> path = m_aStar.findPath(startNode, endNode);
+
+  if (path.size() == 0) return;
+
+  POINT nextNode = path[0];
+
+  if (nextNode.x < startNode.x)
+  {
+    m_ptTargetVelocity.x = -m_speed;
+  }
+  else if (nextNode.x > startNode.x)
+  {
+    m_ptTargetVelocity.x = m_speed;
+  }
+
+  if (nextNode.y < startNode.y)
+  {
+    m_ptTargetVelocity.y = -m_speed;
+  }
+  else if (nextNode.y > startNode.y)
+  {
+    m_ptTargetVelocity.y = m_speed;
+  }
 }
 
-SPRITEACTION Enemy::Update() {
-	SPRITEACTION out = Actor::Update();
-	Catch();
-	UpdateVelocity();
-	if (m_pTarget != NULL) {
-		if (TestCollision(m_pTarget))
-		{
-			m_pTarget->SubtractHealth(1);
-		}
-	}
-	return out;
+SPRITEACTION Enemy::Update()
+{
+  Catch();
+  UpdateVelocity();
+  SPRITEACTION out = Actor::Update();
+  if (m_pTarget != NULL)
+  {
+    if (TestCollision(m_pTarget))
+    {
+      m_pTarget->SubtractHealth(1);
+    }
+  }
+  return out;
 }
 
 //-----------------------------------------------------------------
 // Rock Constructor(s)/Destructor
 //-----------------------------------------------------------------
-Rock::Rock(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel) {
-	m_iNumHits = 0;
-	m_iMaxHits = 3;
+Rock::Rock(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel)
+{
+  m_iNumHits = 0;
+  m_iMaxHits = 3;
 }
 
 
@@ -364,46 +317,46 @@ Rock::Rock(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel) {
 //-----------------------------------------------------------------
 void Rock::UpdateVelocity()
 {
-	if (m_ptVelocity.x == 0 && m_ptVelocity.y == 0) return;
+  if (m_ptVelocity.x == 0 && m_ptVelocity.y == 0) return;
 
-	float multiplier = 8 / sqrt((m_ptVelocity.x * m_ptVelocity.x) + (m_ptVelocity.y * m_ptVelocity.y));
+  float multiplier = 8 / sqrt((m_ptVelocity.x * m_ptVelocity.x) + (m_ptVelocity.y * m_ptVelocity.y));
 
-	int decrease_x = (m_ptVelocity.x * multiplier);
-	int decrease_y = (m_ptVelocity.y * multiplier);
+  int decrease_x = (m_ptVelocity.x * multiplier);
+  int decrease_y = (m_ptVelocity.y * multiplier);
 
-	if (0 < m_ptVelocity.x) m_ptVelocity.x = max(0, m_ptVelocity.x - (m_ptVelocity.x * multiplier));
-	else if (0 > m_ptVelocity.x) m_ptVelocity.x = min(0, m_ptVelocity.x - (m_ptVelocity.x * multiplier));
+  if (0 < m_ptVelocity.x) m_ptVelocity.x = max(0, m_ptVelocity.x - (m_ptVelocity.x * multiplier));
+  else if (0 > m_ptVelocity.x) m_ptVelocity.x = min(0, m_ptVelocity.x - (m_ptVelocity.x * multiplier));
 
-	if (0 < m_ptVelocity.y) m_ptVelocity.y = max(0, m_ptVelocity.y - (m_ptVelocity.y * multiplier));
-	else if (0 > m_ptVelocity.y) m_ptVelocity.y = min(0, m_ptVelocity.y - (m_ptVelocity.y * multiplier));
+  if (0 < m_ptVelocity.y) m_ptVelocity.y = max(0, m_ptVelocity.y - (m_ptVelocity.y * multiplier));
+  else if (0 > m_ptVelocity.y) m_ptVelocity.y = min(0, m_ptVelocity.y - (m_ptVelocity.y * multiplier));
 }
 
-SPRITEACTION Rock::Update() {
+SPRITEACTION Rock::Update()
+{
+  SPRITEACTION out = Sprite::Update();
+  UpdateVelocity();
 
-	SPRITEACTION out = Sprite::Update();
-	UpdateVelocity();
+  if (m_iCooldown > 0) m_iCooldown--;
 
-	if (m_iCooldown > 0) m_iCooldown--;
+  BOOL bTopLeft = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.left, m_rcPosition.top });
+  BOOL bTopRight = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.right, m_rcPosition.top });
+  BOOL bBottomLeft = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.left, m_rcPosition.bottom });
+  BOOL bBottomRight = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.right, m_rcPosition.bottom });
 
-	BOOL bTopLeft = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.left, m_rcPosition.top });
-	BOOL bTopRight = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.right, m_rcPosition.top });
-	BOOL bBottomLeft = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.left, m_rcPosition.bottom });
-	BOOL bBottomRight = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.right, m_rcPosition.bottom });
-
-	if ((!bTopLeft && !bTopRight) || (!bBottomLeft && !bBottomRight))
-	{
-		m_ptVelocity.y = -m_ptVelocity.y;
-		POINT position = GetPositionFromCenter();
-		position.y += m_ptVelocity.y;
-		SetPositionFromCenter(position);
-	}
-	if ((!bTopLeft && !bBottomLeft) || (!bTopRight && !bBottomRight))
-	{
-		m_ptVelocity.x = -m_ptVelocity.x;
-		POINT position = GetPositionFromCenter();
-		position.x += m_ptVelocity.x;
-		SetPositionFromCenter(position);
-	}
+  if ((!bTopLeft && !bTopRight) || (!bBottomLeft && !bBottomRight))
+  {
+    m_ptVelocity.y = -m_ptVelocity.y;
+    POINT position = GetPositionFromCenter();
+    position.y += m_ptVelocity.y;
+    SetPositionFromCenter(position);
+  }
+  if ((!bTopLeft && !bBottomLeft) || (!bTopRight && !bBottomRight))
+  {
+    m_ptVelocity.x = -m_ptVelocity.x;
+    POINT position = GetPositionFromCenter();
+    position.x += m_ptVelocity.x;
+    SetPositionFromCenter(position);
+  }
 
 	for (Sprite* sprite : *(_pGame->GetSpritesListPointer())) {
 		Puddle* puddle = dynamic_cast<Puddle*>(sprite);

@@ -57,6 +57,11 @@ BOOL Level::IsPointCollidable(POINT ptPosition) {
   return tile->CanCollide();
 }
 
+POINT Level::GetNodeFromPosition(POINT ptPosition)
+{
+  return POINT{ ptPosition.x / 128, ptPosition.y / 128 };
+}
+
 //-----------------------------------------------------------------
 // Tile Constructor(s)/Destructor
 //-----------------------------------------------------------------

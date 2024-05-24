@@ -7,7 +7,6 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "SpaceOut.h"
-#include <random>
 
 //-----------------------------------------------------------------
 // Game Engine Functions
@@ -117,16 +116,44 @@ void GameStart(HWND hWindow)
   _pPlayer->SetPosition(POINT{ 256,256 });
   _pGame->AddSprite(_pPlayer);
 
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i < 8; i++)
   {
     // Modern C++ random generator
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, 3072);
 
-    // Random color for the enemy
-    Bitmap* bitmap2 = new Bitmap(hDC, 24, 24, RGB(dis(gen) % 256, dis(gen) % 256, dis(gen) % 256));
-    Enemy* enemy = new Enemy(bitmap2, _pLevel);
+    // Select enemy type randomly
+    const EnemyType type{ static_cast<EnemyType>(dis(gen) % 4) };
+
+    // Create enemy based on type
+    Bitmap* enemyBitmap = nullptr;
+    switch (type)
+    {
+      case EnemyType::FIRE:
+      {
+        enemyBitmap = new Bitmap(hDC, 24, 24, RGB(255, 75, 75));
+        break;
+      }
+      case EnemyType::WATER:
+      {
+        enemyBitmap = new Bitmap(hDC, 24, 24, RGB(75, 75, 255));
+        break;
+      }
+      case EnemyType::AIR:
+      {
+        enemyBitmap = new Bitmap(hDC, 24, 24, RGB(75, 255, 255));
+        break;
+      }
+      case EnemyType::EARTH:
+      {
+        enemyBitmap = new Bitmap(hDC, 24, 24, RGB(155, 115, 75));
+        break;
+      }
+    }
+
+    // Create enemy
+    Enemy* enemy = new Enemy(enemyBitmap, _pLevel, type, _pPlayer);
 
     // Random position between 0 and 1024
     enemy->SetPosition(POINT{ dis(gen), dis(gen) });
@@ -134,13 +161,12 @@ void GameStart(HWND hWindow)
     if (enemy->AmIStuck())
     {
       delete enemy;
-      delete bitmap2;
+      delete enemyBitmap;
       i--;
     }
     else
     {
       _pGame->AddSprite(enemy);
-      enemy->SetTarget(_pPlayer);
       _vEnemies.push_back(enemy);
     }
   }
@@ -150,7 +176,7 @@ void GameStart(HWND hWindow)
   _pElementQueue->SetPointBitmap(_pPointBitmap);
   _pElementQueue->FillRandom();
 
-  //Play the background music
+  // Play the background music
   _pGame->PlayMIDISong(TEXT("Music.mid"));
 
   
@@ -193,7 +219,7 @@ void GamePaint(HDC hDC)
 
   // Draw the sprites
   _pGame->DrawSprites(hDC);
-  
+
 }
 
 void GameCycle()
@@ -247,8 +273,9 @@ void HandleKeys()
   if (ptVelocity.x == 0 && ptVelocity.y == 0) {
       _pPlayer->SetFrameDelay(1000);
   }
-  else {
-      _pPlayer->SetFrameDelay(3);
+  else
+  {
+    _pPlayer->SetFrameDelay(3);
   }
 
   if (GetAsyncKeyState('1') < 0)
@@ -271,11 +298,13 @@ void HandleKeys()
   if (GetAsyncKeyState('K') < 0) {
       _pPlayer->SubtractHealth(10);
   }
-  if (GetAsyncKeyState('U') < 0) {
-      _pElementQueue->UseElement();
+  if (GetAsyncKeyState('U') < 0)
+  {
+    _pElementQueue->UseElement();
   }
-  if (GetAsyncKeyState('Y') < 0) {
-      _pElementQueue->AddRandomElement();
+  if (GetAsyncKeyState('Y') < 0)
+  {
+    _pElementQueue->AddRandomElement();
   }
 
 
@@ -284,10 +313,11 @@ void HandleKeys()
 
 void MouseButtonDown(int x, int y, BOOL bLeft)
 {
-    if (bLeft) {
-        RECT rtPlayerPos = _pPlayer->GetPosition();
-        POINT ptPlayerCenterPos = POINT{ (rtPlayerPos.left + rtPlayerPos.right) / 2, (rtPlayerPos.top + rtPlayerPos.bottom) / 2 };
-        POINT ptMouseOffset = POINT{ x - ptPlayerCenterPos.x, y - ptPlayerCenterPos.y };
+  if (bLeft)
+  {
+    RECT rtPlayerPos = _pPlayer->GetPosition();
+    POINT ptPlayerCenterPos = POINT{ (rtPlayerPos.left + rtPlayerPos.right) / 2, (rtPlayerPos.top + rtPlayerPos.bottom) / 2 };
+    POINT ptMouseOffset = POINT{ x - ptPlayerCenterPos.x, y - ptPlayerCenterPos.y };
 
         Swing* pSwingSprite;
         if (ptMouseOffset.y >= ptMouseOffset.x && ptMouseOffset.y >= -ptMouseOffset.x)
@@ -411,7 +441,7 @@ void MouseButtonUp(int x, int y, BOOL bLeft)
 
 void MouseMove(int x, int y)
 {
-    _pPlayer->SetMousePos(x, y);
+  _pPlayer->SetMousePos(x, y);
 }
 
 void HandleJoystick(JOYSTATE jsJoystickState)
