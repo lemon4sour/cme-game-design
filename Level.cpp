@@ -75,11 +75,13 @@ std::vector<std::vector<int>> Level::GenerateLevel() {
         layout[i][23] = 1;        // Right column
     }
 
-    for (int i = 3; i < 23; i += 3) {
-        for (int j = 3; j < 23; j +=3) {
-            layout[i][j] = 1;
+    for (int i = 1; i < 23; i ++) {
+        for (int j = 1; j < 23; j ++) {
+            if(i % 8 == 0 || j % 8 == 0)
+                layout[i][j] = 1;
         }
     }
+
     int random;
     // Fill the layout with random 0s and 1s
     for (int i = 1; i < 23; ++i) {
@@ -93,6 +95,15 @@ std::vector<std::vector<int>> Level::GenerateLevel() {
 
     for (int i = 1; i < 23; ++i) {
         for (int j = 1; j < 23; ++j) {
+            random = std::rand() % 10;
+
+            if (layout[i][j] == 1 && random >= 6)
+                layout[i][j] = 0;
+        }
+    }
+
+    for (int i = 2; i < 23; ++i) {
+        for (int j = 2; j < 23; ++j) {
             if (layout[i][j] == 0) {
                 if (layout[i - 1][j] == 1 && // Top
                     layout[i + 1][j] == 1 && // Bottom
