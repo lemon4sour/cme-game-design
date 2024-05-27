@@ -8,8 +8,9 @@
 //-----------------------------------------------------------------
 // Include files
 //-----------------------------------------------------------------
-#include "Bitmap.h"
 #include <vector>
+#include <ctime>
+#include "Bitmap.h"
 #include <windows.h>
 
 //-----------------------------------------------------------------
@@ -52,12 +53,13 @@ public:
   std::vector<std::vector<int>> m_layout;
 
   // Constructor/Destructor
-  Level(std::vector<std::vector<int>> layout, int iTileSize, int iLevelNumber);
+  Level(int iTileSize, int iLevelNumber);
   virtual ~Level();
 
   // General Methods
   void MapTile(int iValue, Bitmap* bmpTile, BOOL bCollidable = true);
   void Draw(HDC hDC);
+  std::vector<std::vector<int>> GenerateLevel();
   BOOL Level::IsPointCollidable(POINT ptPosition);
   POINT Level::GetNodeFromPosition(POINT ptPosition);
 };
