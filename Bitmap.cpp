@@ -13,28 +13,27 @@
 //-----------------------------------------------------------------
 Bitmap::Bitmap()
   : m_hBitmap(NULL), m_iWidth(0), m_iHeight(0)
-{
-}
+{}
 
 // Create a bitmap from a file
 Bitmap::Bitmap(HDC hDC, LPTSTR szFileName)
-  : m_hBitmap(NULL), m_iWidth(0), m_iHeight(0)
+  : m_hBitmap(NULL), m_iWidth(0), m_iHeight(0), m_hDC(hDC)
 {
-  Create(hDC, szFileName);
+  Create(szFileName);
 }
 
 // Create a bitmap from a resource
 Bitmap::Bitmap(HDC hDC, UINT uiResID, HINSTANCE hInstance)
-  : m_hBitmap(NULL), m_iWidth(0), m_iHeight(0)
+  : m_hBitmap(NULL), m_iWidth(0), m_iHeight(0), m_hDC(hDC)
 {
-  Create(hDC, uiResID, hInstance);
+  Create(uiResID, hInstance);
 }
 
 // Create a blank bitmap from scratch
 Bitmap::Bitmap(HDC hDC, int iWidth, int iHeight, COLORREF crColor)
-  : m_hBitmap(NULL), m_iWidth(0), m_iHeight(0)
+  : m_hBitmap(NULL), m_iWidth(0), m_iHeight(0), m_hDC(hDC)
 {
-  Create(hDC, iWidth, iHeight, crColor);
+  Create(iWidth, iHeight, crColor);
 }
 
 Bitmap::~Bitmap()
@@ -58,14 +57,14 @@ void Bitmap::Free()
 //-----------------------------------------------------------------
 // Bitmap General Methods
 //-----------------------------------------------------------------
-BOOL Bitmap::Create(HDC hDC, LPTSTR szFileName)
+BOOL Bitmap::Create(LPTSTR szFileName)
 {
   // Free any previous bitmap info
   Free();
 
   // Open the bitmap file
   HANDLE hFile = CreateFile(szFileName, GENERIC_READ, FILE_SHARE_READ, NULL,
-    OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+                            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
   if (hFile == INVALID_HANDLE_VALUE)
     return FALSE;
 
@@ -73,9 +72,9 @@ BOOL Bitmap::Create(HDC hDC, LPTSTR szFileName)
   BITMAPFILEHEADER  bmfHeader;
   DWORD             dwBytesRead;
   BOOL bOK = ReadFile(hFile, &bmfHeader, sizeof(BITMAPFILEHEADER),
-    &dwBytesRead, NULL);
+                      &dwBytesRead, NULL);
   if ((!bOK) || (dwBytesRead != sizeof(BITMAPFILEHEADER)) ||
-    (bmfHeader.bfType != 0x4D42))
+      (bmfHeader.bfType != 0x4D42))
   {
     CloseHandle(hFile);
     return FALSE;
@@ -86,7 +85,7 @@ BOOL Bitmap::Create(HDC hDC, LPTSTR szFileName)
   {
     // Read the bitmap info header
     bOK = ReadFile(hFile, pBitmapInfo, sizeof(BITMAPINFOHEADER),
-      &dwBytesRead, NULL);
+                   &dwBytesRead, NULL);
     if ((!bOK) || (dwBytesRead != sizeof(BITMAPINFOHEADER)))
     {
       CloseHandle(hFile);
@@ -101,22 +100,22 @@ BOOL Bitmap::Create(HDC hDC, LPTSTR szFileName)
     // Skip (forward or backward) to the color info, if necessary
     if (pBitmapInfo->bmiHeader.biSize != sizeof(BITMAPINFOHEADER))
       SetFilePointer(hFile, pBitmapInfo->bmiHeader.biSize - sizeof
-        (BITMAPINFOHEADER), NULL, FILE_CURRENT);
+      (BITMAPINFOHEADER), NULL, FILE_CURRENT);
 
     // Read the color info
     bOK = ReadFile(hFile, pBitmapInfo->bmiColors,
-      pBitmapInfo->bmiHeader.biClrUsed * sizeof(RGBQUAD), &dwBytesRead,
-      NULL);
+                   pBitmapInfo->bmiHeader.biClrUsed * sizeof(RGBQUAD), &dwBytesRead,
+                   NULL);
 
     // Get a handle to the bitmap and copy the image bits
     PBYTE pBitmapBits;
-    m_hBitmap = CreateDIBSection(hDC, pBitmapInfo, DIB_RGB_COLORS,
-      (PVOID*)&pBitmapBits, NULL, 0);
+    m_hBitmap = CreateDIBSection(m_hDC, pBitmapInfo, DIB_RGB_COLORS,
+                                 (PVOID*)&pBitmapBits, NULL, 0);
     if ((m_hBitmap != NULL) && (pBitmapBits != NULL))
     {
       SetFilePointer(hFile, bmfHeader.bfOffBits, NULL, FILE_BEGIN);
       bOK = ReadFile(hFile, pBitmapBits, pBitmapInfo->bmiHeader.biSizeImage,
-        &dwBytesRead, NULL);
+                     &dwBytesRead, NULL);
       if (bOK)
         return TRUE;
     }
@@ -127,7 +126,7 @@ BOOL Bitmap::Create(HDC hDC, LPTSTR szFileName)
   return FALSE;
 }
 
-BOOL Bitmap::Create(HDC hDC, UINT uiResID, HINSTANCE hInstance)
+BOOL Bitmap::Create(UINT uiResID, HINSTANCE hInstance)
 {
   // Free any previous DIB info
   Free();
@@ -157,8 +156,8 @@ BOOL Bitmap::Create(HDC hDC, UINT uiResID, HINSTANCE hInstance)
 
   // Get a handle to the bitmap and copy the image bits
   PBYTE pBitmapBits;
-  m_hBitmap = CreateDIBSection(hDC, pBitmapInfo, DIB_RGB_COLORS,
-    (PVOID*)&pBitmapBits, NULL, 0);
+  m_hBitmap = CreateDIBSection(m_hDC, pBitmapInfo, DIB_RGB_COLORS,
+                               (PVOID*)&pBitmapBits, NULL, 0);
   if ((m_hBitmap != NULL) && (pBitmapBits != NULL))
   {
     const PBYTE pTempBits = pBitmapImage + pBitmapInfo->bmiHeader.biSize +
@@ -178,10 +177,10 @@ BOOL Bitmap::Create(HDC hDC, UINT uiResID, HINSTANCE hInstance)
   return FALSE;
 }
 
-BOOL Bitmap::Create(HDC hDC, int iWidth, int iHeight, COLORREF crColor)
+BOOL Bitmap::Create(int iWidth, int iHeight, COLORREF crColor)
 {
   // Create a blank bitmap
-  m_hBitmap = CreateCompatibleBitmap(hDC, iWidth, iHeight);
+  m_hBitmap = CreateCompatibleBitmap(m_hDC, iWidth, iHeight);
   if (m_hBitmap == NULL)
     return FALSE;
 
@@ -190,7 +189,7 @@ BOOL Bitmap::Create(HDC hDC, int iWidth, int iHeight, COLORREF crColor)
   m_iHeight = iHeight;
 
   // Create a memory device context to draw on the bitmap
-  HDC hMemDC = CreateCompatibleDC(hDC);
+  HDC hMemDC = CreateCompatibleDC(m_hDC);
 
   // Create a solid brush to fill the bitmap
   HBRUSH hBrush = CreateSolidBrush(crColor);
@@ -216,7 +215,7 @@ void Bitmap::Draw(HDC hDC, int x, int y, BOOL bTrans, COLORREF crTransColor)
 }
 
 void Bitmap::DrawPart(HDC hDC, int x, int y, int xPart, int yPart,
-  int wPart, int hPart, BOOL bTrans, COLORREF crTransColor)
+                      int wPart, int hPart, BOOL bTrans, COLORREF crTransColor)
 {
   if (m_hBitmap != NULL)
   {
@@ -229,7 +228,7 @@ void Bitmap::DrawPart(HDC hDC, int x, int y, int xPart, int yPart,
     // Draw the bitmap to the destination device context
     if (bTrans)
       TransparentBlt(hDC, x, y, wPart, hPart, hMemDC, xPart, yPart,
-        wPart, hPart, crTransColor);
+                     wPart, hPart, crTransColor);
     else
       BitBlt(hDC, x, y, wPart, hPart, hMemDC, xPart, yPart, SRCCOPY);
 

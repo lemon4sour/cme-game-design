@@ -28,6 +28,7 @@ protected:
   // Member Variables
   HBITMAP m_hBitmap;
   int     m_iWidth, m_iHeight;
+  HDC m_hDC;
 
   // Helper Methods
   void Free();
@@ -41,14 +42,14 @@ public:
   virtual ~Bitmap();
 
   // General Methods
-  BOOL Create(HDC hDC, LPTSTR szFileName);
-  BOOL Create(HDC hDC, UINT uiResID, HINSTANCE hInstance);
-  BOOL Create(HDC hDC, int iWidth, int iHeight, COLORREF crColor);
+  BOOL Create(LPTSTR szFileName);
+  BOOL Create(UINT uiResID, HINSTANCE hInstance);
+  BOOL Create(int iWidth, int iHeight, COLORREF crColor);
   void Draw(HDC hDC, int x, int y, BOOL bTrans = FALSE,
-    COLORREF crTransColor = RGB(255, 0, 255));
+            COLORREF crTransColor = RGB(255, 0, 255));
   void DrawPart(HDC hDC, int x, int y, int xPart, int yPart,
-    int wPart, int hPart, BOOL bTrans = FALSE,
-    COLORREF crTransColor = RGB(255, 0, 255));
+                int wPart, int hPart, BOOL bTrans = FALSE,
+                COLORREF crTransColor = RGB(255, 0, 255));
   int  GetWidth() { return m_iWidth; };
   int  GetHeight() { return m_iHeight; };
 };

@@ -100,52 +100,27 @@ void GameStart(HWND hWindow)
   _pPlayer->SetPosition(POINT{ 256,256 });
   _pGame->AddSprite(_pPlayer);
 
+  std::random_device rd;
+  std::mt19937 gen(rd());
   for (int i = 0; i < 8; i++)
   {
-    // Modern C++ random generator
-    std::random_device rd;
-    std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(0, 3072);
 
     // Select enemy type randomly
     const EnemyType type{ static_cast<EnemyType>(dis(gen) % 4) };
 
-    // Create enemy based on type
-    Bitmap* enemyBitmap = nullptr;
-    switch (type)
-    {
-      case EnemyType::FIRE:
-      {
-        enemyBitmap = new Bitmap(hDC, 24, 24, RGB(255, 75, 75));
-        break;
-      }
-      case EnemyType::WATER:
-      {
-        enemyBitmap = new Bitmap(hDC, 24, 24, RGB(75, 75, 255));
-        break;
-      }
-      case EnemyType::AIR:
-      {
-        enemyBitmap = new Bitmap(hDC, 24, 24, RGB(75, 255, 255));
-        break;
-      }
-      case EnemyType::EARTH:
-      {
-        enemyBitmap = new Bitmap(hDC, 24, 24, RGB(155, 115, 75));
-        break;
-      }
-    }
-
     // Create enemy
-    Enemy* enemy = new Enemy(enemyBitmap, _pLevel, type, _pPlayer);
+    Enemy* enemy = new Enemy(
+      new Bitmap(hDC, 24, 24, RGB(255, 0, 255)), _pLevel, type, _pPlayer
+    );
 
     // Random position between 0 and 1024
     enemy->SetPosition(POINT{ dis(gen), dis(gen) });
 
     if (enemy->AmIStuck())
     {
+      reinterpret_cast<Sprite*>(enemy)->~Sprite();
       delete enemy;
-      delete enemyBitmap;
       i--;
     }
     else

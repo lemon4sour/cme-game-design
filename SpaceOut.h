@@ -9,7 +9,6 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "Actor.h"
-#include "Actor.h"
 #include "Bitmap.h"
 #include "GameEngine.h"
 #include "Gui.h"
