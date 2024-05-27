@@ -62,9 +62,6 @@ POINT Level::GetNodeFromPosition(POINT ptPosition)
   return POINT{ ptPosition.x / 32, ptPosition.y / 32 };
 }
 
-    return layout;
-}
-
 std::vector<std::vector<int>> Level::GenerateLevel() {
     // Initialize the random seed
     std::srand(std::time(nullptr));

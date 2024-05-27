@@ -442,6 +442,15 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
             rock->Kill();
             return false;
         }
+
+        Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
+        // ROCK TO ENEMY
+        if (enemy) {
+            if (rock->GetVelocity().x != 0 || rock->GetVelocity().y != 0) {
+                enemy->Kill();
+            }
+            return false;
+        }
     }
 
     Fireball* fireball = dynamic_cast<Fireball*>(pSpriteHitter);
@@ -517,7 +526,7 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
         Puddle* puddle = dynamic_cast<Puddle*>(pSpriteHittee);
         // MUD TO PUDDLE
         if (puddle) {
-            if (mud->getSpreadCooldown()) {
+            if (mud->getSpreadCooldown() <= 0) {
                 Mud* _pMud = new Mud(_pMudBitmap, _pLevel);
                 _pMud->SetPositionFromCenter(puddle->GetPositionFromCenter());
                 _pGame->AddSprite(_pMud);

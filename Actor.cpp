@@ -202,25 +202,25 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
     case EnemyType::ANGRY_GUY:
     {
       m_enemySize = 28;
-      m_speed = 10;
+      m_speed = 3;
       break;
     }
     case EnemyType::DUTY_GUY:
     {
       m_enemySize = 24;
-      m_speed = 8;
+      m_speed = 2;
       break;
     }
     case EnemyType::HEAVY_GUY:
     {
       m_enemySize = 32;
-      m_speed = 5;
+      m_speed = 1;
       break;
     }
     case EnemyType::COWARD_GUY:
     {
       m_enemySize = 20;
-      m_speed = 11;
+      m_speed = 4;
       break;
     }
   }
@@ -278,7 +278,7 @@ void Enemy::UpdateState()
     POINT playerPos = m_pTarget->GetPositionFromCenter();
     POINT enemyPos = GetPositionFromCenter();
     int distance = sqrt(pow(playerPos.x - enemyPos.x, 2) + pow(playerPos.y - enemyPos.y, 2));
-    if (distance <= 512)
+    if (distance <= 128)
     {
       if (m_type == EnemyType::COWARD_GUY)
       {
@@ -299,7 +299,7 @@ void Enemy::UpdateState()
       POINT playerPos = m_pTarget->GetPositionFromCenter();
       POINT enemyPos = GetPositionFromCenter();
       int distance = sqrt(pow(playerPos.x - enemyPos.x, 2) + pow(playerPos.y - enemyPos.y, 2));
-      if (distance > 512)
+      if (distance > 128)
       {
         // Set last known position as target
         m_destination = m_pLevel->GetNodeFromPosition(playerPos);
@@ -316,7 +316,7 @@ void Enemy::UpdateState()
       POINT playerPos = m_pTarget->GetPositionFromCenter();
       POINT enemyPos = GetPositionFromCenter();
       int distance = sqrt(pow(playerPos.x - enemyPos.x, 2) + pow(playerPos.y - enemyPos.y, 2));
-      if (distance > 512)
+      if (distance > 128)
       {
         // Set last known position as target
         m_destination = m_pLevel->GetNodeFromPosition(playerPos);
@@ -413,6 +413,7 @@ SPRITEACTION Enemy::Update()
   Move();
   UpdateVelocity();
   SPRITEACTION out = Actor::Update();
+
   if (m_pTarget != NULL)
   {
     if (TestCollision(m_pTarget))

@@ -65,6 +65,7 @@ public:
   BOOL                  IsPointInside(int x, int y);
   BOOL                  TestCollision(Sprite* pTestSprite);
   void                  Kill()      { m_bDying = TRUE; };
+  BOOL                  GetDyingState() { return m_bDying; };
 
   // Accessor Methods
   Bitmap* GetBitmap()               { return m_pBitmap; };
@@ -76,6 +77,7 @@ public:
   void    SetPosition(RECT& rcPosition);
   void SetPositionFromCenter(int x, int y);
   POINT   GetPositionFromCenter() { return POINT{ (m_rcPosition.left + m_rcPosition.right) / 2, (m_rcPosition.top + m_rcPosition.bottom) / 2 }; };
+  POINT   GetTilePosition() { POINT point = GetPositionFromCenter(); return POINT{ point.x / 32, point.y / 32 }; };
   void    SetPositionFromCenter(POINT ptPosition);
   void    OffsetPosition(int x, int y);
   RECT&   GetCollision()            { return m_rcCollision; };

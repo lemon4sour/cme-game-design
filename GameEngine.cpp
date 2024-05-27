@@ -369,8 +369,6 @@ void GameEngine::UpdateSprites()
     // Update the sprite
     saSpriteAction = (*siSprite)->Update();
 
-    CheckSpriteCollision(*siSprite);
-
     // Handle the SA_ADDSPRITE sprite action
     if (saSpriteAction & SA_ADDSPRITE)
       // Allow the sprite to add its sprite
@@ -389,6 +387,8 @@ void GameEngine::UpdateSprites()
       //siSprite--;
       continue;
     }
+
+    CheckSpriteCollision(*siSprite);
 
     // See if the sprite collided with any others
     //if (CheckSpriteCollision(*siSprite))
