@@ -7,6 +7,8 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "Actor.h"
+#include "cassert"
+#include <chrono>
 
 GameEngine* Actor::_pGame = nullptr;
 
@@ -184,33 +186,147 @@ SPRITEACTION Swing::Update()
 // Enemy Constructor(s)/Destructor
 //-----------------------------------------------------------------
 Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
-  : Actor(bmpBitmap, pLevel), m_type(type), m_pTarget(pTarget)
+  : Actor(bmpBitmap, pLevel), m_type(type), m_pTarget(pTarget), m_speed(0)
+  , m_state(EnemyState::PATROLLING)
+  , m_lastPosition(GetPositionFromCenter())
+  , m_lastPositionUpdateTime(GetCurrentTimeMillis())
 {
   m_aStar = AStar(pLevel);
   m_ptTargetVelocity = POINT{ 0,0 };
   m_iState = 0;
   m_iSize = 24;
   m_pSpriteStates[0] = bmpBitmap;
+  m_destination = FindNextDestination();
   switch (type)
   {
-    case EnemyType::FIRE:
-      m_speed = 2;
+    case EnemyType::ANGRY_GUY:
+    {
+      m_enemySize = 28;
+      m_speed = 10;
       break;
-    case EnemyType::WATER:
-      m_speed = 2;
+    }
+    case EnemyType::DUTY_GUY:
+    {
+      m_enemySize = 24;
+      m_speed = 8;
       break;
-    case EnemyType::EARTH:
-      m_speed = 2;
+    }
+    case EnemyType::HEAVY_GUY:
+    {
+      m_enemySize = 32;
+      m_speed = 5;
       break;
-    case EnemyType::AIR:
-      m_speed = 2;
+    }
+    case EnemyType::COWARD_GUY:
+    {
+      m_enemySize = 20;
+      m_speed = 11;
       break;
+    }
   }
+  ChangeBitmap();
 }
 
 //-----------------------------------------------------------------
 // Enemy General Methods
 //-----------------------------------------------------------------
+void Enemy::ChangeBitmap()
+{
+  switch (m_state)
+  {
+    case EnemyState::PATROLLING:
+    {
+      GetBitmap()->Create(m_enemySize, m_enemySize, RGB(75, 75, 255));
+      break;
+    }
+    case EnemyState::ATTACKING:
+    {
+      GetBitmap()->Create(m_enemySize, m_enemySize, RGB(255, 75, 75));
+      break;
+    }
+    case EnemyState::ESCAPING:
+    {
+      GetBitmap()->Create(m_enemySize, m_enemySize, RGB(75, 255, 75));
+      break;
+    }
+  }
+}
+
+void Enemy::HandleStuck()
+{
+  if (GetCurrentTimeMillis() < m_lastPositionUpdateTime + 500)
+  {
+    return;
+  }
+
+  POINT currentPosition = GetPositionFromCenter();
+
+  if (m_lastPosition.x == currentPosition.x
+      && m_lastPosition.y == currentPosition.y)
+  {
+    m_destination = FindNextDestination();
+    m_state = EnemyState::PATROLLING;
+    ChangeBitmap();
+  }
+}
+
+void Enemy::UpdateState()
+{
+  if (m_state == EnemyState::PATROLLING)
+  {
+    // Check distance to target
+    POINT playerPos = m_pTarget->GetPositionFromCenter();
+    POINT enemyPos = GetPositionFromCenter();
+    int distance = sqrt(pow(playerPos.x - enemyPos.x, 2) + pow(playerPos.y - enemyPos.y, 2));
+    if (distance <= 512)
+    {
+      if (m_type == EnemyType::COWARD_GUY)
+      {
+        m_state = EnemyState::ESCAPING;
+      }
+      else
+      {
+        m_state = EnemyState::ATTACKING;
+      }
+      ChangeBitmap();
+    }
+  }
+  else if (m_state == EnemyState::ATTACKING)
+  {
+    if (m_type != EnemyType::ANGRY_GUY)
+    {
+      // Check distance to target
+      POINT playerPos = m_pTarget->GetPositionFromCenter();
+      POINT enemyPos = GetPositionFromCenter();
+      int distance = sqrt(pow(playerPos.x - enemyPos.x, 2) + pow(playerPos.y - enemyPos.y, 2));
+      if (distance > 512)
+      {
+        // Set last known position as target
+        m_destination = m_pLevel->GetNodeFromPosition(playerPos);
+        m_state = EnemyState::PATROLLING;
+        ChangeBitmap();
+      }
+    }
+  }
+  else if (m_state == EnemyState::ESCAPING)
+  {
+    if (m_type == EnemyType::COWARD_GUY)
+    {
+      // Check distance to target
+      POINT playerPos = m_pTarget->GetPositionFromCenter();
+      POINT enemyPos = GetPositionFromCenter();
+      int distance = sqrt(pow(playerPos.x - enemyPos.x, 2) + pow(playerPos.y - enemyPos.y, 2));
+      if (distance > 512)
+      {
+        // Set last known position as target
+        m_destination = m_pLevel->GetNodeFromPosition(playerPos);
+        m_state = EnemyState::PATROLLING;
+        ChangeBitmap();
+      }
+    }
+  }
+}
+
 void Enemy::UpdateVelocity()
 {
   if (m_ptTargetVelocity.x < m_ptVelocity.x) m_ptVelocity.x = max(m_ptTargetVelocity.x, m_ptVelocity.x - 1);
@@ -220,45 +336,81 @@ void Enemy::UpdateVelocity()
   else if (m_ptTargetVelocity.y > m_ptVelocity.y) m_ptVelocity.y = min(m_ptTargetVelocity.y, m_ptVelocity.y + 1);
 }
 
-void Enemy::Catch()
+POINT Enemy::FindNextDestination()
 {
-  if (m_pTarget == NULL) return;
+  POINT dest{ 0,0 };
+  bool impossiblePosition{ true };
+  while (impossiblePosition)
+  {
+    dest = POINT{
+            static_cast<long>((size_t)rand() % m_pLevel->m_layout[0].size()),
+            static_cast<long>((size_t)rand() % m_pLevel->m_layout.size())
+    };
+
+    // Check if the destination is a wall
+    impossiblePosition = m_pLevel->m_layout[dest.y][dest.x] != 0;
+  }
+  return dest;
+}
+
+void Enemy::Move()
+{
+  HandleStuck();
 
   // Which node am I on?
   POINT startNode = m_pLevel->GetNodeFromPosition(GetPositionFromCenter());
 
   // Which node is target on?
-  POINT endNode = m_pLevel->GetNodeFromPosition(m_pTarget->GetPositionFromCenter());
+  POINT endNode{ 0,0 };
+  if (m_state == EnemyState::PATROLLING)
+    endNode = m_destination;
+  else if (m_state == EnemyState::ATTACKING)
+    endNode = m_pLevel->GetNodeFromPosition(m_pTarget->GetPositionFromCenter());
+  else if (m_state == EnemyState::ESCAPING)
+    endNode = m_pLevel->GetNodeFromPosition(m_pTarget->GetPositionFromCenter());
 
   // Find path
   std::vector<POINT> path = m_aStar.findPath(startNode, endNode);
 
-  if (path.size() == 0) return;
+  if (path.empty())
+  {
+    if (m_state == EnemyState::PATROLLING)
+    {
+      m_destination = FindNextDestination();
+    }
+    return;
+  }
 
   POINT nextNode = path[0];
 
-  if (nextNode.x < startNode.x)
+  // Calculate x, y distances to the end node from start node
+  int xDistance = nextNode.x - startNode.x;
+  int yDistance = nextNode.y - startNode.y;
+
+  // Give the m_speed to bigger component and adjust the other component accordingly
+  if (abs(xDistance) > abs(yDistance))
   {
-    m_ptTargetVelocity.x = -m_speed;
+    m_ptTargetVelocity.x = m_speed * (xDistance / abs(xDistance));
+    m_ptTargetVelocity.y = m_speed * (yDistance / abs(xDistance));
   }
-  else if (nextNode.x > startNode.x)
+  else
   {
-    m_ptTargetVelocity.x = m_speed;
+    m_ptTargetVelocity.x = m_speed * (xDistance / abs(yDistance));
+    m_ptTargetVelocity.y = m_speed * (yDistance / abs(yDistance));
   }
 
-  if (nextNode.y < startNode.y)
+  // Reverse if enemy escaping
+  if (m_state == EnemyState::ESCAPING)
   {
-    m_ptTargetVelocity.y = -m_speed;
-  }
-  else if (nextNode.y > startNode.y)
-  {
-    m_ptTargetVelocity.y = m_speed;
+    m_ptTargetVelocity.x = -m_ptTargetVelocity.x;
+    m_ptTargetVelocity.y = -m_ptTargetVelocity.y;
   }
 }
 
 SPRITEACTION Enemy::Update()
 {
-  Catch();
+  UpdateState();
+  Move();
   UpdateVelocity();
   SPRITEACTION out = Actor::Update();
   if (m_pTarget != NULL)
@@ -268,7 +420,26 @@ SPRITEACTION Enemy::Update()
       m_pTarget->SubtractHealth(1);
     }
   }
+
+  // Update last position
+  POINT currentPosition = GetPositionFromCenter();
+
+  if (m_lastPosition.x != currentPosition.x || m_lastPosition.y != currentPosition.y)
+  {
+    m_lastPosition = currentPosition;
+    m_lastPositionUpdateTime = GetCurrentTimeMillis();
+  }
+
   return out;
+}
+
+long long Enemy::GetCurrentTimeMillis()
+{
+  auto now = std::chrono::steady_clock::now();
+  auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+  auto epoch = now_ms.time_since_epoch();
+  auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(epoch);
+  return milliseconds.count();
 }
 
 //-----------------------------------------------------------------

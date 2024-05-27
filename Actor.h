@@ -88,10 +88,17 @@ public:
 
 enum class EnemyType : std::uint8_t
 {
-  FIRE,
-  WATER,
-  EARTH,
-  AIR
+  ANGRY_GUY,
+  DUTY_GUY,
+  HEAVY_GUY,
+  COWARD_GUY
+};
+
+enum class EnemyState : std::uint8_t
+{
+  PATROLLING,
+  ATTACKING,
+  ESCAPING,
 };
 
 class Enemy : public Actor
@@ -102,13 +109,24 @@ protected:
   Player* m_pTarget;
   AStar m_aStar;
   EnemyType m_type;
+  POINT m_destination{ 0,0 };
+  EnemyState m_state;
+  long long m_lastPositionUpdateTime;
+  POINT m_lastPosition;
+  int m_enemySize;
 public:
   Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget);
   void 	Enemy::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
   POINT Enemy::GetTargetVelocity() { return m_ptTargetVelocity; };
-  void Enemy::Catch();
+  void Enemy::UpdateState();
+  void Enemy::Move();
   void 	Enemy::UpdateVelocity();
+  void Enemy::ChangeBitmap();
   SPRITEACTION Enemy::Update() override;
+private:
+  POINT FindNextDestination();
+  void HandleStuck();
+  long long GetCurrentTimeMillis();
 };
 
 //-----------------------------------------------------------------
