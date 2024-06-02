@@ -49,6 +49,7 @@ IDB_EYERIGHT          BITMAP       "assets/sprites/enemy/eyeright.bmp"
 IDB_EYEBACKLEFT       BITMAP       "assets/sprites/enemy/eyebackleft.bmp"
 IDB_EYEBACKRIGHT      BITMAP       "assets/sprites/enemy/eyebackright.bmp"
 IDB_EYEBULLET         BITMAP       "assets/sprites/enemy/eyebullet.bmp"
+IDB_SLIME             BITMAP       "assets/sprites/enemy/slime.bmp"
 
 
 //-----------------------------------------------------------------

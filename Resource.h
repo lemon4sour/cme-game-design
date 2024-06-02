@@ -44,6 +44,7 @@
 #define IDB_EYEBACKLEFT       2512
 #define IDB_EYEBACKRIGHT      2513
 #define IDB_EYEBULLET         2514
+#define IDB_SLIME             2515
 
 //#define IDB_DESERT            2000
 //#define IDB_CAR               2001

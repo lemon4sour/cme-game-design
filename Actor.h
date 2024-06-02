@@ -139,6 +139,7 @@ public:
   void Enemy::Move();
   void 	Enemy::UpdateVelocity();
   //void Enemy::ChangeBitmap();
+  void Enemy::SetAbilityTimer(int iAbilityTimer) { m_iAbilityTimer = iAbilityTimer; };
   SPRITEACTION Enemy::Update() override;
 private:
   POINT FindNextDestination();

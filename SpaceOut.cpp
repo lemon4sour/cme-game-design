@@ -104,6 +104,8 @@ void GameStart(HWND hWindow)
   Bitmap* bmpEyeBullet = new Bitmap(hDC, IDB_EYEBULLET, _hInstance);
   Enemy::SetBulletBitmap(bmpEyeBullet);
 
+  Bitmap* bmpSlime = new Bitmap(hDC, IDB_SLIME, _hInstance);
+
 
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -113,8 +115,6 @@ void GameStart(HWND hWindow)
 
     // Select enemy type randomly
     EnemyType type{ static_cast<EnemyType>(dis(gen) % 4) };
-
-    type = EnemyType::ANGRY_GUY;
 
     Enemy* enemy;
 
@@ -138,13 +138,22 @@ void GameStart(HWND hWindow)
         enemy->LinkBitmapToState(CowardState::COWARDBACKLEFT, bmpEyeBackLeft);
         enemy->LinkBitmapToState(CowardState::COWARDBACKRIGHT, bmpEyeBackRight);
         enemy->SetZOrder(7);
+        enemy->SetNumFrames(3);
+        enemy->SetFrameDelay(10);
+    }
+    else if (type == EnemyType::DUTY_GUY) {
+        enemy = enemy = new Enemy(
+            bmpSlime, _pLevel, type, _pPlayer
+        );
+        enemy->SetZOrder(7);
         enemy->SetNumFrames(4);
         enemy->SetFrameDelay(10);
     }
     else {
         enemy = new Enemy(
-            new Bitmap(hDC, 24, 24, RGB(255, 0, 255)), _pLevel, type, _pPlayer
+            new Bitmap(hDC, 56, 56, RGB(255, 0, 255)), _pLevel, type, _pPlayer
         );
+        enemy->SetZOrder(7);
     }
 
     // Random position between 0 and 1024
@@ -529,6 +538,8 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
         // FIREBALL TO ENEMY
         if (enemy) {
             if (fireball->isEnemy() && !fireball->isParried()) return false;
+            if (enemy->GetEnemyType() == EnemyType::ANGRY_GUY) return false;
+            if (enemy->GetEnemyType() == EnemyType::DUTY_GUY) fireball->Kill();
             enemy->Kill();
             return false;
         }
@@ -675,10 +686,10 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
         Rock* rock = dynamic_cast<Rock*>(pSpriteHittee);
         if (rock) {
                 if (gust->GetVelocity().x == 0) {
-                    rock->SetVelocity(gust->GetVelocity().x - ((gust->GetPositionFromCenter().x - rock->GetPositionFromCenter().x) / 6), ((3 * gust->GetVelocity().y) / 2) + rock->GetVelocity().y);
+                    rock->SetVelocity(gust->GetVelocity().x - ((gust->GetPositionFromCenter().x - rock->GetPositionFromCenter().x) / 6), ((gust->GetVelocity().y) / 2) + rock->GetVelocity().y);
                 }
                 else {
-                    rock->SetVelocity(((3 * gust->GetVelocity().x) / 2) + rock->GetVelocity().x, gust->GetVelocity().y - ((gust->GetPositionFromCenter().y - rock->GetPositionFromCenter().y) / 6));
+                    rock->SetVelocity(((gust->GetVelocity().x) / 2) + rock->GetVelocity().x, gust->GetVelocity().y - ((gust->GetPositionFromCenter().y - rock->GetPositionFromCenter().y) / 6));
                 }
             return false;
         }

@@ -474,12 +474,17 @@ SPRITEACTION Enemy::Update()
 
   if (--m_iAbilityTimer <= 0) {
       if (m_type == EnemyType::ANGRY_GUY) {
-          Flame* pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
-          pFlame->SetNumFrames(3);
-          pFlame->SetPositionFromCenter(GetPositionFromCenter());
-          pFlame->SetTime(40);
-          _pGame->AddSprite(pFlame);
-          m_iAbilityTimer = 10;
+          if (m_state == EnemyState::ATTACKING) {
+              Flame* pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
+              pFlame->SetNumFrames(3);
+              pFlame->SetPositionFromCenter(GetPositionFromCenter());
+              pFlame->SetTime(40);
+              _pGame->AddSprite(pFlame);
+              m_iAbilityTimer = 15;
+          }
+          else {
+              m_iAbilityTimer = 0;
+          }
       }
       if (m_type == EnemyType::COWARD_GUY) {
           if (m_state == EnemyState::PATROLLING) {
@@ -501,6 +506,24 @@ SPRITEACTION Enemy::Update()
               _pGame->AddSprite(pBullet);
 
               m_iAbilityTimer = 20;
+          }
+      }
+      if (m_type == EnemyType::DUTY_GUY) {
+          if (m_state == EnemyState::ATTACKING) {
+              Enemy* enemy = enemy = new Enemy(
+                  m_pBitmap, m_pLevel, EnemyType::DUTY_GUY, m_pTarget
+              );
+              enemy->SetZOrder(7);
+              enemy->SetNumFrames(4);
+              enemy->SetFrameDelay(10);
+              enemy->SetPositionFromCenter(GetPositionFromCenter().x + (rand() % 50) - 25, GetPositionFromCenter().y + (rand() % 50) - 25);
+              enemy->SetAbilityTimer(50);
+              _pGame->AddSprite(enemy);
+
+              m_iAbilityTimer = 50;
+          }
+          else {
+              m_iAbilityTimer = 0;
           }
       }
   }
