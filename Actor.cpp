@@ -7,7 +7,7 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "Actor.h"
-#include "cassert"
+#include "resource.h"
 #include <chrono>
 
 GameEngine* Actor::_pGame = nullptr;
@@ -101,6 +101,7 @@ Player::Player(Bitmap* bmpBitmap, Level* pLevel) : Actor(bmpBitmap, pLevel)
   m_iSize = 24;
   m_iMaxHealth = 100;
   m_iCurrentHealth = m_iMaxHealth;
+  m_iInvFrames = 0;
 
   m_pSpriteStates[0] = bmpBitmap;
 }
@@ -123,8 +124,9 @@ void Player::UpdateVelocity()
 
 void Player::SubtractHealth(int value)
 {
-  if (m_iCurrentHealth > 0)
+  if (m_iCurrentHealth > 0 && m_iInvFrames <= 0)
   {
+    m_iInvFrames = 10;
     m_iCurrentHealth = m_iCurrentHealth - value > 0 ? m_iCurrentHealth - value : 0;
   }
 }
@@ -158,6 +160,8 @@ SPRITEACTION Player::Update()
     //UP
   }
 
+  m_iInvFrames--;
+
   return out;
 }
 
@@ -166,20 +170,25 @@ SPRITEACTION Player::Update()
 //-----------------------------------------------------------------
 Swing::Swing(Bitmap* bmpBitmap, Level* pLevel, POINT ptDirection) : Actor(bmpBitmap, pLevel)
 {
-  m_iActiveTime = 3;
+  m_iActiveTime = 2;
   m_ptDirection = ptDirection;
 }
 
 //-----------------------------------------------------------------
 // Swing General Methods
 //-----------------------------------------------------------------
+
+Bitmap* Enemy::m_bmpBullet = nullptr;
+
 SPRITEACTION Swing::Update()
 {
+    SPRITEACTION out = Sprite::Update();
+
 	if (m_iActiveTime-- <= 0)
 	{
 		return SA_KILL;
 	}
-	return SA_NONE;
+	return out;
 }
 
 //-----------------------------------------------------------------
@@ -201,7 +210,7 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
   {
     case EnemyType::ANGRY_GUY:
     {
-      m_enemySize = 28;
+        m_iAbilityTimer = 30;
       m_speed = 3;
       break;
     }
@@ -224,33 +233,39 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
       break;
     }
   }
-  ChangeBitmap();
 }
 
 //-----------------------------------------------------------------
 // Enemy General Methods
 //-----------------------------------------------------------------
+/*
 void Enemy::ChangeBitmap()
 {
-  switch (m_state)
+  switch (m_type)
   {
-    case EnemyState::PATROLLING:
-    {
-      GetBitmap()->Create(m_enemySize, m_enemySize, RGB(75, 75, 255));
-      break;
-    }
-    case EnemyState::ATTACKING:
+    case EnemyType::ANGRY_GUY:
     {
       GetBitmap()->Create(m_enemySize, m_enemySize, RGB(255, 75, 75));
       break;
     }
-    case EnemyState::ESCAPING:
+    case EnemyType::DUTY_GUY:
+    {
+      GetBitmap()->Create(m_enemySize, m_enemySize, RGB(255, 75, 75));
+      break;
+    }
+    case EnemyType::HEAVY_GUY:
+    {
+      GetBitmap()->Create(m_enemySize, m_enemySize, RGB(75, 255, 75));
+      break;
+    }
+    case EnemyType::COWARD_GUY:
     {
       GetBitmap()->Create(m_enemySize, m_enemySize, RGB(75, 255, 75));
       break;
     }
   }
 }
+*/
 
 void Enemy::HandleStuck()
 {
@@ -266,12 +281,41 @@ void Enemy::HandleStuck()
   {
     m_destination = FindNextDestination();
     m_state = EnemyState::PATROLLING;
-    ChangeBitmap();
   }
 }
 
 void Enemy::UpdateState()
 {
+    if (m_type == EnemyType::ANGRY_GUY) {
+        if (m_ptVelocity.x > 0) {
+            SetState(AngryState::ANGRYRIGHT);
+        }
+        else {
+            SetState(AngryState::ANGRYLEFT);
+        }
+    }
+    else if (m_type == EnemyType::COWARD_GUY) {
+        if (m_ptVelocity.x > 0) {
+            if (m_ptVelocity.y > 0) {
+                SetState(CowardState::COWARDRIGHT);
+            }
+            else {
+                SetState(CowardState::COWARDBACKRIGHT);
+            }
+        }
+        else {
+            if (m_ptVelocity.y > 0) {
+                SetState(CowardState::COWARDLEFT);
+            }
+            else {
+                SetState(CowardState::COWARDBACKLEFT);
+            }
+        }
+    }
+    
+
+    
+
   if (m_state == EnemyState::PATROLLING)
   {
     // Check distance to target
@@ -288,7 +332,6 @@ void Enemy::UpdateState()
       {
         m_state = EnemyState::ATTACKING;
       }
-      ChangeBitmap();
     }
   }
   else if (m_state == EnemyState::ATTACKING)
@@ -304,7 +347,6 @@ void Enemy::UpdateState()
         // Set last known position as target
         m_destination = m_pLevel->GetNodeFromPosition(playerPos);
         m_state = EnemyState::PATROLLING;
-        ChangeBitmap();
       }
     }
   }
@@ -321,7 +363,6 @@ void Enemy::UpdateState()
         // Set last known position as target
         m_destination = m_pLevel->GetNodeFromPosition(playerPos);
         m_state = EnemyState::PATROLLING;
-        ChangeBitmap();
       }
     }
   }
@@ -418,7 +459,7 @@ SPRITEACTION Enemy::Update()
   {
     if (TestCollision(m_pTarget))
     {
-      m_pTarget->SubtractHealth(1);
+      m_pTarget->SubtractHealth(10);
     }
   }
 
@@ -429,6 +470,39 @@ SPRITEACTION Enemy::Update()
   {
     m_lastPosition = currentPosition;
     m_lastPositionUpdateTime = GetCurrentTimeMillis();
+  }
+
+  if (--m_iAbilityTimer <= 0) {
+      if (m_type == EnemyType::ANGRY_GUY) {
+          Flame* pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
+          pFlame->SetNumFrames(3);
+          pFlame->SetPositionFromCenter(GetPositionFromCenter());
+          pFlame->SetTime(40);
+          _pGame->AddSprite(pFlame);
+          m_iAbilityTimer = 10;
+      }
+      if (m_type == EnemyType::COWARD_GUY) {
+          if (m_state == EnemyState::PATROLLING) {
+              m_iAbilityTimer = 0;
+          }
+          else {
+              Fireball* pBullet = new Fireball(Enemy::m_bmpBullet, m_pLevel);
+              POINT ptTargetPos = m_pTarget->GetPositionFromCenter();
+              POINT ptEnemyPos = GetPositionFromCenter();
+              POINT ptVelocity = POINT{ ptTargetPos.x - ptEnemyPos.x, ptTargetPos.y - ptEnemyPos.y};
+
+              float multiplier = 10 / sqrt((ptVelocity.x * ptVelocity.x) + (ptVelocity.y * ptVelocity.y));
+              pBullet->setEnemy(true);
+              pBullet->SetPositionFromCenter(ptEnemyPos);
+              pBullet->SetVelocity(ptVelocity.x * multiplier, ptVelocity.y * multiplier);
+              pBullet->SetNumFrames(2);
+              pBullet->SetFrameDelay(1);
+
+              _pGame->AddSprite(pBullet);
+
+              m_iAbilityTimer = 20;
+          }
+      }
   }
 
   return out;
@@ -506,6 +580,8 @@ SPRITEACTION Rock::Update()
 // Fireball Constructor(s)/Destructor
 //-----------------------------------------------------------------
 Fireball::Fireball(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel) {
+    m_bEnemy = 0;
+    m_bParried = 0;
 }
 
 Bitmap* Flame::m_pFlameBitmap = nullptr;
@@ -517,22 +593,44 @@ SPRITEACTION Fireball::Update() {
 
 	SPRITEACTION out = Sprite::Update();
 
-    if (AmIStuck()) {
-		Flame* pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
-		pFlame->SetNumFrames(3);
-		pFlame->SetPositionFromCenter(GetPositionFromCenter().x - GetVelocity().x, GetPositionFromCenter().y - GetVelocity().y);
-		pFlame->SetVelocity((-GetVelocity().x / 3) + (rand() % 10) - 5, (-GetVelocity().y / 3) + (rand() % 10) - 5);
-		_pGame->AddSprite(pFlame);
-		pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
-		pFlame->SetNumFrames(3);
-		pFlame->SetPositionFromCenter(GetPositionFromCenter().x - GetVelocity().x, GetPositionFromCenter().y - GetVelocity().y);
-		pFlame->SetVelocity((-GetVelocity().x / 3) + (rand() % 10) - 5, (-GetVelocity().y / 3) + (rand() % 10) - 5);
-		_pGame->AddSprite(pFlame);
+    if ((!m_bEnemy && Fireball::AmIStuck())||(m_bEnemy && Actor::AmIStuck())) {
+
+        if (!m_bEnemy) {
+            Flame* pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
+            pFlame->SetNumFrames(3);
+            pFlame->SetPositionFromCenter(GetPositionFromCenter().x - GetVelocity().x, GetPositionFromCenter().y - GetVelocity().y);
+            pFlame->SetVelocity((-GetVelocity().x / 3) + (rand() % 10) - 5, (-GetVelocity().y / 3) + (rand() % 10) - 5);
+            _pGame->AddSprite(pFlame);
+            pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
+            pFlame->SetNumFrames(3);
+            pFlame->SetPositionFromCenter(GetPositionFromCenter().x - GetVelocity().x, GetPositionFromCenter().y - GetVelocity().y);
+            pFlame->SetVelocity((-GetVelocity().x / 3) + (rand() % 10) - 5, (-GetVelocity().y / 3) + (rand() % 10) - 5);
+            _pGame->AddSprite(pFlame);
+        }
         return SA_KILL;
     }
 
 	return out;
 }
+
+bool Fireball::AmIStuck()
+{
+    BOOL bTopLeft = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.left, m_rcPosition.top }) ||
+        m_pLevel->IsPointMeltable(POINT{ m_rcPosition.left, m_rcPosition.top });
+
+    BOOL bTopRight = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.right, m_rcPosition.top }) ||
+        m_pLevel->IsPointMeltable(POINT{ m_rcPosition.right, m_rcPosition.top });
+
+    BOOL bBottomLeft = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.left, m_rcPosition.bottom }) ||
+        m_pLevel->IsPointMeltable(POINT{ m_rcPosition.left, m_rcPosition.bottom });
+
+    BOOL bBottomRight = m_pLevel->IsPointCollidable(POINT{ m_rcPosition.right, m_rcPosition.bottom }) ||
+        m_pLevel->IsPointMeltable(POINT{ m_rcPosition.right, m_rcPosition.bottom });
+
+
+    return (!bTopLeft || !bTopRight || !bBottomLeft || !bBottomRight);
+}
+
 
 //-----------------------------------------------------------------
 // Flame Constructor(s)/Destructor
@@ -660,4 +758,36 @@ SPRITEACTION Gust::Update() {
 	return out;
 }
 
+
+//-----------------------------------------------------------------
+// Ice Constructor(s)/Destructor
+//-----------------------------------------------------------------
+Ice::Ice(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel) {
+    m_iTime = 300;
+}
+
+Ice::~Ice() {
+    m_pLevel->SetTile(m_pLevel->GetNodeFromPosition(GetPositionFromCenter()), 0);
+}
+
+
+//-----------------------------------------------------------------
+// Ice General Methods
+//-----------------------------------------------------------------
+SPRITEACTION Ice::Update() {
+
+    SPRITEACTION out = Sprite::Update();
+
+    if (--m_iTime < 0) {
+        return SA_KILL;
+    }
+
+    return out;
+}
+
+void Ice::SetPositionFromCenter(POINT ptPosition)
+{
+    Sprite::SetPositionFromCenter(ptPosition);
+    m_pLevel->SetTile(m_pLevel->GetNodeFromPosition(ptPosition), 2);
+}
 

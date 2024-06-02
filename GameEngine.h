@@ -70,6 +70,7 @@ protected:
   UINT                m_uiJoystickID;
   RECT                m_rcJoystickTrip;
   vector<Sprite*>     m_vSprites;
+  vector<Sprite*>     m_vNewSpritesBuffer;
   UINT                m_uiMIDIPlayerID;
 
   // Helper Methods
@@ -91,9 +92,11 @@ public:
   void                CaptureJoystick();
   void                ReleaseJoystick();
   void                CheckJoystick();
-  void                AddSprite(Sprite* pSprite);
+  void                AddSpriteFromBuffer(Sprite* pSprite);
   void                DrawSprites(HDC hDC);
   void                UpdateSprites();
+  void                AddSprite(Sprite* pSprite);
+  void                InsertSpritesFromBuffer();
   vector<Sprite*>* GetSpritesListPointer() { return &m_vSprites; };
   void                CleanupSprites();
   Sprite* IsPointInSprite(int x, int y);

@@ -30,9 +30,13 @@ Level::~Level()
 // Level General Methods
 //-----------------------------------------------------------------
 
-void Level::MapTile(int iValue, Bitmap* bmpTile, BOOL bCollidable)
+void Level::MapTile(int iValue, Bitmap* bmpTile)
 {
-  m_tileMap[iValue] = new Tile(bmpTile, bCollidable);
+  m_tileMap[iValue] = new Tile(bmpTile);
+}
+
+Tile* Level::GetTile(int iValue) {
+    return m_tileMap[iValue];
 }
 
 
@@ -55,6 +59,15 @@ BOOL Level::IsPointCollidable(POINT ptPosition) {
   if (x < 0 || y < 0 || (x >= m_iWidth) || (y >= m_iHeight)) return false;
   Tile* tile = m_tileMap[m_layout[y][x]];
   return tile->CanCollide();
+}
+
+BOOL Level::IsPointMeltable(POINT ptPosition) {
+    int x = ptPosition.x / 32;
+    int y = ptPosition.y / 32;
+
+    if (x < 0 || y < 0 || (x >= m_iWidth) || (y >= m_iHeight)) return false;
+    Tile* tile = m_tileMap[m_layout[y][x]];
+    return tile->CanMelt();
 }
 
 POINT Level::GetNodeFromPosition(POINT ptPosition)
@@ -129,10 +142,11 @@ std::vector<std::vector<int>> Level::GenerateLevel() {
 //-----------------------------------------------------------------
 // Tile Constructor(s)/Destructor
 //-----------------------------------------------------------------
-Tile::Tile(Bitmap* bmpTile, BOOL bCollidable)
+Tile::Tile(Bitmap* bmpTile)
 {
   m_bmpBitmap = bmpTile;
-  m_bCollidable = bCollidable;
+  m_bCollidable = false;
+  m_bMeltable = false;
 }
 
 Tile::~Tile()

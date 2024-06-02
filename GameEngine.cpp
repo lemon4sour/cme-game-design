@@ -118,6 +118,7 @@ GameEngine::GameEngine(HINSTANCE hInstance, LPTSTR szWindowClass,
   m_bSleep = TRUE;
   m_uiJoystickID = 0;
   m_vSprites.reserve(1024);
+  m_vNewSpritesBuffer.reserve(256);
   m_uiMIDIPlayerID = 0;
 }
 
@@ -323,7 +324,7 @@ void GameEngine::CheckJoystick()
   }
 }
 
-void GameEngine::AddSprite(Sprite* pSprite)
+void GameEngine::AddSpriteFromBuffer(Sprite* pSprite)
 {
   // Add a sprite to the sprite vector
   if (pSprite != NULL)
@@ -334,7 +335,7 @@ void GameEngine::AddSprite(Sprite* pSprite)
       // Find a spot in the sprite vector to insert the sprite by its z-order
       vector<Sprite*>::iterator siSprite;
       for (siSprite = m_vSprites.begin(); siSprite != m_vSprites.end(); siSprite++)
-        if (pSprite->GetZOrder() < (*siSprite)->GetZOrder())
+        if (pSprite->GetZOrder() <= (*siSprite)->GetZOrder())
         {
           // Insert the sprite into the sprite vector
           m_vSprites.insert(siSprite, pSprite);
@@ -396,6 +397,20 @@ void GameEngine::UpdateSprites()
 
     siSprite++;
   }
+}
+
+void GameEngine::AddSprite(Sprite* pSprite) {
+
+    m_vNewSpritesBuffer.push_back(pSprite);
+}
+
+void GameEngine::InsertSpritesFromBuffer() {
+
+    for (Sprite* sprite : m_vNewSpritesBuffer) {
+        AddSpriteFromBuffer(sprite);
+    }
+
+    m_vNewSpritesBuffer.clear();
 }
 
 void GameEngine::CleanupSprites()

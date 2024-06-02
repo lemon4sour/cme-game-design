@@ -33,7 +33,7 @@ public:
   static void initializeGame(GameEngine* pGame) { _pGame = pGame; };
   void Actor::LinkBitmapToState(int iState, Bitmap* bmpBitmap);
   void Actor::SetState(int iState) { m_iState = iState; SetBitmap(m_pSpriteStates[m_iState]); };
-  bool Actor::AmIStuck();
+  virtual bool Actor::AmIStuck();
   SPRITEACTION Actor::Update() override;
 };
 
@@ -56,6 +56,7 @@ protected:
   int m_iCurrentHealth;
   POINT m_ptTargetVelocity;
   POINT m_ptMousePos;
+  int m_iInvFrames;
 public:
   Player::Player(Bitmap* bmpBitmap, Level* pLevel);
   void Player::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
@@ -101,6 +102,18 @@ enum class EnemyState : std::uint8_t
   ESCAPING,
 };
 
+enum AngryState : int {
+	ANGRYLEFT = 1,
+	ANGRYRIGHT = 2,
+};
+
+enum CowardState : int {
+	COWARDLEFT = 1,
+	COWARDRIGHT = 2,
+	COWARDBACKLEFT = 3,
+	COWARDBACKRIGHT = 4,
+};
+
 class Enemy : public Actor
 {
 protected:
@@ -114,14 +127,18 @@ protected:
   long long m_lastPositionUpdateTime;
   POINT m_lastPosition;
   int m_enemySize;
+  int m_iAbilityTimer;
 public:
+  static Bitmap* m_bmpBullet;
+  static void SetBulletBitmap(Bitmap* pBulletBitmap) { m_bmpBullet = pBulletBitmap; };
   Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget);
   void 	Enemy::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
   POINT Enemy::GetTargetVelocity() { return m_ptTargetVelocity; };
+  EnemyType Enemy::GetEnemyType() { return m_type; };
   void Enemy::UpdateState();
   void Enemy::Move();
   void 	Enemy::UpdateVelocity();
-  void Enemy::ChangeBitmap();
+  //void Enemy::ChangeBitmap();
   SPRITEACTION Enemy::Update() override;
 private:
   POINT FindNextDestination();
@@ -155,8 +172,15 @@ public:
 class Fireball : public Actor
 {
 protected:
+	bool m_bEnemy;
+	bool m_bParried;
 public:
 	Fireball::Fireball(Bitmap* bmpBitmap, Level* pLevel);
+	bool isEnemy() { return m_bEnemy; };
+	void setEnemy(bool bEnemy) { m_bEnemy = bEnemy; };
+	void parry() { m_bParried = true; };
+	bool isParried() { return m_bParried; };
+	bool AmIStuck() override;
 	SPRITEACTION Fireball::Update() override;
 };
 
@@ -220,3 +244,18 @@ public:
 	Gust::Gust(Bitmap* bmpBitmap, Level* pLevel);
 	SPRITEACTION Gust::Update() override;
 };
+
+//-----------------------------------------------------------------
+// Ice Class
+//-----------------------------------------------------------------
+class Ice : public Actor
+{
+protected:
+	int m_iTime;
+public:
+	Ice::Ice(Bitmap* bmpBitmap, Level* pLevel);
+	Ice::~Ice();
+	SPRITEACTION Ice::Update() override;
+	void Ice::SetPositionFromCenter(POINT ptPosition) override;
+};
+

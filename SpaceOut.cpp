@@ -46,10 +46,11 @@ void GameStart(HWND hWindow)
   HDC hDC = GetDC(hWindow);
   _pEmptyBitmap = new Bitmap(hDC, IDB_EMPTY, _hInstance);
   _pWallBitmap = new Bitmap(hDC, IDB_WALL, _hInstance);
-  _pSwingLeftBitmap = new Bitmap(hDC, 24, 48, RGB(255, 0, 0));
-  _pSwingRightBitmap = new Bitmap(hDC, 24, 48, RGB(255, 0, 0));
-  _pSwingUpBitmap = new Bitmap(hDC, 48, 24, RGB(255, 0, 0));
-  _pSwingDownBitmap = new Bitmap(hDC, 48, 24, RGB(255, 0, 0));
+  _pIceBitmap = new Bitmap(hDC, IDB_ICE, _hInstance);
+  _pSwingLeftBitmap = new Bitmap(hDC, IDB_SWINGLEFT, _hInstance);
+  _pSwingRightBitmap = new Bitmap(hDC, IDB_SWINGRIGHT, _hInstance);
+  _pSwingUpBitmap = new Bitmap(hDC, IDB_SWINGUP, _hInstance);
+  _pSwingDownBitmap = new Bitmap(hDC, IDB_SWINGDOWN, _hInstance);
   Bitmap* _pFireResBitmap = new Bitmap(hDC, IDB_FIRERES, _hInstance);
   Bitmap* _pWaterResBitmap = new Bitmap(hDC, IDB_WATERRES, _hInstance);
   Bitmap* _pEarthResBitmap = new Bitmap(hDC, IDB_EARTHRES, _hInstance);
@@ -60,6 +61,7 @@ void GameStart(HWND hWindow)
   _pFlameBitmap = new Bitmap(hDC, IDB_FLAME, _hInstance);
   Flame::setFlameBitmap(_pFlameBitmap);
   _pMudBitmap = new Bitmap(hDC, IDB_MUD, _hInstance);
+  _pIceSpriteBitmap = new Bitmap(hDC, 32, 32, RGB(255, 0, 255));
   _pWaterBitmap = new Bitmap(hDC, IDB_WATER, _hInstance);
   _pGustUpBitmap = new Bitmap(hDC, IDB_GUSTUP, _hInstance);
   _pGustDownBitmap = new Bitmap(hDC, IDB_GUSTDOWN, _hInstance);
@@ -71,7 +73,10 @@ void GameStart(HWND hWindow)
 
   _pLevel = new Level(32, 1);
   _pLevel->MapTile(0, _pEmptyBitmap);
-  _pLevel->MapTile(1, _pWallBitmap, FALSE);
+  _pLevel->GetTile(0)->SetCollidable();
+  _pLevel->MapTile(1, _pWallBitmap);
+  _pLevel->MapTile(2, _pIceBitmap);
+  _pLevel->GetTile(2)->SetMeltable();
 
   Bitmap* bmpPlayerDown = new Bitmap(hDC, IDB_PLAYERMOVEDOWN, _hInstance);
   Bitmap* bmpPlayerUp = new Bitmap(hDC, IDB_PLAYERMOVEUP, _hInstance);
@@ -89,6 +94,17 @@ void GameStart(HWND hWindow)
   _pPlayer->SetPosition(POINT{ 64,64 });
   _pGame->AddSprite(_pPlayer);
 
+  Bitmap* bmpSkullLeft = new Bitmap(hDC, IDB_SKULLLEFT, _hInstance);
+  Bitmap* bmpSkullRight = new Bitmap(hDC, IDB_SKULLRIGHT, _hInstance);
+
+  Bitmap* bmpEyeLeft = new Bitmap(hDC, IDB_EYELEFT, _hInstance);
+  Bitmap* bmpEyeRight = new Bitmap(hDC, IDB_EYERIGHT, _hInstance);
+  Bitmap* bmpEyeBackLeft = new Bitmap(hDC, IDB_EYEBACKLEFT, _hInstance);
+  Bitmap* bmpEyeBackRight = new Bitmap(hDC, IDB_EYEBACKLEFT, _hInstance);
+  Bitmap* bmpEyeBullet = new Bitmap(hDC, IDB_EYEBULLET, _hInstance);
+  Enemy::SetBulletBitmap(bmpEyeBullet);
+
+
   std::random_device rd;
   std::mt19937 gen(rd());
   for (int i = 0; i < 8; i++)
@@ -96,12 +112,40 @@ void GameStart(HWND hWindow)
     std::uniform_int_distribution<> dis(0, 3072);
 
     // Select enemy type randomly
-    const EnemyType type{ static_cast<EnemyType>(dis(gen) % 4) };
+    EnemyType type{ static_cast<EnemyType>(dis(gen) % 4) };
 
-    // Create enemy
-    Enemy* enemy = new Enemy(
-      new Bitmap(hDC, 24, 24, RGB(255, 0, 255)), _pLevel, type, _pPlayer
-    );
+    type = EnemyType::ANGRY_GUY;
+
+    Enemy* enemy;
+
+    if (type == EnemyType::ANGRY_GUY) {
+        enemy = new Enemy(
+            bmpSkullLeft, _pLevel, type, _pPlayer
+        );
+
+        enemy->LinkBitmapToState(AngryState::ANGRYLEFT, bmpSkullLeft);
+        enemy->LinkBitmapToState(AngryState::ANGRYRIGHT, bmpSkullRight);
+        enemy->SetZOrder(7);
+        enemy->SetNumFrames(4);
+        enemy->SetFrameDelay(10);
+    }
+    else if (type == EnemyType::COWARD_GUY) {
+        enemy = enemy = new Enemy(
+            bmpEyeLeft, _pLevel, type, _pPlayer
+        );
+        enemy->LinkBitmapToState(CowardState::COWARDLEFT, bmpEyeLeft);
+        enemy->LinkBitmapToState(CowardState::COWARDRIGHT, bmpEyeRight);
+        enemy->LinkBitmapToState(CowardState::COWARDBACKLEFT, bmpEyeBackLeft);
+        enemy->LinkBitmapToState(CowardState::COWARDBACKRIGHT, bmpEyeBackRight);
+        enemy->SetZOrder(7);
+        enemy->SetNumFrames(4);
+        enemy->SetFrameDelay(10);
+    }
+    else {
+        enemy = new Enemy(
+            new Bitmap(hDC, 24, 24, RGB(255, 0, 255)), _pLevel, type, _pPlayer
+        );
+    }
 
     // Random position between 0 and 1024
     enemy->SetPosition(POINT{ dis(gen), dis(gen) });
@@ -174,6 +218,8 @@ void GameCycle()
 {
   // Update the sprites
   _pGame->UpdateSprites();
+
+  _pGame->InsertSpritesFromBuffer();
 
   // Obtain a device context for repainting the game
   HWND  hWindow = _pGame->GetWindow();
@@ -271,6 +317,8 @@ void MouseButtonDown(int x, int y, BOOL bLeft)
         if (ptMouseOffset.y >= ptMouseOffset.x && ptMouseOffset.y >= -ptMouseOffset.x)
         {
             pSwingSprite = new Swing(_pSwingDownBitmap, _pLevel, POINT{0,1});
+            pSwingSprite->SetNumFrames(3);
+            pSwingSprite->SetFrameDelay(1);
             pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerCenterPos.x, ptPlayerCenterPos.y + 24 });
             _pGame->AddSprite(pSwingSprite);
             //DOWN
@@ -278,6 +326,8 @@ void MouseButtonDown(int x, int y, BOOL bLeft)
         if (ptMouseOffset.y >= ptMouseOffset.x && ptMouseOffset.y <= -ptMouseOffset.x)
         {
             pSwingSprite = new Swing(_pSwingLeftBitmap, _pLevel, POINT{ -1,0 });
+            pSwingSprite->SetNumFrames(3);
+            pSwingSprite->SetFrameDelay(1);
             pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerCenterPos.x - 24, ptPlayerCenterPos.y });
             _pGame->AddSprite(pSwingSprite);
             //LEFT
@@ -285,6 +335,8 @@ void MouseButtonDown(int x, int y, BOOL bLeft)
         if (ptMouseOffset.y <= ptMouseOffset.x && ptMouseOffset.y >= -ptMouseOffset.x)
         {
             pSwingSprite = new Swing(_pSwingRightBitmap, _pLevel, POINT{ 1,0 });
+            pSwingSprite->SetNumFrames(3);
+            pSwingSprite->SetFrameDelay(1);
             pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerCenterPos.x + 24, ptPlayerCenterPos.y });
             _pGame->AddSprite(pSwingSprite);
             //RIGHT
@@ -292,15 +344,19 @@ void MouseButtonDown(int x, int y, BOOL bLeft)
         if (ptMouseOffset.y <= ptMouseOffset.x && ptMouseOffset.y <= -ptMouseOffset.x)
         {
             pSwingSprite = new Swing(_pSwingUpBitmap, _pLevel, POINT{ 0,-1 });
+            pSwingSprite->SetNumFrames(3);
+            pSwingSprite->SetFrameDelay(1);
             pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerCenterPos.x, ptPlayerCenterPos.y - 24 });
             _pGame->AddSprite(pSwingSprite);
             //UP
         }
+        
     }
     else {
         if (iSelect == 0) {
             Rock* pRock = new Rock(_pRockBitmap, _pLevel);
             pRock->SetPositionFromCenter(_pPlayer->GetPositionFromCenter());
+            pRock->SetZOrder(8);
             _pGame->AddSprite(pRock);
         }
         if (iSelect == 1) {
@@ -336,7 +392,7 @@ void MouseButtonDown(int x, int y, BOOL bLeft)
         }
         if (iSelect == 2) {
             Puddle* pPuddle = new Puddle(_pWaterBitmap, _pLevel);
-            pPuddle->SetPositionFromCenter(_pPlayer->GetPositionFromCenter());
+            pPuddle->SetPosition((_pPlayer->GetPositionFromCenter().x/32) * 32, (_pPlayer->GetPositionFromCenter().y / 32) * 32);
             _pGame->AddSprite(pPuddle);
         }
         if (iSelect == 3) {
@@ -427,6 +483,19 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
 
             return false;
         }
+        Fireball* fireball = dynamic_cast<Fireball*>(pSpriteHittee);
+        // SWING TO FIREBALL
+        if (fireball) {
+            if (fireball->isEnemy()) {
+                if (swing->GetDirection().x == 0) {
+                    fireball->SetVelocity(((fireball->GetPositionFromCenter().x - swing->GetPositionFromCenter().x) / 3) + (rand() % 5) - 2, swing->GetDirection().y * 10);
+                }
+                else {
+                    fireball->SetVelocity(swing->GetDirection().x * 10, ((fireball->GetPositionFromCenter().y - swing->GetPositionFromCenter().y) / 3) + (rand() % 5) - 2);
+                }
+                fireball->parry();
+            }
+        }
     }
 
     Rock* rock = dynamic_cast<Rock*>(pSpriteHitter);
@@ -459,6 +528,7 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
         Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
         // FIREBALL TO ENEMY
         if (enemy) {
+            if (fireball->isEnemy() && !fireball->isParried()) return false;
             enemy->Kill();
             return false;
         }
@@ -495,14 +565,37 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
             fireball->Kill();
             return false;
         }
+        Player* player = dynamic_cast<Player*>(pSpriteHittee);
+        // FIREBALL TO PLAYER
+        if (player) {
+            if (fireball->isEnemy()) {
+                player->SubtractHealth(10);
+                fireball->Kill();
+            }
+            return false;
+        }
+        Ice* ice = dynamic_cast<Ice*>(pSpriteHittee);
+        if (ice) {
+            if (fireball->isEnemy()) return false;
+            ice->Kill();
+            fireball->Kill();
+            return false;
+        }
     }
 
     Flame* flame = dynamic_cast<Flame*>(pSpriteHitter);
     // FLAME INTERACTION
     if (flame) {
+        Player* player = dynamic_cast<Player*>(pSpriteHittee);
+        // FLAME TO PLAYER
+        if (player) {
+            player->SubtractHealth(10);
+            return false;
+        }
         Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
         // FLAME TO ENEMY
         if (enemy) {
+            if (enemy->GetEnemyType() == EnemyType::ANGRY_GUY) return false;
             enemy->Kill();
             return false;
         }
@@ -541,7 +634,12 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
     if (gust) {
         Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
         if (enemy) {
-                enemy->Kill();
+            if (gust->GetVelocity().x == 0) {
+                enemy->SetVelocity(gust->GetVelocity().x - ((gust->GetPositionFromCenter().x - enemy->GetPositionFromCenter().x) / 6), ((3 * gust->GetVelocity().y) / 2) + enemy->GetVelocity().y);
+            }
+            else {
+                enemy->SetVelocity(((3 * gust->GetVelocity().x) / 2) + enemy->GetVelocity().x, gust->GetVelocity().y - ((gust->GetPositionFromCenter().y - enemy->GetPositionFromCenter().y) / 6));
+            }
             return false;
         }
         Flame* flame = dynamic_cast<Flame*>(pSpriteHittee);
@@ -582,6 +680,14 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
                 else {
                     rock->SetVelocity(((3 * gust->GetVelocity().x) / 2) + rock->GetVelocity().x, gust->GetVelocity().y - ((gust->GetPositionFromCenter().y - rock->GetPositionFromCenter().y) / 6));
                 }
+            return false;
+        }
+        Puddle* puddle = dynamic_cast<Puddle*>(pSpriteHittee);
+        if (puddle) {
+            Ice* ice = new Ice(_pIceSpriteBitmap, _pLevel);
+            ice->SetPositionFromCenter(puddle->GetPositionFromCenter());
+            puddle->Kill();
+            _pGame->AddSprite(ice);
             return false;
         }
     }
