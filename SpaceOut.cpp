@@ -468,7 +468,15 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
         Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
         // SWING TO ENEMY
         if (enemy) {
-            enemy->Kill();
+            if (enemy->GetDamageCooldown() <= 0) {
+                if (swing->GetDirection().x == 0) {
+                    enemy->SetVelocity((enemy->GetPositionFromCenter().x - swing->GetPositionFromCenter().x) + (rand() % 5) - 2, swing->GetDirection().y * 5);
+                }
+                else {
+                    enemy->SetVelocity(swing->GetDirection().x * 5, (enemy->GetPositionFromCenter().y - swing->GetPositionFromCenter().y) + (rand() % 5) - 2);
+                }
+            }
+            enemy->DealDamage(20);
             return false;
         }
         Rock* rock = dynamic_cast<Rock*>(pSpriteHittee);
@@ -525,7 +533,10 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
         // ROCK TO ENEMY
         if (enemy) {
             if (rock->GetVelocity().x != 0 || rock->GetVelocity().y != 0) {
-                enemy->Kill();
+                if (enemy->GetDamageCooldown() <= 0) {
+                    enemy->SetVelocity(enemy->GetVelocity().x + rock->GetVelocity().x, enemy->GetVelocity().y + rock->GetVelocity().y); 
+                }
+                enemy->DealDamage(rock->GetVelocity().x + rock->GetVelocity().y);
             }
             return false;
         }
@@ -540,7 +551,7 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
             if (fireball->isEnemy() && !fireball->isParried()) return false;
             if (enemy->GetEnemyType() == EnemyType::ANGRY_GUY) return false;
             if (enemy->GetEnemyType() == EnemyType::DUTY_GUY) fireball->Kill();
-            enemy->Kill();
+            enemy->DealDamage(80);
             return false;
         }
         Rock* rock = dynamic_cast<Rock*>(pSpriteHittee);
@@ -600,6 +611,9 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
         Player* player = dynamic_cast<Player*>(pSpriteHittee);
         // FLAME TO PLAYER
         if (player) {
+            if (player->GetInvFrames() <= 0) {
+                flame->SubtractTime(20);
+            }
             player->SubtractHealth(10);
             return false;
         }
@@ -607,7 +621,10 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
         // FLAME TO ENEMY
         if (enemy) {
             if (enemy->GetEnemyType() == EnemyType::ANGRY_GUY) return false;
-            enemy->Kill();
+            if (enemy->GetDamageCooldown() <= 0) {
+                flame->SubtractTime(20);
+            }
+            enemy->DealDamage(20);
             return false;
         }
         Puddle* puddle = dynamic_cast<Puddle*>(pSpriteHittee);
@@ -624,7 +641,7 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
         Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
         // MUD TO ENEMY
         if (enemy) {
-            enemy->Kill();
+            enemy->SetMudded();
             return false;
         }
         Puddle* puddle = dynamic_cast<Puddle*>(pSpriteHittee);

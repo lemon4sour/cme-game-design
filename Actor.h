@@ -57,6 +57,8 @@ protected:
   POINT m_ptTargetVelocity;
   POINT m_ptMousePos;
   int m_iInvFrames;
+  int m_iSwingCooldown;
+  int m_iAbilityCooldown;
 public:
   Player::Player(Bitmap* bmpBitmap, Level* pLevel);
   void Player::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
@@ -64,6 +66,7 @@ public:
   void Player::UpdateVelocity();
   int Player::GetMaxHealth() { return m_iMaxHealth; };
   int Player::GetCurrentHealth() { return m_iCurrentHealth; };
+  int Player::GetInvFrames() { return m_iInvFrames; };
   void Player::SubtractHealth(int value);
   void Player::SetMousePos(int x, int y) { m_ptMousePos = POINT{ x,y }; };
   SPRITEACTION Player::Update() override;
@@ -117,6 +120,7 @@ enum CowardState : int {
 class Enemy : public Actor
 {
 protected:
+  int m_pHealth;
   POINT m_ptTargetVelocity;
   int m_speed;
   Player* m_pTarget;
@@ -126,6 +130,7 @@ protected:
   EnemyState m_state;
   long long m_lastPositionUpdateTime;
   POINT m_lastPosition;
+  int m_iDamageCooldown;
   int m_enemySize;
   int m_iAbilityTimer;
 public:
@@ -140,6 +145,9 @@ public:
   void 	Enemy::UpdateVelocity();
   //void Enemy::ChangeBitmap();
   void Enemy::SetAbilityTimer(int iAbilityTimer) { m_iAbilityTimer = iAbilityTimer; };
+  void Enemy::DealDamage(int iDamage);
+  void Enemy::SetHealth(int iHealth) { m_pHealth = iHealth; };
+  int Enemy::GetDamageCooldown() { return m_iDamageCooldown; };
   SPRITEACTION Enemy::Update() override;
 private:
   POINT FindNextDestination();
@@ -199,6 +207,7 @@ public:
 	static Bitmap* m_pFlameBitmap;
 	static void setFlameBitmap(Bitmap* pFlameBitmap) { m_pFlameBitmap = pFlameBitmap; };
 	void SetTime(int iTime) { m_iTime = iTime; };
+	void SubtractTime(int iTime) { m_iTime -= iTime; };
 	void SetCloned(bool bCloned) { m_bCloned = bCloned; };
 	bool IsCloned() { return m_bCloned; };
 	void SetCloneDepth(int iCloneDepth) { m_iCloneDepth = iCloneDepth; };
