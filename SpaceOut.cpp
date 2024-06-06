@@ -78,6 +78,11 @@ void GameStart(HWND hWindow)
   _pSlimeBitmap = new Bitmap(hDC, IDB_SLIME, _hInstance);
   _pHumongousFrontBitmap = new Bitmap(hDC, IDB_HUMUNGOUSFRONT, _hInstance);
 
+  _pHealthBar100Bitmap = new Bitmap(hDC, IDB_HEALTHBAR100, _hInstance);
+  _pHealthBar75Bitmap = new Bitmap(hDC, IDB_HEALTHBAR075, _hInstance);
+  _pHealthBar50Bitmap = new Bitmap(hDC, IDB_HEALTHBAR050, _hInstance);
+  _pHealthBar25Bitmap = new Bitmap(hDC, IDB_HEALTHBAR025, _hInstance);
+
   _pPointBitmap = new Bitmap(hDC, IDB_POINT, _hInstance);
 
   _pLevel = new Level(32, 1);
@@ -150,6 +155,40 @@ void GamePaint(HDC hDC)
 
   // Draw the sprites
   _pGame->DrawSprites(hDC);
+
+  // Draw healthbars
+  for (Sprite* sprite : _pGame->GetSprites())
+  {
+    Enemy* enemy = dynamic_cast<Enemy*>(sprite);
+
+    if (enemy)
+    {
+      RECT enemyPos = enemy->GetPosition();
+
+      int centerX = (enemyPos.left + enemyPos.right) / 2;
+
+      POINT healthBarPos = POINT{ centerX - 16, enemyPos.top - 40 };
+
+      float percentage = enemy->GetHealth() / (float)enemy->GetMaxHealth();
+
+      if (percentage > 0.75)
+      {
+        _pHealthBar100Bitmap->Draw(hDC, healthBarPos.x, healthBarPos.y, RGB(255, 0, 255));
+      }
+      else if (percentage > 0.5)
+      {
+        _pHealthBar75Bitmap->Draw(hDC, healthBarPos.x, healthBarPos.y, RGB(255, 0, 255));
+      }
+      else if (percentage > 0.25)
+      {
+        _pHealthBar50Bitmap->Draw(hDC, healthBarPos.x, healthBarPos.y, RGB(255, 0, 255));
+      }
+      else
+      {
+        _pHealthBar25Bitmap->Draw(hDC, healthBarPos.x, healthBarPos.y, RGB(255, 0, 255));
+      }
+    }
+  }
 }
 
 void GameCycle()
@@ -278,22 +317,22 @@ void HandleKeys()
 
 void MouseButtonDown(int x, int y, BOOL bLeft)
 {
-    /*
-  RECT rtPlayerPos = _pPlayer->GetPosition();
-  POINT ptPlayerCenterPos = POINT{ (rtPlayerPos.left + rtPlayerPos.right) / 2, (rtPlayerPos.top + rtPlayerPos.bottom) / 2 };
-  POINT ptMouseOffset = POINT{ x - ptPlayerCenterPos.x, y - ptPlayerCenterPos.y };
+  /*
+RECT rtPlayerPos = _pPlayer->GetPosition();
+POINT ptPlayerCenterPos = POINT{ (rtPlayerPos.left + rtPlayerPos.right) / 2, (rtPlayerPos.top + rtPlayerPos.bottom) / 2 };
+POINT ptMouseOffset = POINT{ x - ptPlayerCenterPos.x, y - ptPlayerCenterPos.y };
 
-  char direction = PlayerDirectionUpdateRoutine();
+char direction = PlayerDirectionUpdateRoutine();
 
-  if (bLeft)
-  {
-    SwingCombined(ptMouseOffset, direction);
-  }
-  else
-  {
-    ElementUseCombined(ptMouseOffset, direction);
-  }
-  */
+if (bLeft)
+{
+  SwingCombined(ptMouseOffset, direction);
+}
+else
+{
+  ElementUseCombined(ptMouseOffset, direction);
+}
+*/
 }
 
 void MouseButtonUp(int x, int y, BOOL bLeft)
@@ -416,7 +455,7 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
     {
       if (fireball->isEnemy() && !fireball->isParried()) return false;
       if (enemy->GetEnemyType() == EnemyType::FIRE_SKULL) return false;
-      if (enemy->GetEnemyType() == EnemyType::DEAD_EYE) fireball->Kill();
+      else fireball->Kill();
       enemy->DealDamage(80);
       return false;
     }
@@ -749,51 +788,52 @@ void EnemySpawnRoutine(HDC hDC)
 
 }
 
-Enemy* CreateEnemy(EnemyType type) {
-    // Resources
+Enemy* CreateEnemy(EnemyType type)
+{
+  // Resources
 
-    Enemy* enemy;
+  Enemy* enemy;
 
-    if (type == EnemyType::FIRE_SKULL)
-    {
-        enemy = new Enemy(
-            _pSkullLeftBitmap, _pLevel, type, _pPlayer
-        );
+  if (type == EnemyType::FIRE_SKULL)
+  {
+    enemy = new Enemy(
+      _pSkullLeftBitmap, _pLevel, type, _pPlayer
+    );
 
-        enemy->LinkBitmapToState(FireSkullState::FIRE_SKULL_LEFT, _pSkullLeftBitmap);
-        enemy->LinkBitmapToState(FireSkullState::FIRE_SKULL_RIGHT, _pSkullRightBitmap);
+    enemy->LinkBitmapToState(FireSkullState::FIRE_SKULL_LEFT, _pSkullLeftBitmap);
+    enemy->LinkBitmapToState(FireSkullState::FIRE_SKULL_RIGHT, _pSkullRightBitmap);
 
-    }
-    else if (type == EnemyType::DEAD_EYE)
-    {
-        enemy = enemy = new Enemy(
-            _pEyeLeftBitmap, _pLevel, type, _pPlayer
-        );
+  }
+  else if (type == EnemyType::DEAD_EYE)
+  {
+    enemy = enemy = new Enemy(
+      _pEyeLeftBitmap, _pLevel, type, _pPlayer
+    );
 
-        enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_LEFT, _pEyeLeftBitmap);
-        enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_RIGHT, _pEyeRightBitmap);
-        enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_BACK_LEFT, _pEyeBackLeftBitmap);
-        enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_BACK_RIGHT, _pEyeBackRightBitmap);
+    enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_LEFT, _pEyeLeftBitmap);
+    enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_RIGHT, _pEyeRightBitmap);
+    enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_BACK_LEFT, _pEyeBackLeftBitmap);
+    enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_BACK_RIGHT, _pEyeBackRightBitmap);
 
-    }
-    else if (type == EnemyType::GREEN_BLOB)
-    {
-        enemy = enemy = new Enemy(
-            _pSlimeBitmap, _pLevel, type, _pPlayer
-        );
-    }
-    else
-    {
-        enemy = new Enemy(
-            _pHumongousFrontBitmap, _pLevel, type, _pPlayer
+  }
+  else if (type == EnemyType::GREEN_BLOB)
+  {
+    enemy = enemy = new Enemy(
+      _pSlimeBitmap, _pLevel, type, _pPlayer
+    );
+  }
+  else
+  {
+    enemy = new Enemy(
+      _pHumongousFrontBitmap, _pLevel, type, _pPlayer
 
-        );
+    );
 
-        enemy->SetZOrder(7);
-    }
+    enemy->SetZOrder(7);
+  }
 
-    _pGame->AddSprite(enemy);
-    return enemy;
+  _pGame->AddSprite(enemy);
+  return enemy;
 }
 
 

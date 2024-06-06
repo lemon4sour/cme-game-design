@@ -279,7 +279,7 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
     {
       m_iAbilityTimer = 30;
       m_speed = 3;
-      m_pHealth = fireSkullHealth;
+      m_pHealth = m_maxHealth = 100;
       SetZOrder(7);
       SetNumFrames(4);
       SetFrameDelay(10);
@@ -289,7 +289,7 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
     {
       m_enemySize = 24;
       m_speed = 2;
-      m_pHealth = greenBlobHealth;
+      m_pHealth = m_maxHealth = 500;
       SetZOrder(7);
       SetNumFrames(4);
       SetFrameDelay(10);
@@ -299,7 +299,7 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
     {
       m_enemySize = 32;
       m_speed = 1;
-      m_pHealth = humongusHealth;
+      m_pHealth = m_maxHealth = 500;
       SetZOrder(7);
       SetNumFrames(4);
       SetFrameDelay(50);
@@ -309,7 +309,7 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
     {
       m_enemySize = 20;
       m_speed = 4;
-      m_pHealth = deadEyeHealth;
+      m_pHealth = m_maxHealth = 150;
       SetZOrder(7);
       SetNumFrames(3);
       SetFrameDelay(10);

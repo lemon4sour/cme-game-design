@@ -47,6 +47,11 @@
 #define IDB_SLIME             2520
 #define IDB_HUMUNGOUSFRONT    2530
 
+#define IDB_HEALTHBAR100      2540
+#define IDB_HEALTHBAR075      2541
+#define IDB_HEALTHBAR050      2542
+#define IDB_HEALTHBAR025      2543
+
 //#define IDB_DESERT            2000
 //#define IDB_CAR               2001
 //#define IDB_SMCAR             2002

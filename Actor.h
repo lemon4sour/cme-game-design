@@ -125,6 +125,7 @@ class Enemy : public Actor
 {
 protected:
   int m_pHealth;
+  int m_maxHealth;
   POINT m_ptTargetVelocity;
   int m_speed;
   Player* m_pTarget;
@@ -138,10 +139,6 @@ protected:
   int m_enemySize;
   int m_iAbilityTimer;
 public:
-  const int fireSkullHealth = 100;
-  const int greenBlobHealth = 500;
-  const int humongusHealth = 300;
-  const int deadEyeHealth = 150;
   static Bitmap* m_bmpBullet;
   static void SetBulletBitmap(Bitmap* pBulletBitmap) { m_bmpBullet = pBulletBitmap; };
   Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget);
@@ -154,6 +151,8 @@ public:
   //void Enemy::ChangeBitmap();
   void Enemy::SetAbilityTimer(int iAbilityTimer) { m_iAbilityTimer = iAbilityTimer; };
   void Enemy::DealDamage(int iDamage);
+  int Enemy::GetMaxHealth() { return m_maxHealth; };
+  int Enemy::GetHealth() { return m_pHealth; };
   void Enemy::SetHealth(int iHealth) { m_pHealth = iHealth; };
   int Enemy::GetDamageCooldown() { return m_iDamageCooldown; };
   SPRITEACTION Enemy::Update() override;

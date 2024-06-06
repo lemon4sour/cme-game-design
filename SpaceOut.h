@@ -53,6 +53,11 @@ Bitmap* _pEyeBulletBitmap;
 Bitmap* _pSlimeBitmap;
 Bitmap* _pHumongousFrontBitmap;
 
+Bitmap* _pHealthBar100Bitmap;
+Bitmap* _pHealthBar75Bitmap;
+Bitmap* _pHealthBar50Bitmap;
+Bitmap* _pHealthBar25Bitmap;
+
 Bitmap* _pPointBitmap;
 
 Player* _pPlayer;

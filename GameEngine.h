@@ -105,6 +105,7 @@ public:
                                    BOOL bRestart = TRUE);
   void                PauseMIDISong();
   void                CloseMIDIPlayer();
+  vector<Sprite*>    GetSprites() { return m_vSprites; };
 
   // Accessor Methods
   HINSTANCE GetInstance() { return m_hInstance; };
