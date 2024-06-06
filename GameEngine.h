@@ -8,9 +8,10 @@
 //-----------------------------------------------------------------
 // Include Files
 //-----------------------------------------------------------------
+
+#include <Windows.h>
 #include <mmsystem.h>
 #include <vector>
-#include <Windows.h>
 using namespace std;
 #include "Sprite.h"
 
