@@ -372,50 +372,20 @@ void Enemy::HandleStuck()
       // Break the wall
       RECT ptPosition = GetPosition();
 
-      // Find direction and break if wall
-      if (m_ptVelocity.x > 0)
+      int x = ptPosition.left / 32;
+      int y = ptPosition.top / 32;
+
+      for (int xPlus = -1; xPlus < 4; xPlus++)
       {
-        // We are moving right, break the right wall
-        int nextPositionX = ptPosition.right + m_ptVelocity.x;
-        int nextPositionY = ptPosition.top;
-
-        if (m_pLevel->m_layout[nextPositionY / 32][nextPositionX / 32] != 0)
+        for (int yPlus = -1; yPlus < 4; yPlus++)
         {
-          m_pLevel->m_layout[nextPositionY / 32][nextPositionX / 32] = 0;
-        }
-      }
-      else
-      {
-        // We are moving left, break the left wall
-        int nextPositionX = ptPosition.left + m_ptVelocity.x;
-        int nextPositionY = ptPosition.top;
-
-        if (m_pLevel->m_layout[nextPositionY / 32][nextPositionX / 32] != 0)
-        {
-          m_pLevel->m_layout[nextPositionY / 32][nextPositionX / 32] = 0;
-        }
-      }
-
-      if (m_ptVelocity.y > 0)
-      {
-        // We are moving down, break the bottom wall
-        int nextPositionX = ptPosition.left;
-        int nextPositionY = ptPosition.bottom + m_ptVelocity.y;
-
-        if (m_pLevel->m_layout[nextPositionY / 32][nextPositionX / 32] != 0)
-        {
-          m_pLevel->m_layout[nextPositionY / 32][nextPositionX / 32] = 0;
-        }
-      }
-      else
-      {
-        // We are moving up, break the top wall
-        int nextPositionX = ptPosition.left;
-        int nextPositionY = ptPosition.top + m_ptVelocity.y;
-
-        if (m_pLevel->m_layout[nextPositionY / 32][nextPositionX / 32] != 0)
-        {
-          m_pLevel->m_layout[nextPositionY / 32][nextPositionX / 32] = 0;
+          int xCoord = x + xPlus;
+          int yCoord = y + yPlus;
+          if (m_pLevel->m_layout.size() - 2 > yCoord && yCoord > 1 &&
+              m_pLevel->m_layout[0].size() - 2 > xCoord && xCoord > 1)
+          {
+            m_pLevel->m_layout[yCoord][xCoord] = 0;
+          }
         }
       }
     }
