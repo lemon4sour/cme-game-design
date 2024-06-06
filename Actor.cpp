@@ -172,6 +172,9 @@ SPRITEACTION Player::Update()
 {
   UpdateVelocity();
   SPRITEACTION out = Actor::Update();
+
+  /*
+
   POINT ptPlayerCenterPos = GetPositionFromCenter();
 
   POINT ptMouseOffset = POINT{ m_ptMousePos.x - ptPlayerCenterPos.x, m_ptMousePos.y - ptPlayerCenterPos.y };
@@ -196,8 +199,9 @@ SPRITEACTION Player::Update()
     SetState(PLR_UP);
     //UP
   }
+  */
 
-  m_iInvFrames--;
+  if (m_iInvFrames > 0) m_iInvFrames--;
 
   return out;
 }
@@ -595,6 +599,15 @@ SPRITEACTION Enemy::Update()
           _pGame->AddSprite(enemy);
           m_iAbilityTimer = 100;
         }
+      }
+      else
+      {
+        m_iAbilityTimer = 0;
+      }
+    }
+    if (m_type == EnemyType::HUMONGUS) {
+      if (m_state == EnemyState::ATTACKING) {
+        
       }
       else
       {

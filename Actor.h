@@ -55,7 +55,7 @@ protected:
   int m_iMaxHealth;
   int m_iCurrentHealth;
   POINT m_ptTargetVelocity;
-  POINT m_ptMousePos;
+  // POINT m_ptMousePos;
   int m_iInvFrames;
   int m_iSwingCooldown;
   int m_iAbilityCooldown;
@@ -68,7 +68,7 @@ public:
   int Player::GetCurrentHealth() { return m_iCurrentHealth; };
   int Player::GetInvFrames() { return m_iInvFrames; };
   void Player::SubtractHealth(int value);
-  void Player::SetMousePos(int x, int y) { m_ptMousePos = POINT{ x,y }; };
+  // void Player::SetMousePos(int x, int y) { m_ptMousePos = POINT{ x,y }; };
   SPRITEACTION Player::Update() override;
 };
 

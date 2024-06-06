@@ -222,19 +222,6 @@ void HandleKeys()
     iSelect = 3;
   }
 
-  if (GetAsyncKeyState('K') < 0)
-  {
-    _pPlayer->SubtractHealth(10);
-  }
-  if (GetAsyncKeyState('U') < 0)
-  {
-    _pElementQueue->UseElement();
-  }
-  if (GetAsyncKeyState('Y') < 0)
-  {
-    _pElementQueue->AddRandomElement();
-  }
-
   // Space swings to direction character going
   if (GetAsyncKeyState(VK_SPACE) < 0)
   {
@@ -301,7 +288,7 @@ void MouseButtonUp(int x, int y, BOOL bLeft)
 
 void MouseMove(int x, int y)
 {
-  _pPlayer->SetMousePos(x, y);
+  // _pPlayer->SetMousePos(x, y);
 }
 
 void HandleJoystick(JOYSTATE jsJoystickState)
@@ -321,11 +308,11 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
       {
         if (swing->GetDirection().x == 0)
         {
-          enemy->SetVelocity((enemy->GetPositionFromCenter().x - swing->GetPositionFromCenter().x) + (rand() % 5) - 2, swing->GetDirection().y * 5);
+          enemy->SetVelocity((enemy->GetPositionFromCenter().x - swing->GetPositionFromCenter().x) / 3 + (rand() % 5) - 2, swing->GetDirection().y * 5);
         }
         else
         {
-          enemy->SetVelocity(swing->GetDirection().x * 5, (enemy->GetPositionFromCenter().y - swing->GetPositionFromCenter().y) + (rand() % 5) - 2);
+          enemy->SetVelocity(swing->GetDirection().x * 5, (enemy->GetPositionFromCenter().y - swing->GetPositionFromCenter().y) / 3 + (rand() % 5) - 2);
         }
       }
       enemy->DealDamage(20);
@@ -752,21 +739,25 @@ char PlayerDirectionUpdateRoutine()
   {
     //DOWN
     direction = 'D';
+    _pPlayer->SetState(PLR_DOWN);
   }
   else if (ptVelocity.y > ptVelocity.x && ptVelocity.y < -ptVelocity.x)
   {
     //LEFT
     direction = 'L';
+    _pPlayer->SetState(PLR_LEFT);
   }
   else if (ptVelocity.y < ptVelocity.x && ptVelocity.y > -ptVelocity.x)
   {
     //RIGHT
     direction = 'R';
+    _pPlayer->SetState(PLR_RIGHT);
   }
   else if (ptVelocity.y < ptVelocity.x && ptVelocity.y < -ptVelocity.x)
   {
     //UP
     direction = 'U';
+    _pPlayer->SetState(PLR_UP);
   }
   _lastDirection = direction;
 
@@ -781,30 +772,34 @@ void SwingCombined(POINT targetPos, char direction)
   if (direction == 'D')
   {
     pSwingSprite = new Swing(_pSwingDownBitmap, _pLevel, POINT{ 0,1 });
+    pSwingSprite->SetNumFrames(3);
     pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerPos.x, ptPlayerPos.y + 24 });
     //DOWN
   }
   else if (direction == 'L')
   {
     pSwingSprite = new Swing(_pSwingLeftBitmap, _pLevel, POINT{ -1,0 });
+    pSwingSprite->SetNumFrames(3);
     pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerPos.x - 24, ptPlayerPos.y });
     //LEFT
   }
   else if (direction == 'R')
   {
     pSwingSprite = new Swing(_pSwingRightBitmap, _pLevel, POINT{ 1,0 });
+    pSwingSprite->SetNumFrames(3);
     pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerPos.x + 24, ptPlayerPos.y });
     //RIGHT
   }
   else
   {
     pSwingSprite = new Swing(_pSwingUpBitmap, _pLevel, POINT{ 0,-1 });
+    pSwingSprite->SetNumFrames(3);
     pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerPos.x, ptPlayerPos.y - 24 });
     //UP
   }
 
   // Commons
-  pSwingSprite->SetNumFrames(3);
+  
   pSwingSprite->SetFrameDelay(1);
   _pGame->AddSprite(pSwingSprite);
 }
