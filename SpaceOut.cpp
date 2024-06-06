@@ -603,6 +603,32 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
       return false;
     }
   }
+
+  Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHitter);
+  // ENEMY INTERACTION
+  if (enemy)
+  {
+    // Blobs should collide and push each other.
+    if (enemy->GetEnemyType() == EnemyType::GREEN_BLOB)
+    {
+      Enemy* enemy2 = dynamic_cast<Enemy*>(pSpriteHittee);
+      if (enemy2)
+      {
+        if (enemy->GetDamageCooldown() <= 0)
+        {
+          enemy->SetVelocity(
+            enemy->GetVelocity().x +
+            (enemy->GetPositionFromCenter().x
+             - enemy2->GetPositionFromCenter().x) / 8,
+            enemy->GetVelocity().y +
+            (enemy->GetPositionFromCenter().y
+             - enemy2->GetPositionFromCenter().y) / 8
+          );
+        }
+        return false;
+      }
+    }
+  }
 }
 
 //-----------------------------------------------------------------
