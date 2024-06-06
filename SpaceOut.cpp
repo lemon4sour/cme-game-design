@@ -750,7 +750,7 @@ void EnemySpawnRoutine(HDC hDC)
 
 char PlayerDirectionUpdateRoutine()
 {
-  POINT ptVelocity = _pPlayer->GetVelocity();
+  POINT ptVelocity = _pPlayer->GetTargetVelocity();
   // Get direction
   char direction = _lastDirection;
   if (ptVelocity.y > ptVelocity.x && ptVelocity.y > -ptVelocity.x)
@@ -817,7 +817,7 @@ void SwingCombined(POINT targetPos, char direction)
   }
 
   // Commons
-  
+
   pSwingSprite->SetFrameDelay(1);
   _pGame->AddSprite(pSwingSprite);
 }
