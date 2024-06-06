@@ -7,11 +7,15 @@
 // Include Files
 //-----------------------------------------------------------------
 #include "Actor.h"
+#include "GameEngine.h"
 #include "resource.h"
 #include <chrono>
-#include "SpaceOut.h"
+#include <random>
 
-GameEngine* Actor::_pGame = nullptr;
+// Forward decl.
+Enemy* CreateEnemy(EnemyType type);
+
+GameEngine* Actor::s_pGame = nullptr;
 
 Actor::Actor(Bitmap* bmpBitmap, Level* pLevel) : Sprite(bmpBitmap)
 {
@@ -635,7 +639,7 @@ SPRITEACTION Enemy::Update()
         pFlame->SetNumFrames(3);
         pFlame->SetPositionFromCenter(GetPositionFromCenter());
         pFlame->SetTime(40);
-        _pGame->AddSprite(pFlame);
+        GameEngine::GetEngine()->AddSprite(pFlame);
         m_iAbilityTimer = 15;
       }
       else
@@ -663,7 +667,7 @@ SPRITEACTION Enemy::Update()
         pBullet->SetNumFrames(2);
         pBullet->SetFrameDelay(1);
 
-        _pGame->AddSprite(pBullet);
+        GameEngine::GetEngine()->AddSprite(pBullet);
 
         m_iAbilityTimer = 20;
       }
@@ -687,20 +691,22 @@ SPRITEACTION Enemy::Update()
         m_iAbilityTimer = 0;
       }
     }
-    if (m_type == EnemyType::HUMONGUS) {
-      if (m_state == EnemyState::ATTACKING) {
-          // Set Random device
-          std::random_device rd;
-          std::mt19937 gen(rd());
+    if (m_type == EnemyType::HUMONGUS)
+    {
+      if (m_state == EnemyState::ATTACKING)
+      {
+        // Set Random device
+        std::random_device rd;
+        std::mt19937 gen(rd());
 
-          std::uniform_int_distribution<> dis(0, 3072);
-          EnemyType type = { static_cast<EnemyType>(dis(gen) % 4) };
+        std::uniform_int_distribution<> dis(0, 3072);
+        EnemyType type = { static_cast<EnemyType>(dis(gen) % 4) };
 
-          Enemy* enemy = CreateEnemy(type);
-          enemy->SetPosition(GetPositionFromCenter());
-          enemy->SetVelocity(m_pTarget->GetPositionFromCenter().x - GetPositionFromCenter().x, m_pTarget->GetPositionFromCenter().y - GetPositionFromCenter().y);
+        Enemy* enemy = CreateEnemy(type);
+        enemy->SetPosition(GetPositionFromCenter());
+        enemy->SetVelocity(m_pTarget->GetPositionFromCenter().x - GetPositionFromCenter().x, m_pTarget->GetPositionFromCenter().y - GetPositionFromCenter().y);
 
-          m_iAbilityTimer = 500;
+        m_iAbilityTimer = 500;
       }
       else
       {
@@ -807,12 +813,12 @@ SPRITEACTION Fireball::Update()
       pFlame->SetNumFrames(3);
       pFlame->SetPositionFromCenter(GetPositionFromCenter().x - GetVelocity().x, GetPositionFromCenter().y - GetVelocity().y);
       pFlame->SetVelocity((-GetVelocity().x / 3) + (rand() % 10) - 5, (-GetVelocity().y / 3) + (rand() % 10) - 5);
-      _pGame->AddSprite(pFlame);
+      GameEngine::GetEngine()->AddSprite(pFlame);
       pFlame = new Flame(Flame::m_pFlameBitmap, m_pLevel);
       pFlame->SetNumFrames(3);
       pFlame->SetPositionFromCenter(GetPositionFromCenter().x - GetVelocity().x, GetPositionFromCenter().y - GetVelocity().y);
       pFlame->SetVelocity((-GetVelocity().x / 3) + (rand() % 10) - 5, (-GetVelocity().y / 3) + (rand() % 10) - 5);
-      _pGame->AddSprite(pFlame);
+      GameEngine::GetEngine()->AddSprite(pFlame);
     }
     return SA_KILL;
   }

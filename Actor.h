@@ -8,13 +8,12 @@
 //-----------------------------------------------------------------
 // Include Files
 //-----------------------------------------------------------------
-#include "GameEngine.h"
 #include "Level.h"
 #include "PathFinding.hpp"
 #include "Sprite.h"
 #include <vector>
-#include <windows.h>
-#include <windows.h>
+
+class GameEngine;
 
 //-----------------------------------------------------------------
 // Actor Class
@@ -29,8 +28,8 @@ protected:
   Actor::Actor(Bitmap* bmpBitmap, Level* pLevel);
 
 public:
-  static GameEngine* _pGame;
-  static void initializeGame(GameEngine* pGame) { _pGame = pGame; };
+  static GameEngine* s_pGame;
+  static void initializeGame(GameEngine* pGame) { s_pGame = pGame; };
   void Actor::LinkBitmapToState(int iState, Bitmap* bmpBitmap);
   void Actor::SetState(int iState) { m_iState = iState; SetBitmap(m_pSpriteStates[m_iState]); };
   virtual bool Actor::AmIStuck();
