@@ -157,6 +157,26 @@ void Player::UpdateVelocity()
     m_ptVelocity.y = max(m_ptTargetVelocity.y, m_ptVelocity.y - 1);
   else if (m_ptTargetVelocity.y > m_ptVelocity.y)
     m_ptVelocity.y = min(m_ptTargetVelocity.y, m_ptVelocity.y + 1);
+
+  static constexpr int MAX_VELOCITY = 20;
+
+  // Cap player speed to 50
+  if (m_ptVelocity.x < 0)
+  {
+    m_ptVelocity.x = max(m_ptVelocity.x, -MAX_VELOCITY);
+  }
+  else
+  {
+    m_ptVelocity.x = min(m_ptVelocity.x, MAX_VELOCITY);
+  }
+  if (m_ptVelocity.y < 0)
+  {
+    m_ptVelocity.y = max(m_ptVelocity.y, -MAX_VELOCITY);
+  }
+  else
+  {
+    m_ptVelocity.y = min(m_ptVelocity.y, MAX_VELOCITY);
+  }
 }
 
 void Player::SubtractHealth(int value)
@@ -325,8 +345,63 @@ void Enemy::HandleStuck()
   if (m_lastPosition.x == currentPosition.x
       && m_lastPosition.y == currentPosition.y)
   {
-    m_destination = FindNextDestination();
-    m_state = EnemyState::PATROLLING;
+    if (m_type != EnemyType::HUMONGUS)
+    {
+      m_destination = FindNextDestination();
+      m_state = EnemyState::PATROLLING;
+    }
+    else
+    {
+      // Break the wall
+      RECT ptPosition = GetPosition();
+
+      // Find direction and break if wall
+      if (m_ptVelocity.x > 0)
+      {
+        // We are moving right, break the right wall
+        int nextPositionX = ptPosition.right + m_ptVelocity.x;
+        int nextPositionY = ptPosition.top;
+
+        if (m_pLevel->m_layout[nextPositionY / 32][nextPositionX / 32] != 0)
+        {
+          m_pLevel->m_layout[nextPositionY / 32][nextPositionX / 32] = 0;
+        }
+      }
+      else
+      {
+        // We are moving left, break the left wall
+        int nextPositionX = ptPosition.left + m_ptVelocity.x;
+        int nextPositionY = ptPosition.top;
+
+        if (m_pLevel->m_layout[nextPositionY / 32][nextPositionX / 32] != 0)
+        {
+          m_pLevel->m_layout[nextPositionY / 32][nextPositionX / 32] = 0;
+        }
+      }
+
+      if (m_ptVelocity.y > 0)
+      {
+        // We are moving down, break the bottom wall
+        int nextPositionX = ptPosition.left;
+        int nextPositionY = ptPosition.bottom + m_ptVelocity.y;
+
+        if (m_pLevel->m_layout[nextPositionY / 32][nextPositionX / 32] != 0)
+        {
+          m_pLevel->m_layout[nextPositionY / 32][nextPositionX / 32] = 0;
+        }
+      }
+      else
+      {
+        // We are moving up, break the top wall
+        int nextPositionX = ptPosition.left;
+        int nextPositionY = ptPosition.top + m_ptVelocity.y;
+
+        if (m_pLevel->m_layout[nextPositionY / 32][nextPositionX / 32] != 0)
+        {
+          m_pLevel->m_layout[nextPositionY / 32][nextPositionX / 32] = 0;
+        }
+      }
+    }
   }
 }
 
@@ -501,12 +576,14 @@ void Enemy::Move()
   }
 }
 
-void Enemy::DealDamage(int iDamage) {
-    if (m_iDamageCooldown <= 0) {
-        m_iDamageCooldown = 8;
-        m_pHealth -= iDamage;
-        if (m_pHealth < 0) Kill();
-    }
+void Enemy::DealDamage(int iDamage)
+{
+  if (m_iDamageCooldown <= 0)
+  {
+    m_iDamageCooldown = 8;
+    m_pHealth -= iDamage;
+    if (m_pHealth < 0) Kill();
+  }
 }
 
 SPRITEACTION Enemy::Update()
@@ -524,8 +601,9 @@ SPRITEACTION Enemy::Update()
     }
   }
 
-  if (m_iDamageCooldown > 0) {
-      m_iDamageCooldown--;
+  if (m_iDamageCooldown > 0)
+  {
+    m_iDamageCooldown--;
   }
 
   // Update last position
@@ -605,9 +683,11 @@ SPRITEACTION Enemy::Update()
         m_iAbilityTimer = 0;
       }
     }
-    if (m_type == EnemyType::HUMONGUS) {
-      if (m_state == EnemyState::ATTACKING) {
-        
+    if (m_type == EnemyType::HUMONGUS)
+    {
+      if (m_state == EnemyState::ATTACKING)
+      {
+
       }
       else
       {

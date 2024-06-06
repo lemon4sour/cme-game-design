@@ -61,7 +61,10 @@ protected:
   int m_iAbilityCooldown;
 public:
   Player::Player(Bitmap* bmpBitmap, Level* pLevel);
-  void Player::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
+  void Player::SetTargetVelocity(POINT ptVelocity)
+  {
+    m_ptTargetVelocity = ptVelocity;
+  }
   POINT Player::GetTargetVelocity() { return m_ptTargetVelocity; };
   void Player::UpdateVelocity();
   int Player::GetMaxHealth() { return m_iMaxHealth; };
@@ -206,17 +209,17 @@ protected:
   int m_iCloneAgain;
   int m_iCloneDepth;
 public:
-	static Bitmap* m_pFlameBitmap;
-	static void setFlameBitmap(Bitmap* pFlameBitmap) { m_pFlameBitmap = pFlameBitmap; };
-	void SetTime(int iTime) { m_iTime = iTime; };
-	void SubtractTime(int iTime) { m_iTime -= iTime; };
-	void SetCloned(bool bCloned) { m_bCloned = bCloned; };
-	bool IsCloned() { return m_bCloned; };
-	void SetCloneDepth(int iCloneDepth) { m_iCloneDepth = iCloneDepth; };
-	int GetCloneDepth() { return m_iCloneDepth; };
-	Flame::Flame(Bitmap* bmpBitmap, Level* pLevel);
-	void Flame::UpdateVelocity();
-	SPRITEACTION Flame::Update() override;
+  static Bitmap* m_pFlameBitmap;
+  static void setFlameBitmap(Bitmap* pFlameBitmap) { m_pFlameBitmap = pFlameBitmap; };
+  void SetTime(int iTime) { m_iTime = iTime; };
+  void SubtractTime(int iTime) { m_iTime -= iTime; };
+  void SetCloned(bool bCloned) { m_bCloned = bCloned; };
+  bool IsCloned() { return m_bCloned; };
+  void SetCloneDepth(int iCloneDepth) { m_iCloneDepth = iCloneDepth; };
+  int GetCloneDepth() { return m_iCloneDepth; };
+  Flame::Flame(Bitmap* bmpBitmap, Level* pLevel);
+  void Flame::UpdateVelocity();
+  SPRITEACTION Flame::Update() override;
 };
 
 //-----------------------------------------------------------------
