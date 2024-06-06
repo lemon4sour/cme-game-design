@@ -378,8 +378,8 @@ void Enemy::HandleStuck()
         {
           int xCoord = x + xPlus;
           int yCoord = y + yPlus;
-          if (m_pLevel->m_layout.size() - 2 > yCoord && yCoord > 1 &&
-              m_pLevel->m_layout[0].size() - 2 > xCoord && xCoord > 1)
+          if (m_pLevel->m_layout.size() - 1 > yCoord && yCoord > 0 &&
+              m_pLevel->m_layout[0].size() - 1 > xCoord && xCoord > 0)
           {
             m_pLevel->m_layout[yCoord][xCoord] = 0;
           }
