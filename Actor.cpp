@@ -241,6 +241,7 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
   m_ptTargetVelocity = POINT{ 0,0 };
   m_iState = 0;
   m_iSize = 24;
+  m_iDamageCooldown = 0;
   m_pSpriteStates[0] = bmpBitmap;
   m_destination = FindNextDestination();
   switch (type)
@@ -249,24 +250,28 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
     {
       m_iAbilityTimer = 30;
       m_speed = 3;
+      m_pHealth = 100;
       break;
     }
     case EnemyType::GREEN_BLOB:
     {
       m_enemySize = 24;
       m_speed = 2;
+      m_pHealth = 500;
       break;
     }
     case EnemyType::HUMONGUS:
     {
       m_enemySize = 32;
       m_speed = 1;
+      m_pHealth = 1000;
       break;
     }
     case EnemyType::DEAD_EYE:
     {
       m_enemySize = 20;
       m_speed = 4;
+      m_pHealth = 150;
       break;
     }
   }
@@ -492,6 +497,14 @@ void Enemy::Move()
   }
 }
 
+void Enemy::DealDamage(int iDamage) {
+    if (m_iDamageCooldown <= 0) {
+        m_iDamageCooldown = 8;
+        m_pHealth -= iDamage;
+        if (m_pHealth < 0) Kill();
+    }
+}
+
 SPRITEACTION Enemy::Update()
 {
   UpdateState();
@@ -505,6 +518,10 @@ SPRITEACTION Enemy::Update()
     {
       m_pTarget->SubtractHealth(10);
     }
+  }
+
+  if (m_iDamageCooldown > 0) {
+      m_iDamageCooldown--;
   }
 
   // Update last position
@@ -563,17 +580,21 @@ SPRITEACTION Enemy::Update()
     {
       if (m_state == EnemyState::ATTACKING)
       {
-        Enemy* enemy = enemy = new Enemy(
-          m_pBitmap, m_pLevel, EnemyType::GREEN_BLOB, m_pTarget
-        );
-        enemy->SetZOrder(7);
-        enemy->SetNumFrames(4);
-        enemy->SetFrameDelay(10);
-        enemy->SetPositionFromCenter(GetPositionFromCenter().x + (rand() % 50) - 25, GetPositionFromCenter().y + (rand() % 50) - 25);
-        enemy->SetAbilityTimer(50);
-        _pGame->AddSprite(enemy);
-
-        m_iAbilityTimer = 50;
+        if (m_pHealth >= 100)
+        {
+          m_pHealth = m_pHealth / 2;
+          Enemy* enemy = enemy = new Enemy(
+            m_pBitmap, m_pLevel, EnemyType::GREEN_BLOB, m_pTarget
+          );
+          enemy->SetZOrder(7);
+          enemy->SetNumFrames(4);
+          enemy->SetFrameDelay(10);
+          enemy->SetPositionFromCenter(GetPositionFromCenter().x + (rand() % 50) - 25, GetPositionFromCenter().y + (rand() % 50) - 25);
+          enemy->SetAbilityTimer(50);
+          enemy->SetHealth(m_pHealth / 2);
+          _pGame->AddSprite(enemy);
+          m_iAbilityTimer = 100;
+        }
       }
       else
       {

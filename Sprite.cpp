@@ -86,8 +86,15 @@ SPRITEACTION Sprite::Update()
 
   // Update the position
   POINT ptNewPosition, ptSpriteSize, ptBoundsSize;
-  ptNewPosition.x = m_rcPosition.left + m_ptVelocity.x;
-  ptNewPosition.y = m_rcPosition.top + m_ptVelocity.y;
+  if (m_iMudded > 0) {
+      ptNewPosition.x = m_rcPosition.left + (m_ptVelocity.x / 3);
+      ptNewPosition.y = m_rcPosition.top + (m_ptVelocity.y / 3);
+      m_iMudded--;
+  }
+  else {
+      ptNewPosition.x = m_rcPosition.left + m_ptVelocity.x;
+      ptNewPosition.y = m_rcPosition.top + m_ptVelocity.y;
+  }
   ptSpriteSize.x = m_rcPosition.right - m_rcPosition.left;
   ptSpriteSize.y = m_rcPosition.bottom - m_rcPosition.top;
   ptBoundsSize.x = m_rcBounds.right - m_rcBounds.left;

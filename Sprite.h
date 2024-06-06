@@ -45,6 +45,8 @@ protected:
   BOOL          m_bDying;
   BOOL          m_bOneCycle;
 
+  int           m_iMudded;
+
   // Helper Methods
   void          UpdateFrame();
   virtual void  CalcCollisionRect();
@@ -94,6 +96,7 @@ public:
     { return (m_pBitmap->GetWidth() / m_iNumFrames); };
   int     GetHeight()               { return m_pBitmap->GetHeight(); };
   void    SetBitmap(Bitmap* bmpBitmap);
+  void    SetMudded() { m_iMudded = 3; };
 };
 
 //-----------------------------------------------------------------
