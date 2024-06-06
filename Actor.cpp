@@ -9,6 +9,7 @@
 #include "Actor.h"
 #include "resource.h"
 #include <chrono>
+#include "SpaceOut.h"
 
 GameEngine* Actor::_pGame = nullptr;
 
@@ -596,16 +597,10 @@ SPRITEACTION Enemy::Update()
         if (m_pHealth >= 100)
         {
           m_pHealth = m_pHealth / 2;
-          Enemy* enemy = enemy = new Enemy(
-            m_pBitmap, m_pLevel, EnemyType::GREEN_BLOB, m_pTarget
-          );
-          enemy->SetZOrder(7);
-          enemy->SetNumFrames(4);
-          enemy->SetFrameDelay(10);
+          Enemy* enemy = CreateEnemy(EnemyType::GREEN_BLOB);
           enemy->SetPositionFromCenter(GetPositionFromCenter().x + (rand() % 50) - 25, GetPositionFromCenter().y + (rand() % 50) - 25);
-          enemy->SetAbilityTimer(50);
+          enemy->SetAbilityTimer(100);
           enemy->SetHealth(m_pHealth / 2);
-          _pGame->AddSprite(enemy);
           m_iAbilityTimer = 100;
         }
       }
@@ -616,7 +611,18 @@ SPRITEACTION Enemy::Update()
     }
     if (m_type == EnemyType::HUMONGUS) {
       if (m_state == EnemyState::ATTACKING) {
-        
+          // Set Random device
+          std::random_device rd;
+          std::mt19937 gen(rd());
+
+          std::uniform_int_distribution<> dis(0, 3072);
+          EnemyType type = { static_cast<EnemyType>(dis(gen) % 4) };
+
+          Enemy* enemy = CreateEnemy(type);
+          enemy->SetPosition(GetPositionFromCenter());
+          enemy->SetVelocity(m_pTarget->GetPositionFromCenter().x - GetPositionFromCenter().x, m_pTarget->GetPositionFromCenter().y - GetPositionFromCenter().y);
+
+          m_iAbilityTimer = 500;
       }
       else
       {

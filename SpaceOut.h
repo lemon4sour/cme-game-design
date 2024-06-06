@@ -43,6 +43,15 @@ Bitmap* _pGustUpBitmap;
 Bitmap* _pGustDownBitmap;
 Bitmap* _pGustLeftBitmap;
 Bitmap* _pGustRightBitmap;
+Bitmap* _pSkullLeftBitmap;
+Bitmap* _pSkullRightBitmap;
+Bitmap* _pEyeLeftBitmap;
+Bitmap* _pEyeRightBitmap;
+Bitmap* _pEyeBackLeftBitmap;
+Bitmap* _pEyeBackRightBitmap;
+Bitmap* _pEyeBulletBitmap;
+Bitmap* _pSlimeBitmap;
+Bitmap* _pHumongousFrontBitmap;
 
 Bitmap* _pPointBitmap;
 
@@ -59,5 +68,6 @@ char _lastDirection = 'R';
 void EnemySpawnRoutine(HDC hDC);
 
 char PlayerDirectionUpdateRoutine();
+Enemy* CreateEnemy(EnemyType enemyType);
 void SwingCombined(POINT targetPos, char direction);
 void ElementUseCombined(POINT targetPos, char direction);
