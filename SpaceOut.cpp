@@ -76,7 +76,7 @@ void GameStart(HWND hWindow)
   _pEyeBulletBitmap = new Bitmap(hDC, IDB_EYEBULLET, _hInstance);
   Enemy::SetBulletBitmap(_pEyeBulletBitmap);
   _pSlimeBitmap = new Bitmap(hDC, IDB_SLIME, _hInstance);
-  _pHumongousFrontBitmap = new Bitmap(hDC, 56, 56, RGB(255, 0, 0));
+  _pHumongousFrontBitmap = new Bitmap(hDC, IDB_HUMUNGOUSFRONT, _hInstance);
 
   _pPointBitmap = new Bitmap(hDC, IDB_POINT, _hInstance);
 
@@ -184,19 +184,19 @@ static bool abilityKeyPressed = false;
 void HandleKeys()
 {
   POINT ptVelocity = POINT{ 0, 0 };
-  if (GetAsyncKeyState(VK_UP) < 0)
+  if (GetAsyncKeyState('W') < 0)
   {
     ptVelocity.y -= 8;
   }
-  if (GetAsyncKeyState(VK_DOWN) < 0)
+  if (GetAsyncKeyState('S') < 0)
   {
     ptVelocity.y += 8;
   }
-  if (GetAsyncKeyState(VK_LEFT) < 0)
+  if (GetAsyncKeyState('A') < 0)
   {
     ptVelocity.x -= 8;
   }
-  if (GetAsyncKeyState(VK_RIGHT) < 0)
+  if (GetAsyncKeyState('D') < 0)
   {
     ptVelocity.x += 8;
   }
@@ -216,25 +216,25 @@ void HandleKeys()
     _pPlayer->SetFrameDelay(3);
   }
 
-  if (GetAsyncKeyState('A') < 0)
+  if (GetAsyncKeyState('1') < 0)
   {
     iSelect = 0;
   }
-  if (GetAsyncKeyState('S') < 0)
+  if (GetAsyncKeyState('2') < 0)
   {
     iSelect = 1;
   }
-  if (GetAsyncKeyState('D') < 0)
+  if (GetAsyncKeyState('3') < 0)
   {
     iSelect = 2;
   }
-  if (GetAsyncKeyState('F') < 0)
+  if (GetAsyncKeyState('4') < 0)
   {
     iSelect = 3;
   }
 
   // Space swings to direction character going
-  if (GetAsyncKeyState(VK_SPACE) < 0)
+  if (GetAsyncKeyState('J') < 0)
   {
     if (!swingKeyPressed)
     {
@@ -255,7 +255,7 @@ void HandleKeys()
   }
 
   // Use elements with C
-  if (GetAsyncKeyState('C') < 0)
+  if (GetAsyncKeyState('K') < 0)
   {
     if (!abilityKeyPressed)
     {
@@ -278,6 +278,7 @@ void HandleKeys()
 
 void MouseButtonDown(int x, int y, BOOL bLeft)
 {
+    /*
   RECT rtPlayerPos = _pPlayer->GetPosition();
   POINT ptPlayerCenterPos = POINT{ (rtPlayerPos.left + rtPlayerPos.right) / 2, (rtPlayerPos.top + rtPlayerPos.bottom) / 2 };
   POINT ptMouseOffset = POINT{ x - ptPlayerCenterPos.x, y - ptPlayerCenterPos.y };
@@ -292,6 +293,7 @@ void MouseButtonDown(int x, int y, BOOL bLeft)
   {
     ElementUseCombined(ptMouseOffset, direction);
   }
+  */
 }
 
 void MouseButtonUp(int x, int y, BOOL bLeft)
@@ -319,14 +321,14 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
       {
         if (swing->GetDirection().x == 0)
         {
-          enemy->SetVelocity((enemy->GetPositionFromCenter().x - swing->GetPositionFromCenter().x) / 3 + (rand() % 5) - 2, swing->GetDirection().y * 5);
+          enemy->SetVelocity((enemy->GetPositionFromCenter().x - swing->GetPositionFromCenter().x) / 3 + (rand() % 5) - 2, swing->GetDirection().y * 20);
         }
         else
         {
-          enemy->SetVelocity(swing->GetDirection().x * 5, (enemy->GetPositionFromCenter().y - swing->GetPositionFromCenter().y) / 3 + (rand() % 5) - 2);
+          enemy->SetVelocity(swing->GetDirection().x * 20, (enemy->GetPositionFromCenter().y - swing->GetPositionFromCenter().y) / 3 + (rand() % 5) - 2);
         }
       }
-      enemy->DealDamage(20);
+      enemy->DealDamage(35);
       return false;
     }
     Rock* rock = dynamic_cast<Rock*>(pSpriteHittee);
@@ -385,7 +387,6 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
       _pMud->SetPositionFromCenter(puddle->GetPositionFromCenter());
       _pGame->AddSprite(_pMud);
       puddle->Kill();
-      rock->Kill();
       return false;
     }
 
@@ -399,7 +400,7 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
         {
           enemy->SetVelocity(enemy->GetVelocity().x + rock->GetVelocity().x, enemy->GetVelocity().y + rock->GetVelocity().y);
         }
-        enemy->DealDamage(rock->GetVelocity().x + rock->GetVelocity().y);
+        enemy->DealDamage((rock->GetVelocity().x + rock->GetVelocity().y) * 5);
       }
       return false;
     }
@@ -724,7 +725,7 @@ void EnemySpawnRoutine(HDC hDC)
     else
     {
       enemy = new Enemy(
-        new Bitmap(hDC, 56, 56, RGB(255, 0, 0)), _pLevel, type, _pPlayer
+        _pHumongousFrontBitmap, _pLevel, type, _pPlayer
       );
 
       enemy->SetZOrder(7);
@@ -785,6 +786,7 @@ Enemy* CreateEnemy(EnemyType type) {
     {
         enemy = new Enemy(
             _pHumongousFrontBitmap, _pLevel, type, _pPlayer
+
         );
 
         enemy->SetZOrder(7);
@@ -841,28 +843,28 @@ void SwingCombined(POINT targetPos, char direction)
   {
     pSwingSprite = new Swing(_pSwingDownBitmap, _pLevel, POINT{ 0,1 });
     pSwingSprite->SetNumFrames(3);
-    pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerPos.x, ptPlayerPos.y + 24 });
+    pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerPos.x, ptPlayerPos.y + 36 });
     //DOWN
   }
   else if (direction == 'L')
   {
     pSwingSprite = new Swing(_pSwingLeftBitmap, _pLevel, POINT{ -1,0 });
     pSwingSprite->SetNumFrames(3);
-    pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerPos.x - 24, ptPlayerPos.y });
+    pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerPos.x - 36, ptPlayerPos.y });
     //LEFT
   }
   else if (direction == 'R')
   {
     pSwingSprite = new Swing(_pSwingRightBitmap, _pLevel, POINT{ 1,0 });
     pSwingSprite->SetNumFrames(3);
-    pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerPos.x + 24, ptPlayerPos.y });
+    pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerPos.x + 36, ptPlayerPos.y });
     //RIGHT
   }
   else
   {
     pSwingSprite = new Swing(_pSwingUpBitmap, _pLevel, POINT{ 0,-1 });
     pSwingSprite->SetNumFrames(3);
-    pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerPos.x, ptPlayerPos.y - 24 });
+    pSwingSprite->SetPositionFromCenter(POINT{ ptPlayerPos.x, ptPlayerPos.y - 36 });
     //UP
   }
 
@@ -965,6 +967,10 @@ void ElementUseCombined(POINT targetPos, char direction)
   {
     Gust* pGust;
     POINT ptGustVelocity;
+    SwingCombined(_pPlayer->GetVelocity(), 'D');
+    SwingCombined(_pPlayer->GetVelocity(), 'L');
+    SwingCombined(_pPlayer->GetVelocity(), 'U');
+    SwingCombined(_pPlayer->GetVelocity(), 'R');
 
     if (direction == 'D')
     {

@@ -299,7 +299,10 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
     {
       m_enemySize = 32;
       m_speed = 1;
-      m_pHealth = 1000;
+      m_pHealth = 300;
+      SetZOrder(7);
+      SetNumFrames(4);
+      SetFrameDelay(50);
       break;
     }
     case EnemyType::DEAD_EYE:
@@ -672,11 +675,13 @@ SPRITEACTION Enemy::Update()
         std::uniform_int_distribution<> dis(0, 3072);
         EnemyType type = { static_cast<EnemyType>(dis(gen) % 4) };
 
-        Enemy* enemy = CreateEnemy(type);
-        enemy->SetPosition(GetPositionFromCenter());
-        enemy->SetVelocity(m_pTarget->GetPositionFromCenter().x - GetPositionFromCenter().x, m_pTarget->GetPositionFromCenter().y - GetPositionFromCenter().y);
+        if (type != EnemyType::HUMONGUS) {
+            Enemy* enemy = CreateEnemy(type);
+            enemy->SetPosition(GetPositionFromCenter());
+            enemy->SetVelocity((m_pTarget->GetPositionFromCenter().x - GetPositionFromCenter().x) / 8, (m_pTarget->GetPositionFromCenter().y - GetPositionFromCenter().y) / 8);
 
-        m_iAbilityTimer = 500;
+            m_iAbilityTimer = 500;
+        }
       }
       else
       {
