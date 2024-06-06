@@ -13,6 +13,7 @@
 #include <vector>
 using namespace std;
 #include "Sprite.h"
+#include "Actor.h"
 
 //-----------------------------------------------------------------
 // Joystick Flags

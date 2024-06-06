@@ -67,6 +67,17 @@ void GameStart(HWND hWindow)
   _pGustLeftBitmap = new Bitmap(hDC, IDB_GUSTLEFT, _hInstance);
   _pGustRightBitmap = new Bitmap(hDC, IDB_GUSTRIGHT, _hInstance);
 
+  _pSkullLeftBitmap = new Bitmap(hDC, IDB_SKULLLEFT, _hInstance);
+  _pSkullRightBitmap = new Bitmap(hDC, IDB_SKULLRIGHT, _hInstance);
+  _pEyeLeftBitmap = new Bitmap(hDC, IDB_EYELEFT, _hInstance);
+  _pEyeRightBitmap = new Bitmap(hDC, IDB_EYERIGHT, _hInstance);
+  _pEyeBackLeftBitmap = new Bitmap(hDC, IDB_EYEBACKLEFT, _hInstance);
+  _pEyeBackRightBitmap = new Bitmap(hDC, IDB_EYEBACKLEFT, _hInstance);
+  _pEyeBulletBitmap = new Bitmap(hDC, IDB_EYEBULLET, _hInstance);
+  Enemy::SetBulletBitmap(_pEyeBulletBitmap);
+  _pSlimeBitmap = new Bitmap(hDC, IDB_SLIME, _hInstance);
+  _pHumongousFrontBitmap = new Bitmap(hDC, 56, 56, RGB(255, 0, 0));
+
   _pPointBitmap = new Bitmap(hDC, IDB_POINT, _hInstance);
 
   _pLevel = new Level(32, 1);
@@ -637,17 +648,6 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
 
 void EnemySpawnRoutine(HDC hDC)
 {
-  // Resources
-  Bitmap* bmpSkullLeft = new Bitmap(hDC, IDB_SKULLLEFT, _hInstance);
-  Bitmap* bmpSkullRight = new Bitmap(hDC, IDB_SKULLRIGHT, _hInstance);
-
-  Bitmap* bmpEyeLeft = new Bitmap(hDC, IDB_EYELEFT, _hInstance);
-  Bitmap* bmpEyeRight = new Bitmap(hDC, IDB_EYERIGHT, _hInstance);
-  Bitmap* bmpEyeBackLeft = new Bitmap(hDC, IDB_EYEBACKLEFT, _hInstance);
-  Bitmap* bmpEyeBackRight = new Bitmap(hDC, IDB_EYEBACKLEFT, _hInstance);
-  Bitmap* bmpEyeBullet = new Bitmap(hDC, IDB_EYEBULLET, _hInstance);
-  Enemy::SetBulletBitmap(bmpEyeBullet);
-  Bitmap* bmpSlime = new Bitmap(hDC, IDB_SLIME, _hInstance);
 
   // Set Random device
   std::random_device rd;
@@ -696,38 +696,30 @@ void EnemySpawnRoutine(HDC hDC)
     if (type == EnemyType::FIRE_SKULL)
     {
       enemy = new Enemy(
-        bmpSkullLeft, _pLevel, type, _pPlayer
+        _pSkullLeftBitmap, _pLevel, type, _pPlayer
       );
 
-      enemy->LinkBitmapToState(FireSkullState::FIRE_SKULL_LEFT, bmpSkullLeft);
-      enemy->LinkBitmapToState(FireSkullState::FIRE_SKULL_RIGHT, bmpSkullRight);
-      enemy->SetZOrder(7);
-      enemy->SetNumFrames(4);
-      enemy->SetFrameDelay(10);
+      enemy->LinkBitmapToState(FireSkullState::FIRE_SKULL_LEFT, _pSkullLeftBitmap);
+      enemy->LinkBitmapToState(FireSkullState::FIRE_SKULL_RIGHT, _pSkullRightBitmap);
+
     }
     else if (type == EnemyType::DEAD_EYE)
     {
       enemy = enemy = new Enemy(
-        bmpEyeLeft, _pLevel, type, _pPlayer
+        _pEyeLeftBitmap, _pLevel, type, _pPlayer
       );
 
-      enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_LEFT, bmpEyeLeft);
-      enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_RIGHT, bmpEyeRight);
-      enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_BACK_LEFT, bmpEyeBackLeft);
-      enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_BACK_RIGHT, bmpEyeBackRight);
-      enemy->SetZOrder(7);
-      enemy->SetNumFrames(3);
-      enemy->SetFrameDelay(10);
+      enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_LEFT, _pEyeLeftBitmap);
+      enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_RIGHT, _pEyeRightBitmap);
+      enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_BACK_LEFT, _pEyeBackLeftBitmap);
+      enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_BACK_RIGHT, _pEyeBackRightBitmap);
+
     }
     else if (type == EnemyType::GREEN_BLOB)
     {
       enemy = enemy = new Enemy(
-        bmpSlime, _pLevel, type, _pPlayer
+        _pSlimeBitmap, _pLevel, type, _pPlayer
       );
-
-      enemy->SetZOrder(7);
-      enemy->SetNumFrames(4);
-      enemy->SetFrameDelay(10);
     }
     else
     {
@@ -755,6 +747,56 @@ void EnemySpawnRoutine(HDC hDC)
   }
 
 }
+
+Enemy* CreateEnemy(EnemyType type) {
+    // Resources
+
+    Enemy* enemy;
+
+    if (type == EnemyType::FIRE_SKULL)
+    {
+        enemy = new Enemy(
+            _pSkullLeftBitmap, _pLevel, type, _pPlayer
+        );
+
+        enemy->LinkBitmapToState(FireSkullState::FIRE_SKULL_LEFT, _pSkullLeftBitmap);
+        enemy->LinkBitmapToState(FireSkullState::FIRE_SKULL_RIGHT, _pSkullRightBitmap);
+
+    }
+    else if (type == EnemyType::DEAD_EYE)
+    {
+        enemy = enemy = new Enemy(
+            _pEyeLeftBitmap, _pLevel, type, _pPlayer
+        );
+
+        enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_LEFT, _pEyeLeftBitmap);
+        enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_RIGHT, _pEyeRightBitmap);
+        enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_BACK_LEFT, _pEyeBackLeftBitmap);
+        enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_BACK_RIGHT, _pEyeBackRightBitmap);
+
+    }
+    else if (type == EnemyType::GREEN_BLOB)
+    {
+        enemy = enemy = new Enemy(
+            _pSlimeBitmap, _pLevel, type, _pPlayer
+        );
+    }
+    else
+    {
+        enemy = new Enemy(
+            _pHumongousFrontBitmap, _pLevel, type, _pPlayer
+        );
+
+        enemy->SetZOrder(7);
+    }
+
+    _pGame->AddSprite(enemy);
+    return enemy;
+}
+
+
+
+
 
 char PlayerDirectionUpdateRoutine()
 {
