@@ -255,6 +255,9 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
       m_iAbilityTimer = 30;
       m_speed = 3;
       m_pHealth = 100;
+      SetZOrder(7);
+      SetNumFrames(4);
+      SetFrameDelay(10);
       break;
     }
     case EnemyType::GREEN_BLOB:
@@ -262,6 +265,9 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
       m_enemySize = 24;
       m_speed = 2;
       m_pHealth = 500;
+      SetZOrder(7);
+      SetNumFrames(4);
+      SetFrameDelay(10);
       break;
     }
     case EnemyType::HUMONGUS:
@@ -276,6 +282,9 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
       m_enemySize = 20;
       m_speed = 4;
       m_pHealth = 150;
+      SetZOrder(7);
+      SetNumFrames(3);
+      SetFrameDelay(10);
       break;
     }
   }

@@ -701,9 +701,7 @@ void EnemySpawnRoutine(HDC hDC)
 
       enemy->LinkBitmapToState(FireSkullState::FIRE_SKULL_LEFT, bmpSkullLeft);
       enemy->LinkBitmapToState(FireSkullState::FIRE_SKULL_RIGHT, bmpSkullRight);
-      enemy->SetZOrder(7);
-      enemy->SetNumFrames(4);
-      enemy->SetFrameDelay(10);
+
     }
     else if (type == EnemyType::DEAD_EYE)
     {
@@ -715,19 +713,13 @@ void EnemySpawnRoutine(HDC hDC)
       enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_RIGHT, bmpEyeRight);
       enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_BACK_LEFT, bmpEyeBackLeft);
       enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_BACK_RIGHT, bmpEyeBackRight);
-      enemy->SetZOrder(7);
-      enemy->SetNumFrames(3);
-      enemy->SetFrameDelay(10);
+
     }
     else if (type == EnemyType::GREEN_BLOB)
     {
       enemy = enemy = new Enemy(
         bmpSlime, _pLevel, type, _pPlayer
       );
-
-      enemy->SetZOrder(7);
-      enemy->SetNumFrames(4);
-      enemy->SetFrameDelay(10);
     }
     else
     {
