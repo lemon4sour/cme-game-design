@@ -76,7 +76,7 @@ void GameStart(HWND hWindow)
   _pEyeBulletBitmap = new Bitmap(hDC, IDB_EYEBULLET, _hInstance);
   Enemy::SetBulletBitmap(_pEyeBulletBitmap);
   _pSlimeBitmap = new Bitmap(hDC, IDB_SLIME, _hInstance);
-  _pHumongousFrontBitmap = new Bitmap(hDC, 56, 56, RGB(255, 0, 0));
+  _pHumongousFrontBitmap = new Bitmap(hDC, IDB_HUMUNGOUSFRONT, _hInstance);
 
   _pPointBitmap = new Bitmap(hDC, IDB_POINT, _hInstance);
 
@@ -724,7 +724,7 @@ void EnemySpawnRoutine(HDC hDC)
     else
     {
       enemy = new Enemy(
-        new Bitmap(hDC, 56, 56, RGB(255, 0, 0)), _pLevel, type, _pPlayer
+        _pHumongousFrontBitmap, _pLevel, type, _pPlayer
       );
 
       enemy->SetZOrder(7);
@@ -785,6 +785,7 @@ Enemy* CreateEnemy(EnemyType type) {
     {
         enemy = new Enemy(
             _pHumongousFrontBitmap, _pLevel, type, _pPlayer
+
         );
 
         enemy->SetZOrder(7);

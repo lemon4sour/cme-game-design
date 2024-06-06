@@ -300,6 +300,9 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
       m_enemySize = 32;
       m_speed = 1;
       m_pHealth = 1000;
+      SetZOrder(7);
+      SetNumFrames(4);
+      SetFrameDelay(50);
       break;
     }
     case EnemyType::DEAD_EYE:
