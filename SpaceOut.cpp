@@ -309,34 +309,41 @@ void HandleJoystick(JOYSTATE jsJoystickState)
 
 BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
 {
-    Swing* swing = dynamic_cast<Swing*>(pSpriteHitter);
-    // SWING INTERACTION
-    if (swing) {
-        Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
-        // SWING TO ENEMY
-        if (enemy) {
-            if (enemy->GetDamageCooldown() <= 0) {
-                if (swing->GetDirection().x == 0) {
-                    enemy->SetVelocity((enemy->GetPositionFromCenter().x - swing->GetPositionFromCenter().x) + (rand() % 5) - 2, swing->GetDirection().y * 5);
-                }
-                else {
-                    enemy->SetVelocity(swing->GetDirection().x * 5, (enemy->GetPositionFromCenter().y - swing->GetPositionFromCenter().y) + (rand() % 5) - 2);
-                }
-            }
-            enemy->DealDamage(20);
-            return false;
+  Swing* swing = dynamic_cast<Swing*>(pSpriteHitter);
+  // SWING INTERACTION
+  if (swing)
+  {
+    Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
+    // SWING TO ENEMY
+    if (enemy)
+    {
+      if (enemy->GetDamageCooldown() <= 0)
+      {
+        if (swing->GetDirection().x == 0)
+        {
+          enemy->SetVelocity((enemy->GetPositionFromCenter().x - swing->GetPositionFromCenter().x) + (rand() % 5) - 2, swing->GetDirection().y * 5);
         }
-        Rock* rock = dynamic_cast<Rock*>(pSpriteHittee);
-        // SWING TO ROCK
-        if (rock) {
-            if (rock->GetCooldown() > 0) return false;
-            rock->SetCooldown(3);
-            int hits = rock->GetNumHits();
-            if (hits >= rock->GetMaxHits()) {
-                rock->Kill();
-                return false;
-            }
-            rock->GetNumHits(++hits);
+        else
+        {
+          enemy->SetVelocity(swing->GetDirection().x * 5, (enemy->GetPositionFromCenter().y - swing->GetPositionFromCenter().y) + (rand() % 5) - 2);
+        }
+      }
+      enemy->DealDamage(20);
+      return false;
+    }
+    Rock* rock = dynamic_cast<Rock*>(pSpriteHittee);
+    // SWING TO ROCK
+    if (rock)
+    {
+      if (rock->GetCooldown() > 0) return false;
+      rock->SetCooldown(3);
+      int hits = rock->GetNumHits();
+      if (hits >= rock->GetMaxHits())
+      {
+        rock->Kill();
+        return false;
+      }
+      rock->GetNumHits(++hits);
 
       if (swing->GetDirection().x == 0)
       {
@@ -384,35 +391,41 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
       return false;
     }
 
-        Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
-        // ROCK TO ENEMY
-        if (enemy) {
-            if (rock->GetVelocity().x != 0 || rock->GetVelocity().y != 0) {
-                if (enemy->GetDamageCooldown() <= 0) {
-                    enemy->SetVelocity(enemy->GetVelocity().x + rock->GetVelocity().x, enemy->GetVelocity().y + rock->GetVelocity().y); 
-                }
-                enemy->DealDamage(rock->GetVelocity().x + rock->GetVelocity().y);
-            }
-            return false;
+    Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
+    // ROCK TO ENEMY
+    if (enemy)
+    {
+      if (rock->GetVelocity().x != 0 || rock->GetVelocity().y != 0)
+      {
+        if (enemy->GetDamageCooldown() <= 0)
+        {
+          enemy->SetVelocity(enemy->GetVelocity().x + rock->GetVelocity().x, enemy->GetVelocity().y + rock->GetVelocity().y);
         }
+        enemy->DealDamage(rock->GetVelocity().x + rock->GetVelocity().y);
+      }
+      return false;
     }
+  }
 
-    Fireball* fireball = dynamic_cast<Fireball*>(pSpriteHitter);
-    // FIREBALL INTERACTION
-    if (fireball) {
-        Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
-        // FIREBALL TO ENEMY
-        if (enemy) {
-            if (fireball->isEnemy() && !fireball->isParried()) return false;
-            if (enemy->GetEnemyType() == EnemyType::ANGRY_GUY) return false;
-            if (enemy->GetEnemyType() == EnemyType::DUTY_GUY) fireball->Kill();
-            enemy->DealDamage(80);
-            return false;
-        }
-        Rock* rock = dynamic_cast<Rock*>(pSpriteHittee);
-        // FIREBALL TO ROCK
-        if (rock) {
-            rock->Kill();
+  Fireball* fireball = dynamic_cast<Fireball*>(pSpriteHitter);
+  // FIREBALL INTERACTION
+  if (fireball)
+  {
+    Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
+    // FIREBALL TO ENEMY
+    if (enemy)
+    {
+      if (fireball->isEnemy() && !fireball->isParried()) return false;
+      if (enemy->GetEnemyType() == EnemyType::FIRE_SKULL) return false;
+      if (enemy->GetEnemyType() == EnemyType::DEAD_EYE) fireball->Kill();
+      enemy->DealDamage(80);
+      return false;
+    }
+    Rock* rock = dynamic_cast<Rock*>(pSpriteHittee);
+    // FIREBALL TO ROCK
+    if (rock)
+    {
+      rock->Kill();
 
       vector<POINT> directions = {
       POINT {8 + (rand() % 5), 8 + (rand() % 5)},
@@ -465,57 +478,67 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
     }
   }
 
-    Flame* flame = dynamic_cast<Flame*>(pSpriteHitter);
-    // FLAME INTERACTION
-    if (flame) {
-        Player* player = dynamic_cast<Player*>(pSpriteHittee);
-        // FLAME TO PLAYER
-        if (player) {
-            if (player->GetInvFrames() <= 0) {
-                flame->SubtractTime(20);
-            }
-            player->SubtractHealth(10);
-            return false;
-        }
-        Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
-        // FLAME TO ENEMY
-        if (enemy) {
-            if (enemy->GetEnemyType() == EnemyType::ANGRY_GUY) return false;
-            if (enemy->GetDamageCooldown() <= 0) {
-                flame->SubtractTime(20);
-            }
-            enemy->DealDamage(20);
-            return false;
-        }
-        Puddle* puddle = dynamic_cast<Puddle*>(pSpriteHittee);
-        // FLAME TO PUDDLE
-        if (puddle) {
-            flame->Kill();
-            return false;
-        }
+  Flame* flame = dynamic_cast<Flame*>(pSpriteHitter);
+  // FLAME INTERACTION
+  if (flame)
+  {
+    Player* player = dynamic_cast<Player*>(pSpriteHittee);
+    // FLAME TO PLAYER
+    if (player)
+    {
+      if (player->GetInvFrames() <= 0)
+      {
+        flame->SubtractTime(20);
+      }
+      player->SubtractHealth(10);
+      return false;
     }
+    Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
+    // FLAME TO ENEMY
+    if (enemy)
+    {
+      if (enemy->GetEnemyType() == EnemyType::FIRE_SKULL) return false;
+      if (enemy->GetDamageCooldown() <= 0)
+      {
+        flame->SubtractTime(20);
+      }
+      enemy->DealDamage(20);
+      return false;
+    }
+    Puddle* puddle = dynamic_cast<Puddle*>(pSpriteHittee);
+    // FLAME TO PUDDLE
+    if (puddle)
+    {
+      flame->Kill();
+      return false;
+    }
+  }
 
-    Mud* mud = dynamic_cast<Mud*>(pSpriteHitter);
-    // MUD INTERACTION
-    if (mud) {
-        Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
-        // MUD TO ENEMY
-        if (enemy) {
-            enemy->SetMudded();
-            return false;
-        }
-        Puddle* puddle = dynamic_cast<Puddle*>(pSpriteHittee);
-        // MUD TO PUDDLE
-        if (puddle) {
-            if (mud->getSpreadCooldown() <= 0) {
-                Mud* _pMud = new Mud(_pMudBitmap, _pLevel);
-                _pMud->SetPositionFromCenter(puddle->GetPositionFromCenter());
-                _pGame->AddSprite(_pMud);
-                puddle->Kill();
-            }
-            return false;
-        }
+  Mud* mud = dynamic_cast<Mud*>(pSpriteHitter);
+  // MUD INTERACTION
+  if (mud)
+  {
+    Enemy* enemy = dynamic_cast<Enemy*>(pSpriteHittee);
+    // MUD TO ENEMY
+    if (enemy)
+    {
+      enemy->SetMudded();
+      return false;
     }
+    Puddle* puddle = dynamic_cast<Puddle*>(pSpriteHittee);
+    // MUD TO PUDDLE
+    if (puddle)
+    {
+      if (mud->getSpreadCooldown() <= 0)
+      {
+        Mud* _pMud = new Mud(_pMudBitmap, _pLevel);
+        _pMud->SetPositionFromCenter(puddle->GetPositionFromCenter());
+        _pGame->AddSprite(_pMud);
+        puddle->Kill();
+      }
+      return false;
+    }
+  }
 
   Gust* gust = dynamic_cast<Gust*>(pSpriteHitter);
   // GUST INTERACTION
