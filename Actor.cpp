@@ -279,7 +279,7 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
     {
       m_iAbilityTimer = 30;
       m_speed = 3;
-      m_pHealth = 100;
+      m_pHealth = fireSkullHealth;
       SetZOrder(7);
       SetNumFrames(4);
       SetFrameDelay(10);
@@ -289,7 +289,7 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
     {
       m_enemySize = 24;
       m_speed = 2;
-      m_pHealth = 500;
+      m_pHealth = greenBlobHealth;
       SetZOrder(7);
       SetNumFrames(4);
       SetFrameDelay(10);
@@ -299,7 +299,7 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
     {
       m_enemySize = 32;
       m_speed = 1;
-      m_pHealth = 300;
+      m_pHealth = humongusHealth;
       SetZOrder(7);
       SetNumFrames(4);
       SetFrameDelay(50);
@@ -309,7 +309,7 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
     {
       m_enemySize = 20;
       m_speed = 4;
-      m_pHealth = 150;
+      m_pHealth = deadEyeHealth;
       SetZOrder(7);
       SetNumFrames(3);
       SetFrameDelay(10);
@@ -675,12 +675,13 @@ SPRITEACTION Enemy::Update()
         std::uniform_int_distribution<> dis(0, 3072);
         EnemyType type = { static_cast<EnemyType>(dis(gen) % 4) };
 
-        if (type != EnemyType::HUMONGUS) {
-            Enemy* enemy = CreateEnemy(type);
-            enemy->SetPosition(GetPositionFromCenter());
-            enemy->SetVelocity((m_pTarget->GetPositionFromCenter().x - GetPositionFromCenter().x) / 8, (m_pTarget->GetPositionFromCenter().y - GetPositionFromCenter().y) / 8);
+        if (type != EnemyType::HUMONGUS)
+        {
+          Enemy* enemy = CreateEnemy(type);
+          enemy->SetPosition(GetPositionFromCenter());
+          enemy->SetVelocity((m_pTarget->GetPositionFromCenter().x - GetPositionFromCenter().x) / 8, (m_pTarget->GetPositionFromCenter().y - GetPositionFromCenter().y) / 8);
 
-            m_iAbilityTimer = 500;
+          m_iAbilityTimer = 500;
         }
       }
       else

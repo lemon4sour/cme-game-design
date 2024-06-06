@@ -138,6 +138,10 @@ protected:
   int m_enemySize;
   int m_iAbilityTimer;
 public:
+  const int fireSkullHealth = 100;
+  const int greenBlobHealth = 500;
+  const int humongusHealth = 300;
+  const int deadEyeHealth = 150;
   static Bitmap* m_bmpBullet;
   static void SetBulletBitmap(Bitmap* pBulletBitmap) { m_bmpBullet = pBulletBitmap; };
   Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget);
