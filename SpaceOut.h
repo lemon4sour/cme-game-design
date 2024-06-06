@@ -51,6 +51,13 @@ Player* _pPlayer;
 std::vector<Enemy*> _vEnemies;
 
 ElementQueue* _pElementQueue;
+
+char _lastDirection = 'R';
 //-----------------------------------------------------------------
 // Function Declarations
 //-----------------------------------------------------------------
+void EnemySpawnRoutine(HDC hDC);
+
+char PlayerDirectionUpdateRoutine();
+void SwingCombined(POINT targetPos, char direction);
+void ElementUseCombined(POINT targetPos, char direction);

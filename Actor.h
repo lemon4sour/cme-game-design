@@ -8,12 +8,12 @@
 //-----------------------------------------------------------------
 // Include Files
 //-----------------------------------------------------------------
+#include "GameEngine.h"
 #include "Level.h"
 #include "PathFinding.hpp"
 #include "Sprite.h"
-#include "GameEngine.h"
-#include <windows.h>
 #include <vector>
+#include <windows.h>
 #include <windows.h>
 
 //-----------------------------------------------------------------
@@ -89,10 +89,10 @@ public:
 
 enum class EnemyType : std::uint8_t
 {
-  ANGRY_GUY,
-  DUTY_GUY,
-  HEAVY_GUY,
-  COWARD_GUY
+  FIRE_SKULL,
+  GREEN_BLOB,
+  HUMONGUS,
+  DEAD_EYE
 };
 
 enum class EnemyState : std::uint8_t
@@ -102,16 +102,18 @@ enum class EnemyState : std::uint8_t
   ESCAPING,
 };
 
-enum AngryState : int {
-	ANGRYLEFT = 1,
-	ANGRYRIGHT = 2,
+enum FireSkullState : int
+{
+  FIRE_SKULL_LEFT = 1,
+  FIRE_SKULL_RIGHT = 2,
 };
 
-enum CowardState : int {
-	COWARDLEFT = 1,
-	COWARDRIGHT = 2,
-	COWARDBACKLEFT = 3,
-	COWARDBACKRIGHT = 4,
+enum GreenBlobState : int
+{
+  GREEN_BLOB_LEFT = 1,
+  GREEN_BLOB_RIGHT = 2,
+  GREEN_BLOB_BACK_LEFT = 3,
+  GREEN_BLOB_BACK_RIGHT = 4,
 };
 
 class Enemy : public Actor
@@ -157,14 +159,14 @@ protected:
   int m_iMaxHits;
   int m_iCooldown;
 public:
-	Rock::Rock(Bitmap* bmpBitmap, Level* pLevel);
-	void Rock::UpdateVelocity();
-	void Rock::SetCooldown(int iCooldown) { m_iCooldown = iCooldown; };
-	int Rock::GetCooldown() { return m_iCooldown; };
-	int Rock::GetNumHits() { return m_iNumHits; };
-	int Rock::GetMaxHits() { return m_iMaxHits; };
-	void Rock::GetNumHits(int iNumHits) { m_iNumHits = iNumHits; };
-	SPRITEACTION Rock::Update() override;
+  Rock::Rock(Bitmap* bmpBitmap, Level* pLevel);
+  void Rock::UpdateVelocity();
+  void Rock::SetCooldown(int iCooldown) { m_iCooldown = iCooldown; };
+  int Rock::GetCooldown() { return m_iCooldown; };
+  int Rock::GetNumHits() { return m_iNumHits; };
+  int Rock::GetMaxHits() { return m_iMaxHits; };
+  void Rock::GetNumHits(int iNumHits) { m_iNumHits = iNumHits; };
+  SPRITEACTION Rock::Update() override;
 };
 
 //-----------------------------------------------------------------
@@ -173,16 +175,16 @@ public:
 class Fireball : public Actor
 {
 protected:
-	bool m_bEnemy;
-	bool m_bParried;
+  bool m_bEnemy;
+  bool m_bParried;
 public:
-	Fireball::Fireball(Bitmap* bmpBitmap, Level* pLevel);
-	bool isEnemy() { return m_bEnemy; };
-	void setEnemy(bool bEnemy) { m_bEnemy = bEnemy; };
-	void parry() { m_bParried = true; };
-	bool isParried() { return m_bParried; };
-	bool AmIStuck() override;
-	SPRITEACTION Fireball::Update() override;
+  Fireball::Fireball(Bitmap* bmpBitmap, Level* pLevel);
+  bool isEnemy() { return m_bEnemy; };
+  void setEnemy(bool bEnemy) { m_bEnemy = bEnemy; };
+  void parry() { m_bParried = true; };
+  bool isParried() { return m_bParried; };
+  bool AmIStuck() override;
+  SPRITEACTION Fireball::Update() override;
 };
 
 //-----------------------------------------------------------------
@@ -191,21 +193,21 @@ public:
 class Flame : public Actor
 {
 protected:
-	int m_iTime;
-	bool m_bCloned;
-	int m_iCloneAgain;
-	int m_iCloneDepth;
+  int m_iTime;
+  bool m_bCloned;
+  int m_iCloneAgain;
+  int m_iCloneDepth;
 public:
-	static Bitmap* m_pFlameBitmap;
-	static void setFlameBitmap(Bitmap* pFlameBitmap) { m_pFlameBitmap = pFlameBitmap; };
-	void SetTime(int iTime) { m_iTime = iTime; };
-	void SetCloned(bool bCloned) { m_bCloned = bCloned; };
-	bool IsCloned() { return m_bCloned; };
-	void SetCloneDepth(int iCloneDepth) { m_iCloneDepth = iCloneDepth; };
-	int GetCloneDepth() { return m_iCloneDepth; };
-	Flame::Flame(Bitmap* bmpBitmap, Level* pLevel);
-	void Flame::UpdateVelocity();
-	SPRITEACTION Flame::Update() override;
+  static Bitmap* m_pFlameBitmap;
+  static void setFlameBitmap(Bitmap* pFlameBitmap) { m_pFlameBitmap = pFlameBitmap; };
+  void SetTime(int iTime) { m_iTime = iTime; };
+  void SetCloned(bool bCloned) { m_bCloned = bCloned; };
+  bool IsCloned() { return m_bCloned; };
+  void SetCloneDepth(int iCloneDepth) { m_iCloneDepth = iCloneDepth; };
+  int GetCloneDepth() { return m_iCloneDepth; };
+  Flame::Flame(Bitmap* bmpBitmap, Level* pLevel);
+  void Flame::UpdateVelocity();
+  SPRITEACTION Flame::Update() override;
 };
 
 //-----------------------------------------------------------------
@@ -214,10 +216,10 @@ public:
 class Puddle : public Actor
 {
 protected:
-	int m_iTime;
+  int m_iTime;
 public:
-	Puddle::Puddle(Bitmap* bmpBitmap, Level* pLevel);
-	SPRITEACTION Puddle::Update() override;
+  Puddle::Puddle(Bitmap* bmpBitmap, Level* pLevel);
+  SPRITEACTION Puddle::Update() override;
 };
 
 //-----------------------------------------------------------------
@@ -226,12 +228,12 @@ public:
 class Mud : public Actor
 {
 protected:
-	int m_iTime;
-	int m_iSpreadCooldown;
+  int m_iTime;
+  int m_iSpreadCooldown;
 public:
-	Mud::Mud(Bitmap* bmpBitmap, Level* pLevel);
-	int getSpreadCooldown() { return m_iSpreadCooldown; };
-	SPRITEACTION Mud::Update() override;
+  Mud::Mud(Bitmap* bmpBitmap, Level* pLevel);
+  int getSpreadCooldown() { return m_iSpreadCooldown; };
+  SPRITEACTION Mud::Update() override;
 };
 
 //-----------------------------------------------------------------
@@ -240,10 +242,10 @@ public:
 class Gust : public Actor
 {
 protected:
-	int m_iTime;
+  int m_iTime;
 public:
-	Gust::Gust(Bitmap* bmpBitmap, Level* pLevel);
-	SPRITEACTION Gust::Update() override;
+  Gust::Gust(Bitmap* bmpBitmap, Level* pLevel);
+  SPRITEACTION Gust::Update() override;
 };
 
 //-----------------------------------------------------------------
@@ -252,11 +254,10 @@ public:
 class Ice : public Actor
 {
 protected:
-	int m_iTime;
+  int m_iTime;
 public:
-	Ice::Ice(Bitmap* bmpBitmap, Level* pLevel);
-	Ice::~Ice();
-	SPRITEACTION Ice::Update() override;
-	void Ice::SetPositionFromCenter(POINT ptPosition) override;
+  Ice::Ice(Bitmap* bmpBitmap, Level* pLevel);
+  Ice::~Ice();
+  SPRITEACTION Ice::Update() override;
+  void Ice::SetPositionFromCenter(POINT ptPosition) override;
 };
-

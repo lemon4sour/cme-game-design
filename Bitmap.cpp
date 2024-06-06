@@ -131,50 +131,25 @@ BOOL Bitmap::Create(UINT uiResID, HINSTANCE hInstance)
   // Free any previous DIB info
   Free();
 
-  // Find the bitmap resource
-  HRSRC hResInfo = FindResource(hInstance, MAKEINTRESOURCE(uiResID), RT_BITMAP);
-  if (hResInfo == NULL)
-    return FALSE;
-
-  // Load the bitmap resource
-  HGLOBAL hMemBitmap = LoadResource(hInstance, hResInfo);
-  if (hMemBitmap == NULL)
-    return FALSE;
-
-  // Lock the resource and access the entire bitmap image
-  PBYTE pBitmapImage = (BYTE*)LockResource(hMemBitmap);
-  if (pBitmapImage == NULL)
+  // Load the bitmap using LoadImage
+  m_hBitmap = (HBITMAP)LoadImage(hInstance, MAKEINTRESOURCE(uiResID), IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION);
+  if (m_hBitmap == NULL)
   {
-    FreeResource(hMemBitmap);
     return FALSE;
   }
 
-  // Store the width and height of the bitmap
-  BITMAPINFO* pBitmapInfo = (BITMAPINFO*)pBitmapImage;
-  m_iWidth = (int)pBitmapInfo->bmiHeader.biWidth;
-  m_iHeight = (int)pBitmapInfo->bmiHeader.biHeight;
-
-  // Get a handle to the bitmap and copy the image bits
-  PBYTE pBitmapBits;
-  m_hBitmap = CreateDIBSection(m_hDC, pBitmapInfo, DIB_RGB_COLORS,
-                               (PVOID*)&pBitmapBits, NULL, 0);
-  if ((m_hBitmap != NULL) && (pBitmapBits != NULL))
+  // Get the bitmap dimensions
+  BITMAP bitmap;
+  if (GetObject(m_hBitmap, sizeof(BITMAP), &bitmap) == 0)
   {
-    const PBYTE pTempBits = pBitmapImage + pBitmapInfo->bmiHeader.biSize +
-      pBitmapInfo->bmiHeader.biClrUsed * sizeof(RGBQUAD);
-    CopyMemory(pBitmapBits, pTempBits, pBitmapInfo->bmiHeader.biSizeImage);
-
-    // Unlock and free the bitmap graphics object
-    UnlockResource(hMemBitmap);
-    FreeResource(hMemBitmap);
-    return TRUE;
+    Free();
+    return FALSE;
   }
 
-  // Something went wrong, so cleanup everything
-  UnlockResource(hMemBitmap);
-  FreeResource(hMemBitmap);
-  Free();
-  return FALSE;
+  m_iWidth = bitmap.bmWidth;
+  m_iHeight = bitmap.bmHeight;
+
+  return TRUE;
 }
 
 BOOL Bitmap::Create(int iWidth, int iHeight, COLORREF crColor)
