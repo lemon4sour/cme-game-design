@@ -49,7 +49,7 @@ void GameStart(HWND hWindow)
 
   // Level Creation
   
-  _pLevel = new Level(32, 1);
+  _pLevel = new Level(32, 1, _iCurrentLevel);
   _pLevel->MapTile(0, _pEmptyBitmap);
   _pLevel->GetTile(0)->SetCollidable();
   _pLevel->MapTile(1, _pWallBitmap);
@@ -272,8 +272,10 @@ void HandleKeys()
   {
     if (!nextLevelKeyPressed)
     {
-      NextLevel(GetDC(_pGame->GetWindow()), 2);
-      nextLevelKeyPressed = true;
+        if (_iCurrentLevel < _iMaxLevel) {
+            NextLevel(GetDC(_pGame->GetWindow()), 2);
+            nextLevelKeyPressed = true;
+        }
     }
   }
   else
@@ -910,7 +912,8 @@ void NextLevel(HDC hDC, int level)
     ClearBeforeNextLevel();
 
     // Level Creation
-    _pLevel = new Level(32, 1);
+    _iCurrentLevel++;
+    _pLevel = new Level(32, 1, _iCurrentLevel);
     _pLevel->MapTile(0, _pEmptyBitmap);
     _pLevel->GetTile(0)->SetCollidable();
     _pLevel->MapTile(1, _pWallBitmap);

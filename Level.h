@@ -53,14 +53,13 @@ protected:
   int m_iHeight;
 
 private:
-	int m_iCurrentLevel = 1;
-	const int m_iMaxLevel = 5;
+	int m_iCurrentLevel;
 
 public:
   std::vector<std::vector<int>> m_layout;
 
   // Constructor/Destructor
-  Level(int iTileSize, int iLevelNumber);
+  Level(int iTileSize, int iLevelNumber, int icurrentLevel);
   virtual ~Level();
 
   // General Methods
@@ -74,6 +73,7 @@ public:
   void Level::SetTile(int x, int y, int tilenum) { m_layout[y][x] = tilenum; };
   void Level::SetTile(POINT ptPos, int tilenum) { m_layout[ptPos.y][ptPos.x] = tilenum; };
   int GetCurrentLevel() { return m_iCurrentLevel; }
+  void SetLevelNumber(int currentLevel) { m_iCurrentLevel = currentLevel; };
 };
 
 

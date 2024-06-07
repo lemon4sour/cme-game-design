@@ -11,9 +11,10 @@
 //-----------------------------------------------------------------
 // Level Constructor(s)/Destructor
 //-----------------------------------------------------------------
-Level::Level(int iTileSize, int iLevelNumber)
+Level::Level(int iTileSize, int iLevelNumber, int iCurrentLevel)
 {
   // initialize the level
+  m_iCurrentLevel = iCurrentLevel;
   m_layout = GenerateLevel();
   m_iLevelNumber = iLevelNumber;
   m_iTileSize = iTileSize;
