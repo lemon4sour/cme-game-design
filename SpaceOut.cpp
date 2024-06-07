@@ -906,22 +906,25 @@ void CreateInventory(HDC hDC)
 
 void NextLevel(HDC hDC, int level)
 {
-  // Clear current level
-  ClearBeforeNextLevel();
+    // Clear current level
+    ClearBeforeNextLevel();
 
-  // Level Creation
-  _pLevel = new Level(32, 1);
-  _pLevel->MapTile(0, _pEmptyBitmap);
-  _pLevel->GetTile(0)->SetCollidable();
-  _pLevel->MapTile(1, _pWallBitmap);
-  _pLevel->MapTile(2, _pIceBitmap);
-  _pLevel->GetTile(2)->SetMeltable();
+    // Level Creation
+    _pLevel = new Level(32, 1);
+    _pLevel->MapTile(0, _pEmptyBitmap);
+    _pLevel->GetTile(0)->SetCollidable();
+    _pLevel->MapTile(1, _pWallBitmap);
+    _pLevel->MapTile(2, _pIceBitmap);
+    _pLevel->GetTile(2)->SetMeltable();
 
-  // Player creation
-  CreatePlayer(hDC);
+    // Player creation
+    CreatePlayer(hDC);
 
-  // Enemy creation
-  CreateEnemies(hDC);
+    // Enemy creation
+    CreateEnemies(hDC);
+
+    CreateInventory(hDC);
+}
 
 Orb* CreateRandomOrb() {
     // Set Random device
@@ -954,17 +957,6 @@ Orb* CreateOrb(OrbType type) {
     orb->SetZOrder(6);
     _pGame->AddSprite(orb);
     return orb;
-}
-void CreateInventory(HDC hDC)
-{
-  _pInventory = new Inventory(
-    hDC,
-    _pEarthResBitmap,
-    _pFireResBitmap,
-    _pWaterResBitmap,
-    _pAirResBitmap,
-    _pPointBitmap
-  );
 }
 
 
