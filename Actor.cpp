@@ -709,7 +709,7 @@ long long Enemy::GetCurrentTimeMillis()
 Rock::Rock(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel)
 {
   m_iNumHits = 0;
-  m_iMaxHits = 3;
+  m_iMaxHits = 400;
 }
 
 

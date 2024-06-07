@@ -178,7 +178,7 @@ public:
   int Rock::GetCooldown() { return m_iCooldown; };
   int Rock::GetNumHits() { return m_iNumHits; };
   int Rock::GetMaxHits() { return m_iMaxHits; };
-  void Rock::GetNumHits(int iNumHits) { m_iNumHits = iNumHits; };
+  void Rock::SetNumHits(int iNumHits) { m_iNumHits = iNumHits; };
   SPRITEACTION Rock::Update() override;
 };
 
