@@ -44,13 +44,20 @@ Bitmap* _pGustDownBitmap;
 Bitmap* _pGustLeftBitmap;
 Bitmap* _pGustRightBitmap;
 
+Bitmap* _pFireResBitmap;
+Bitmap* _pWaterResBitmap;
+Bitmap* _pEarthResBitmap;
+Bitmap* _pAirResBitmap;
 Bitmap* _pPointBitmap;
+
+int _iCurrentLevel = 1;
+const int _iMaxLevel = 5;
 
 Player* _pPlayer;
 
 std::vector<Enemy*> _vEnemies;
 
-ElementQueue* _pElementQueue;
+Inventory* _pInventory;
 
 char _lastDirection = 'R';
 //-----------------------------------------------------------------

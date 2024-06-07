@@ -50,10 +50,12 @@ void GameStart(HWND hWindow)
   _pSwingRightBitmap = new Bitmap(hDC, IDB_SWINGRIGHT, _hInstance);
   _pSwingUpBitmap = new Bitmap(hDC, IDB_SWINGUP, _hInstance);
   _pSwingDownBitmap = new Bitmap(hDC, IDB_SWINGDOWN, _hInstance);
-  Bitmap* _pFireResBitmap = new Bitmap(hDC, IDB_FIRERES, _hInstance);
-  Bitmap* _pWaterResBitmap = new Bitmap(hDC, IDB_WATERRES, _hInstance);
-  Bitmap* _pEarthResBitmap = new Bitmap(hDC, IDB_EARTHRES, _hInstance);
-  Bitmap* _pAirResBitmap = new Bitmap(hDC, IDB_AIRRES, _hInstance);
+  
+  _pEarthResBitmap = new Bitmap(hDC, IDB_EARTHRES, _hInstance);
+  _pFireResBitmap = new Bitmap(hDC, IDB_FIRERES, _hInstance);
+  _pWaterResBitmap = new Bitmap(hDC, IDB_WATERRES, _hInstance);
+  _pAirResBitmap = new Bitmap(hDC, IDB_AIRRES, _hInstance);
+  _pPointBitmap = new Bitmap(hDC, IDB_POINT, _hInstance);
 
   _pRockBitmap = new Bitmap(hDC, IDB_ROCK, _hInstance);
   _pFireballBitmap = new Bitmap(hDC, IDB_FIREBALL, _hInstance);
@@ -67,7 +69,6 @@ void GameStart(HWND hWindow)
   _pGustLeftBitmap = new Bitmap(hDC, IDB_GUSTLEFT, _hInstance);
   _pGustRightBitmap = new Bitmap(hDC, IDB_GUSTRIGHT, _hInstance);
 
-  _pPointBitmap = new Bitmap(hDC, IDB_POINT, _hInstance);
 
   _pLevel = new Level(32, 1);
   _pLevel->MapTile(0, _pEmptyBitmap);
@@ -94,9 +95,7 @@ void GameStart(HWND hWindow)
 
   EnemySpawnRoutine(hDC);
 
-  _pElementQueue = new ElementQueue(hWindow, hDC, _pEarthResBitmap, _pFireResBitmap, _pWaterResBitmap, _pAirResBitmap);
-  _pElementQueue->SetPointBitmap(_pPointBitmap);
-  _pElementQueue->FillRandom();
+  _pInventory = new Inventory(hWindow, hDC, _pEarthResBitmap, _pFireResBitmap, _pWaterResBitmap, _pAirResBitmap, _pPointBitmap);
 
   // Play the background music
   _pGame->PlayMIDISong(TEXT("Music.mid"));
@@ -162,7 +161,8 @@ void GameCycle()
   // Paint the GUI
   PaintHealthBar(hWindow, hDC, _pPlayer->GetMaxHealth(), _pPlayer->GetCurrentHealth());
   PrintTime(hWindow, hDC);
-  _pElementQueue->DrawQueue();
+  PrintLevel(hWindow, hDC, _iCurrentLevel);
+  _pInventory->Draw();
 
   // Cleanup
   ReleaseDC(hWindow, hDC);
@@ -207,19 +207,19 @@ void HandleKeys()
 
   if (GetAsyncKeyState('A') < 0)
   {
-    iSelect = 0;
+      _pInventory->SetISelect(0);
   }
   if (GetAsyncKeyState('S') < 0)
   {
-    iSelect = 1;
+      _pInventory->SetISelect(1);
   }
   if (GetAsyncKeyState('D') < 0)
   {
-    iSelect = 2;
+      _pInventory->SetISelect(2);
   }
   if (GetAsyncKeyState('F') < 0)
   {
-    iSelect = 3;
+      _pInventory->SetISelect(3);
   }
 
   // Space swings to direction character going
@@ -826,7 +826,7 @@ void ElementUseCombined(POINT targetPos, char direction)
 {
   POINT ptPlayerPos = _pPlayer->GetPositionFromCenter();
 
-  if (iSelect == 0)
+  if (_pInventory->GetISelect() == 0 && _pInventory->UseElement(0))
   {
     Rock* pRock = new Rock(_pRockBitmap, _pLevel);
     pRock->SetZOrder(8);
@@ -863,7 +863,7 @@ void ElementUseCombined(POINT targetPos, char direction)
 
     _pGame->AddSprite(pRock);
   }
-  if (iSelect == 1)
+  if (_pInventory->GetISelect() == 1 && _pInventory->UseElement(1))
   {
     Fireball* pFireball = new Fireball(_pFireballBitmap, _pLevel);
     pFireball->SetNumFrames(3);
@@ -905,13 +905,13 @@ void ElementUseCombined(POINT targetPos, char direction)
 
     _pGame->AddSprite(pFireball);
   }
-  if (iSelect == 2)
+  if (_pInventory->GetISelect() == 2 && _pInventory->UseElement(2))
   {
     Puddle* pPuddle = new Puddle(_pWaterBitmap, _pLevel);
     pPuddle->SetPosition((_pPlayer->GetPositionFromCenter().x / 32) * 32, (_pPlayer->GetPositionFromCenter().y / 32) * 32);
     _pGame->AddSprite(pPuddle);
   }
-  if (iSelect == 3)
+  if (_pInventory->GetISelect() == 3 && _pInventory->UseElement(3))
   {
     Gust* pGust;
     POINT ptGustVelocity;
