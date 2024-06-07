@@ -64,6 +64,11 @@ Bitmap* _pEarthResBitmap;
 Bitmap* _pAirResBitmap;
 Bitmap* _pPointBitmap;
 
+Bitmap* _pPlayerDownBitmap;
+Bitmap* _pPlayerUpBitmap;
+Bitmap* _pPlayerLeftBitmap;
+Bitmap* _pPlayerRightBitmap;
+
 int _iCurrentLevel = 1;
 const int _iMaxLevel = 5;
 
@@ -77,7 +82,10 @@ char _lastDirection = 'R';
 //-----------------------------------------------------------------
 // Function Declarations
 //-----------------------------------------------------------------
-void EnemySpawnRoutine(HDC hDC);
+void InitializeResources(HDC hDC);
+void CreatePlayer(HDC hDC);
+void CreateEnemies(HDC hDC);
+void CreateInventory(HDC hDC);
 
 char PlayerDirectionUpdateRoutine();
 Enemy* CreateEnemy(EnemyType enemyType);
