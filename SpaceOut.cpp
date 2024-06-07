@@ -172,6 +172,7 @@ void GameCycle()
 
 static bool swingKeyPressed = false;
 static bool abilityKeyPressed = false;
+static bool nextLevelKeyPressed = false;
 void HandleKeys()
 {
   POINT ptVelocity = POINT{ 0, 0 };
@@ -224,7 +225,7 @@ void HandleKeys()
     _pInventory->SetISelect(3);
   }
 
-  // Space swings to direction character going
+  // Swings to direction character going
   if (GetAsyncKeyState('J') < 0)
   {
     if (!swingKeyPressed)
@@ -245,7 +246,7 @@ void HandleKeys()
     }
   }
 
-  // Use elements with C
+  // Element use
   if (GetAsyncKeyState('K') < 0)
   {
     if (!abilityKeyPressed)
@@ -263,6 +264,23 @@ void HandleKeys()
     if (abilityKeyPressed)
     {
       abilityKeyPressed = false;
+    }
+  }
+
+  // Test next Level
+  if (GetAsyncKeyState('N') < 0)
+  {
+    if (!nextLevelKeyPressed)
+    {
+      NextLevel(GetDC(_pGame->GetWindow()), 2);
+      nextLevelKeyPressed = true;
+    }
+  }
+  else
+  {
+    if (nextLevelKeyPressed)
+    {
+      nextLevelKeyPressed = false;
     }
   }
 }
@@ -384,13 +402,14 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
         {
           enemy->SetVelocity(enemy->GetVelocity().x + rock->GetVelocity().x, enemy->GetVelocity().y + rock->GetVelocity().y);
         }
-        if (enemy->GetDamageCooldown() <= 0) {
-            int hits = rock->GetNumHits();
-            if (hits >= rock->GetMaxHits())
-            {
-                rock->Kill();
-            }
-            rock->SetNumHits(hits + ((abs(rock->GetVelocity().x) + abs(rock->GetVelocity().y)) * 2));
+        if (enemy->GetDamageCooldown() <= 0)
+        {
+          int hits = rock->GetNumHits();
+          if (hits >= rock->GetMaxHits())
+          {
+            rock->Kill();
+          }
+          rock->SetNumHits(hits + ((abs(rock->GetVelocity().x) + abs(rock->GetVelocity().y)) * 2));
         }
 
         enemy->DealDamage((abs(rock->GetVelocity().x) + abs(rock->GetVelocity().y)) * 2);
@@ -872,53 +891,37 @@ void CreateEnemies(HDC hDC)
 
 }
 
-Enemy* CreateEnemy(EnemyType type)
+void CreateInventory(HDC hDC)
 {
-  // Resources
-
-  Enemy* enemy;
-
-  if (type == EnemyType::FIRE_SKULL)
-  {
-    enemy = new Enemy(
-      _pSkullLeftBitmap, _pLevel, type, _pPlayer
-    );
-
-    enemy->LinkBitmapToState(FireSkullState::FIRE_SKULL_LEFT, _pSkullLeftBitmap);
-    enemy->LinkBitmapToState(FireSkullState::FIRE_SKULL_RIGHT, _pSkullRightBitmap);
-
-  }
-  else if (type == EnemyType::DEAD_EYE)
-  {
-    enemy = enemy = new Enemy(
-      _pEyeLeftBitmap, _pLevel, type, _pPlayer
-    );
-
-    enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_LEFT, _pEyeLeftBitmap);
-    enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_RIGHT, _pEyeRightBitmap);
-    enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_BACK_LEFT, _pEyeBackLeftBitmap);
-    enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_BACK_RIGHT, _pEyeBackRightBitmap);
-
-  }
-  else if (type == EnemyType::GREEN_BLOB)
-  {
-    enemy = enemy = new Enemy(
-      _pSlimeBitmap, _pLevel, type, _pPlayer
-    );
-  }
-  else
-  {
-    enemy = new Enemy(
-      _pHumongousFrontBitmap, _pLevel, type, _pPlayer
-
-    );
-
-    enemy->SetZOrder(7);
-  }
-
-  _pGame->AddSprite(enemy);
-  return enemy;
+  _pInventory = new Inventory(
+    hDC,
+    _pEarthResBitmap,
+    _pFireResBitmap,
+    _pWaterResBitmap,
+    _pAirResBitmap,
+    _pPointBitmap
+  );
 }
+
+
+void NextLevel(HDC hDC, int level)
+{
+  // Clear current level
+  ClearBeforeNextLevel();
+
+  // Level Creation
+  _pLevel = new Level(32, 1);
+  _pLevel->MapTile(0, _pEmptyBitmap);
+  _pLevel->GetTile(0)->SetCollidable();
+  _pLevel->MapTile(1, _pWallBitmap);
+  _pLevel->MapTile(2, _pIceBitmap);
+  _pLevel->GetTile(2)->SetMeltable();
+
+  // Player creation
+  CreatePlayer(hDC);
+
+  // Enemy creation
+  CreateEnemies(hDC);
 
 Orb* CreateRandomOrb() {
     // Set Random device
@@ -1170,4 +1173,59 @@ void ElementUseCombined(POINT targetPos, char direction)
     pGust->SetPositionFromCenter(ptPlayerPos);
     _pGame->AddSprite(pGust);
   }
+}
+
+
+// INNER FUNCTIONS
+void ClearBeforeNextLevel()
+{
+  _pGame->CleanupSprites();
+}
+
+Enemy* CreateEnemy(EnemyType type)
+{
+  // Resources
+
+  Enemy* enemy;
+
+  if (type == EnemyType::FIRE_SKULL)
+  {
+    enemy = new Enemy(
+      _pSkullLeftBitmap, _pLevel, type, _pPlayer
+    );
+
+    enemy->LinkBitmapToState(FireSkullState::FIRE_SKULL_LEFT, _pSkullLeftBitmap);
+    enemy->LinkBitmapToState(FireSkullState::FIRE_SKULL_RIGHT, _pSkullRightBitmap);
+
+  }
+  else if (type == EnemyType::DEAD_EYE)
+  {
+    enemy = enemy = new Enemy(
+      _pEyeLeftBitmap, _pLevel, type, _pPlayer
+    );
+
+    enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_LEFT, _pEyeLeftBitmap);
+    enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_RIGHT, _pEyeRightBitmap);
+    enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_BACK_LEFT, _pEyeBackLeftBitmap);
+    enemy->LinkBitmapToState(GreenBlobState::GREEN_BLOB_BACK_RIGHT, _pEyeBackRightBitmap);
+
+  }
+  else if (type == EnemyType::GREEN_BLOB)
+  {
+    enemy = enemy = new Enemy(
+      _pSlimeBitmap, _pLevel, type, _pPlayer
+    );
+  }
+  else
+  {
+    enemy = new Enemy(
+      _pHumongousFrontBitmap, _pLevel, type, _pPlayer
+
+    );
+
+    enemy->SetZOrder(7);
+  }
+
+  _pGame->AddSprite(enemy);
+  return enemy;
 }

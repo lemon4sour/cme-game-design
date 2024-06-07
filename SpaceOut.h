@@ -91,9 +91,18 @@ void CreatePlayer(HDC hDC);
 void CreateEnemies(HDC hDC);
 void CreateInventory(HDC hDC);
 
+void NextLevel(HDC hDC, int level);
+
+void GameOver();
+void GameWin();
+
 char PlayerDirectionUpdateRoutine();
 Enemy* CreateEnemy(EnemyType enemyType);
 Orb* CreateRandomOrb();
 Orb* CreateOrb(OrbType type);
 void SwingCombined(POINT targetPos, char direction);
 void ElementUseCombined(POINT targetPos, char direction);
+
+// INNER FUNCTIONS
+void ClearBeforeNextLevel();
+Enemy* CreateEnemy(EnemyType enemyType);
