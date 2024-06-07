@@ -48,11 +48,6 @@ void GameStart(HWND hWindow)
   InitializeResources(hDC);
 
   // Level Creation
-  _pOrbHealthBitmap = new Bitmap(hDC, IDB_ORBHEALTH, _hInstance);
-  _pOrbFireBitmap = new Bitmap(hDC, IDB_ORBFIRE, _hInstance);
-  _pOrbAirBitmap = new Bitmap(hDC, IDB_ORBAIR, _hInstance);
-  _pOrbWaterBitmap = new Bitmap(hDC, IDB_ORBWATER, _hInstance);
-  _pOrbEarthBitmap = new Bitmap(hDC, IDB_ORBEARTH, _hInstance);
   
   _pLevel = new Level(32, 1);
   _pLevel->MapTile(0, _pEmptyBitmap);
@@ -168,7 +163,7 @@ void GameCycle()
   // Paint the GUI
   PaintHealthBar(hDC, _pPlayer->GetMaxHealth(), _pPlayer->GetCurrentHealth());
   PrintTime(hDC);
-  PrintLevel(hDC, _pLevel->GetCurrentLevel());
+  PrintLevel(hDC, _iCurrentLevel);
   _pInventory->Draw();
 
   // Cleanup
@@ -749,6 +744,12 @@ void InitializeResources(HDC hDC)
   Enemy::SetBulletBitmap(_pEyeBulletBitmap);
   _pSlimeBitmap = new Bitmap(hDC, IDB_SLIME, _hInstance);
   _pHumongousFrontBitmap = new Bitmap(hDC, IDB_HUMUNGOUSFRONT, _hInstance);
+
+  _pOrbHealthBitmap = new Bitmap(hDC, IDB_ORBHEALTH, _hInstance);
+  _pOrbFireBitmap = new Bitmap(hDC, IDB_ORBFIRE, _hInstance);
+  _pOrbAirBitmap = new Bitmap(hDC, IDB_ORBAIR, _hInstance);
+  _pOrbWaterBitmap = new Bitmap(hDC, IDB_ORBWATER, _hInstance);
+  _pOrbEarthBitmap = new Bitmap(hDC, IDB_ORBEARTH, _hInstance);
 }
 
 void CreatePlayer(HDC hDC)
