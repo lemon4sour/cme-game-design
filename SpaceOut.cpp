@@ -163,7 +163,7 @@ void GameCycle()
   // Paint the GUI
   PaintHealthBar(hDC, _pPlayer->GetMaxHealth(), _pPlayer->GetCurrentHealth());
   PrintTime(hDC);
-  PrintLevel(hDC, _iCurrentLevel);
+  PrintLevel(hDC, _pLevel->GetCurrentLevel());
   _pInventory->Draw();
 
   // Cleanup
