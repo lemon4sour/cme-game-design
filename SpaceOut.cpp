@@ -377,13 +377,6 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
     {
       if (rock->GetCooldown() > 0) return false;
       rock->SetCooldown(3);
-      int hits = rock->GetNumHits();
-      if (hits >= rock->GetMaxHits())
-      {
-        rock->Kill();
-        return false;
-      }
-      rock->GetNumHits(++hits);
 
       if (swing->GetDirection().x == 0)
       {
@@ -440,7 +433,17 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
         {
           enemy->SetVelocity(enemy->GetVelocity().x + rock->GetVelocity().x, enemy->GetVelocity().y + rock->GetVelocity().y);
         }
-        enemy->DealDamage((abs(rock->GetVelocity().x) + abs(rock->GetVelocity().y)) * 5);
+        if (enemy->GetDamageCooldown() <= 0) {
+            int hits = rock->GetNumHits();
+            if (hits >= rock->GetMaxHits())
+            {
+                rock->Kill();
+            }
+            rock->SetNumHits(hits + ((abs(rock->GetVelocity().x) + abs(rock->GetVelocity().y)) * 2));
+        }
+
+        enemy->DealDamage((abs(rock->GetVelocity().x) + abs(rock->GetVelocity().y)) * 2);
+
       }
       return false;
     }
