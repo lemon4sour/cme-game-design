@@ -439,9 +439,22 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
         {
           enemy->SetVelocity(enemy->GetVelocity().x + rock->GetVelocity().x, enemy->GetVelocity().y + rock->GetVelocity().y);
         }
-        enemy->DealDamage((rock->GetVelocity().x + rock->GetVelocity().y) * 5);
+        enemy->DealDamage((abs(rock->GetVelocity().x) + abs(rock->GetVelocity().y)) * 5);
       }
       return false;
+    }
+
+    Player* player = dynamic_cast<Player*>(pSpriteHittee);
+    if (player) {
+        rock->SetVelocity(
+            rock->GetVelocity().x +
+            (rock->GetPositionFromCenter().x
+                - player->GetPositionFromCenter().x) / 8,
+            rock->GetVelocity().y +
+            (rock->GetPositionFromCenter().y
+                - player->GetPositionFromCenter().y) / 8
+        );
+        return false;
     }
   }
 
@@ -665,6 +678,10 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
       Enemy* enemy2 = dynamic_cast<Enemy*>(pSpriteHittee);
       if (enemy2)
       {
+          if ((enemy2->GetPositionFromCenter().x == enemy->GetPositionFromCenter().x) && (enemy->GetPositionFromCenter().y == enemy2->GetPositionFromCenter().y)) {
+              enemy->SetPosition(enemy->GetPositionFromCenter().x, enemy->GetPositionFromCenter().y + 1);
+        }
+
         if (enemy->GetDamageCooldown() <= 0)
         {
           enemy->SetVelocity(

@@ -887,7 +887,7 @@ void Flame::UpdateVelocity()
 //-----------------------------------------------------------------
 Puddle::Puddle(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel)
 {
-  m_iTime = 100;
+  m_iTime = 500;
 }
 
 //-----------------------------------------------------------------
