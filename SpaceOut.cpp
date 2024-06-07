@@ -41,58 +41,19 @@ void GameStart(HWND hWindow)
                                              _pGame->GetWidth(), _pGame->GetHeight());
   SelectObject(_hOffscreenDC, _hOffscreenBitmap);
 
-  // Create and load the bitmaps
+  // Get DC
   HDC hDC = GetDC(hWindow);
-  _pEmptyBitmap = new Bitmap(hDC, IDB_EMPTY, _hInstance);
-  _pWallBitmap = new Bitmap(hDC, IDB_WALL, _hInstance);
-  _pIceBitmap = new Bitmap(hDC, IDB_ICE, _hInstance);
-  _pSwingLeftBitmap = new Bitmap(hDC, IDB_SWINGLEFT, _hInstance);
-  _pSwingRightBitmap = new Bitmap(hDC, IDB_SWINGRIGHT, _hInstance);
-  _pSwingUpBitmap = new Bitmap(hDC, IDB_SWINGUP, _hInstance);
-  _pSwingDownBitmap = new Bitmap(hDC, IDB_SWINGDOWN, _hInstance);
-  
-  _pEarthResBitmap = new Bitmap(hDC, IDB_EARTHRES, _hInstance);
-  _pFireResBitmap = new Bitmap(hDC, IDB_FIRERES, _hInstance);
-  _pWaterResBitmap = new Bitmap(hDC, IDB_WATERRES, _hInstance);
-  _pAirResBitmap = new Bitmap(hDC, IDB_AIRRES, _hInstance);
-  _pPointBitmap = new Bitmap(hDC, IDB_POINT, _hInstance);
 
-  _pRockBitmap = new Bitmap(hDC, IDB_ROCK, _hInstance);
-  _pFireballBitmap = new Bitmap(hDC, IDB_FIREBALL, _hInstance);
-  _pFlameBitmap = new Bitmap(hDC, IDB_FLAME, _hInstance);
-  Flame::setFlameBitmap(_pFlameBitmap);
-  _pMudBitmap = new Bitmap(hDC, IDB_MUD, _hInstance);
-  _pIceSpriteBitmap = new Bitmap(hDC, 32, 32, RGB(255, 0, 255));
-  _pWaterBitmap = new Bitmap(hDC, IDB_WATER, _hInstance);
-  _pGustUpBitmap = new Bitmap(hDC, IDB_GUSTUP, _hInstance);
-  _pGustDownBitmap = new Bitmap(hDC, IDB_GUSTDOWN, _hInstance);
-  _pGustLeftBitmap = new Bitmap(hDC, IDB_GUSTLEFT, _hInstance);
-  _pGustRightBitmap = new Bitmap(hDC, IDB_GUSTRIGHT, _hInstance);
+  // Create and load the bitmaps
+  InitializeResources(hDC);
 
-  _pSkullLeftBitmap = new Bitmap(hDC, IDB_SKULLLEFT, _hInstance);
-  _pSkullRightBitmap = new Bitmap(hDC, IDB_SKULLRIGHT, _hInstance);
-  _pEyeLeftBitmap = new Bitmap(hDC, IDB_EYELEFT, _hInstance);
-  _pEyeRightBitmap = new Bitmap(hDC, IDB_EYERIGHT, _hInstance);
-  _pEyeBackLeftBitmap = new Bitmap(hDC, IDB_EYEBACKLEFT, _hInstance);
-  _pEyeBackRightBitmap = new Bitmap(hDC, IDB_EYEBACKLEFT, _hInstance);
-  _pEyeBulletBitmap = new Bitmap(hDC, IDB_EYEBULLET, _hInstance);
-  Enemy::SetBulletBitmap(_pEyeBulletBitmap);
-  _pSlimeBitmap = new Bitmap(hDC, IDB_SLIME, _hInstance);
-  _pHumongousFrontBitmap = new Bitmap(hDC, IDB_HUMUNGOUSFRONT, _hInstance);
-
-  _pHealthBar100Bitmap = new Bitmap(hDC, IDB_HEALTHBAR100, _hInstance);
-  _pHealthBar75Bitmap = new Bitmap(hDC, IDB_HEALTHBAR075, _hInstance);
-  _pHealthBar50Bitmap = new Bitmap(hDC, IDB_HEALTHBAR050, _hInstance);
-  _pHealthBar25Bitmap = new Bitmap(hDC, IDB_HEALTHBAR025, _hInstance);
-
+  // Level Creation
   _pOrbHealthBitmap = new Bitmap(hDC, IDB_ORBHEALTH, _hInstance);
   _pOrbFireBitmap = new Bitmap(hDC, IDB_ORBFIRE, _hInstance);
   _pOrbAirBitmap = new Bitmap(hDC, IDB_ORBAIR, _hInstance);
   _pOrbWaterBitmap = new Bitmap(hDC, IDB_ORBWATER, _hInstance);
   _pOrbEarthBitmap = new Bitmap(hDC, IDB_ORBEARTH, _hInstance);
-
-  _pPointBitmap = new Bitmap(hDC, IDB_POINT, _hInstance);
-
+  
   _pLevel = new Level(32, 1);
   _pLevel->MapTile(0, _pEmptyBitmap);
   _pLevel->GetTile(0)->SetCollidable();
@@ -100,25 +61,14 @@ void GameStart(HWND hWindow)
   _pLevel->MapTile(2, _pIceBitmap);
   _pLevel->GetTile(2)->SetMeltable();
 
-  Bitmap* bmpPlayerDown = new Bitmap(hDC, IDB_PLAYERMOVEDOWN, _hInstance);
-  Bitmap* bmpPlayerUp = new Bitmap(hDC, IDB_PLAYERMOVEUP, _hInstance);
-  Bitmap* bmpPlayerLeft = new Bitmap(hDC, IDB_PLAYERMOVELEFT, _hInstance);
-  Bitmap* bmpPlayerRight = new Bitmap(hDC, IDB_PLAYERMOVERIGHT, _hInstance);
-  _pPlayer = new Player(bmpPlayerDown, _pLevel);
-  _pPlayer->LinkBitmapToState(PLR_DOWN, bmpPlayerDown);
-  _pPlayer->LinkBitmapToState(PLR_UP, bmpPlayerUp);
-  _pPlayer->LinkBitmapToState(PLR_LEFT, bmpPlayerLeft);
-  _pPlayer->LinkBitmapToState(PLR_RIGHT, bmpPlayerRight);
-  _pPlayer->SetState(PLR_DOWN);
-  _pPlayer->SetNumFrames(4);
-  _pPlayer->SetFrameDelay(3);
-  _pPlayer->SetZOrder(10);
-  _pPlayer->SetPosition(POINT{ 64,64 });
-  _pGame->AddSprite(_pPlayer);
+  // Player creation
+  CreatePlayer(hDC);
 
-  EnemySpawnRoutine(hDC);
+  // Enemy creation
+  CreateEnemies(hDC);
 
-  _pInventory = new Inventory(hWindow, hDC, _pEarthResBitmap, _pFireResBitmap, _pWaterResBitmap, _pAirResBitmap, _pPointBitmap);
+  // Inventory creation
+  CreateInventory(hDC);
 
   // Play the background music
   _pGame->PlayMIDISong(TEXT("Music.mid"));
@@ -264,19 +214,19 @@ void HandleKeys()
 
   if (GetAsyncKeyState('1') < 0)
   {
-      _pInventory->SetISelect(0);
+    _pInventory->SetISelect(0);
   }
   if (GetAsyncKeyState('2') < 0)
   {
-      _pInventory->SetISelect(1);
+    _pInventory->SetISelect(1);
   }
   if (GetAsyncKeyState('3') < 0)
   {
-      _pInventory->SetISelect(2);
+    _pInventory->SetISelect(2);
   }
   if (GetAsyncKeyState('4') < 0)
   {
-      _pInventory->SetISelect(3);
+    _pInventory->SetISelect(3);
   }
 
   // Space swings to direction character going
@@ -455,16 +405,17 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
     }
 
     Player* player = dynamic_cast<Player*>(pSpriteHittee);
-    if (player) {
-        rock->SetVelocity(
-            rock->GetVelocity().x +
-            (rock->GetPositionFromCenter().x
-                - player->GetPositionFromCenter().x) / 8,
-            rock->GetVelocity().y +
-            (rock->GetPositionFromCenter().y
-                - player->GetPositionFromCenter().y) / 8
-        );
-        return false;
+    if (player)
+    {
+      rock->SetVelocity(
+        rock->GetVelocity().x +
+        (rock->GetPositionFromCenter().x
+         - player->GetPositionFromCenter().x) / 8,
+        rock->GetVelocity().y +
+        (rock->GetPositionFromCenter().y
+         - player->GetPositionFromCenter().y) / 8
+      );
+      return false;
     }
   }
 
@@ -688,8 +639,9 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
       Enemy* enemy2 = dynamic_cast<Enemy*>(pSpriteHittee);
       if (enemy2)
       {
-          if ((enemy2->GetPositionFromCenter().x == enemy->GetPositionFromCenter().x) && (enemy->GetPositionFromCenter().y == enemy2->GetPositionFromCenter().y)) {
-              enemy->SetPosition(enemy->GetPositionFromCenter().x, enemy->GetPositionFromCenter().y + 1);
+        if ((enemy2->GetPositionFromCenter().x == enemy->GetPositionFromCenter().x) && (enemy->GetPositionFromCenter().y == enemy2->GetPositionFromCenter().y))
+        {
+          enemy->SetPosition(enemy->GetPositionFromCenter().x, enemy->GetPositionFromCenter().y + 1);
         }
 
         if (enemy->GetDamageCooldown() <= 0)
@@ -739,9 +691,87 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
 // Functions
 //-----------------------------------------------------------------
 
-void EnemySpawnRoutine(HDC hDC)
+void InitializeResources(HDC hDC)
 {
+  // Level resources
+  _pEmptyBitmap = new Bitmap(hDC, IDB_EMPTY, _hInstance);
+  _pWallBitmap = new Bitmap(hDC, IDB_WALL, _hInstance);
 
+  // Element icon resources
+  _pEarthResBitmap = new Bitmap(hDC, IDB_EARTHRES, _hInstance);
+  _pFireResBitmap = new Bitmap(hDC, IDB_FIRERES, _hInstance);
+  _pWaterResBitmap = new Bitmap(hDC, IDB_WATERRES, _hInstance);
+  _pAirResBitmap = new Bitmap(hDC, IDB_AIRRES, _hInstance);
+
+  // Pointer resources (Finger)
+  _pPointBitmap = new Bitmap(hDC, IDB_POINT, _hInstance);
+
+  // Health bar resources
+  _pHealthBar100Bitmap = new Bitmap(hDC, IDB_HEALTHBAR100, _hInstance);
+  _pHealthBar75Bitmap = new Bitmap(hDC, IDB_HEALTHBAR075, _hInstance);
+  _pHealthBar50Bitmap = new Bitmap(hDC, IDB_HEALTHBAR050, _hInstance);
+  _pHealthBar25Bitmap = new Bitmap(hDC, IDB_HEALTHBAR025, _hInstance);
+
+  // Element resources
+  _pIceBitmap = new Bitmap(hDC, IDB_ICE, _hInstance);
+  _pRockBitmap = new Bitmap(hDC, IDB_ROCK, _hInstance);
+  _pFireballBitmap = new Bitmap(hDC, IDB_FIREBALL, _hInstance);
+  _pFlameBitmap = new Bitmap(hDC, IDB_FLAME, _hInstance);
+  Flame::setFlameBitmap(_pFlameBitmap);
+  _pMudBitmap = new Bitmap(hDC, IDB_MUD, _hInstance);
+  _pIceSpriteBitmap = new Bitmap(hDC, 32, 32, RGB(255, 0, 255));
+  _pWaterBitmap = new Bitmap(hDC, IDB_WATER, _hInstance);
+  _pGustUpBitmap = new Bitmap(hDC, IDB_GUSTUP, _hInstance);
+  _pGustDownBitmap = new Bitmap(hDC, IDB_GUSTDOWN, _hInstance);
+  _pGustLeftBitmap = new Bitmap(hDC, IDB_GUSTLEFT, _hInstance);
+  _pGustRightBitmap = new Bitmap(hDC, IDB_GUSTRIGHT, _hInstance);
+
+  // Swing resources
+  _pSwingLeftBitmap = new Bitmap(hDC, IDB_SWINGLEFT, _hInstance);
+  _pSwingRightBitmap = new Bitmap(hDC, IDB_SWINGRIGHT, _hInstance);
+  _pSwingUpBitmap = new Bitmap(hDC, IDB_SWINGUP, _hInstance);
+  _pSwingDownBitmap = new Bitmap(hDC, IDB_SWINGDOWN, _hInstance);
+
+  // Player resources
+  _pPlayerDownBitmap = new Bitmap(hDC, IDB_PLAYERMOVEDOWN, _hInstance);
+  _pPlayerUpBitmap = new Bitmap(hDC, IDB_PLAYERMOVEUP, _hInstance);
+  _pPlayerLeftBitmap = new Bitmap(hDC, IDB_PLAYERMOVELEFT, _hInstance);
+  _pPlayerRightBitmap = new Bitmap(hDC, IDB_PLAYERMOVERIGHT, _hInstance);
+
+  // Enemy resources
+  _pSkullLeftBitmap = new Bitmap(hDC, IDB_SKULLLEFT, _hInstance);
+  _pSkullRightBitmap = new Bitmap(hDC, IDB_SKULLRIGHT, _hInstance);
+  _pEyeLeftBitmap = new Bitmap(hDC, IDB_EYELEFT, _hInstance);
+  _pEyeRightBitmap = new Bitmap(hDC, IDB_EYERIGHT, _hInstance);
+  _pEyeBackLeftBitmap = new Bitmap(hDC, IDB_EYEBACKLEFT, _hInstance);
+  _pEyeBackRightBitmap = new Bitmap(hDC, IDB_EYEBACKLEFT, _hInstance);
+  _pEyeBulletBitmap = new Bitmap(hDC, IDB_EYEBULLET, _hInstance);
+  Enemy::SetBulletBitmap(_pEyeBulletBitmap);
+  _pSlimeBitmap = new Bitmap(hDC, IDB_SLIME, _hInstance);
+  _pHumongousFrontBitmap = new Bitmap(hDC, IDB_HUMUNGOUSFRONT, _hInstance);
+}
+
+void CreatePlayer(HDC hDC)
+{
+  _pPlayer = new Player(_pPlayerRightBitmap, _pLevel);
+
+  // Link bitmaps to player states
+  _pPlayer->LinkBitmapToState(PLR_DOWN, _pPlayerDownBitmap);
+  _pPlayer->LinkBitmapToState(PLR_UP, _pPlayerUpBitmap);
+  _pPlayer->LinkBitmapToState(PLR_LEFT, _pPlayerLeftBitmap);
+  _pPlayer->LinkBitmapToState(PLR_RIGHT, _pPlayerRightBitmap);
+
+  // Set player properties
+  _pPlayer->SetState(PLR_RIGHT);
+  _pPlayer->SetNumFrames(4);
+  _pPlayer->SetFrameDelay(3);
+  _pPlayer->SetZOrder(10);
+  _pPlayer->SetPosition(POINT{ 64,64 });
+  _pGame->AddSprite(_pPlayer);
+}
+
+void CreateEnemies(HDC hDC)
+{
   // Set Random device
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -920,6 +950,17 @@ Orb* CreateOrb(OrbType type) {
     orb->SetZOrder(6);
     _pGame->AddSprite(orb);
     return orb;
+}
+void CreateInventory(HDC hDC)
+{
+  _pInventory = new Inventory(
+    hDC,
+    _pEarthResBitmap,
+    _pFireResBitmap,
+    _pWaterResBitmap,
+    _pAirResBitmap,
+    _pPointBitmap
+  );
 }
 
 

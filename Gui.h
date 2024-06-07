@@ -33,41 +33,41 @@ extern int iSelect;
 
 enum ElementType
 {
-	EMPTY = -1,
-	Earth = 0,
-	Fire = 1,
-	Water = 2,
-	Air = 3
+  EMPTY = -1,
+  Earth = 0,
+  Fire = 1,
+  Water = 2,
+  Air = 3
 };
 
-void PaintHealthBar(HWND hWindow,HDC hDC, int maxHealth, int currentHealth);
-void PrintTime(HWND hWindow, HDC hDC);
-void printScore(HWND hWindow, HDC hDC);
-void PrintLevel(HWND hWindow, HDC hDC, int currentLevel);
+void PaintHealthBar(HDC hDC, int maxHealth, int currentHealth);
+void PrintTime(HDC hDC);
+void printScore(HDC hDC);
+void PrintLevel(HDC hDC, int currentLevel);
 
-class Inventory {
+class Inventory
+{
 private:
-	std::map<ElementType, UINT8> m_mapInventory;
-	Bitmap* m_pElementBitmaps[4];
-	Bitmap* m_pPointBitmap;
-	const UINT8 m_i8MaxElementNumber = 10;
-	TCHAR m_sElementNumber[1];
-	int m_iSelect = 0;
+  std::map<ElementType, UINT8> m_mapInventory;
+  Bitmap* m_pElementBitmaps[4];
+  Bitmap* m_pPointBitmap;
+  const UINT8 m_i8MaxElementNumber = 10;
+  TCHAR m_sElementNumber[1];
+  int m_iSelect = 0;
 
-	HWND m_hWindow;
-	HDC m_hDC;
-	RECT m_rOutterQueue = {816, 200, 976, 481};
+  HDC m_hDC;
+  RECT m_rOutterQueue = { 816, 200, 976, 481 };
 
 public:
-	Inventory(HWND hWindow, HDC hDC, Bitmap* earth, Bitmap* fire, Bitmap* water, Bitmap* air, Bitmap* pointer);
+  Inventory(HDC hDC, Bitmap* earth, Bitmap* fire, Bitmap* water, Bitmap* air, Bitmap* pointer);
 
-	void FillRandom();
-	bool UseElement(ElementType type);
-	bool UseElement(int type);
-	void AddRandomElement();
-	void AddElement(ElementType type);
-	void AddElement(int type);
-	void Draw();
-	void SetISelect(int direction) { m_iSelect = direction; }
-	int GetISelect() { return m_iSelect; }
+  void FillRandom();
+  bool UseElement(ElementType type);
+  bool UseElement(int type);
+  void AddRandomElement();
+  void AddElement(ElementType type);
+  void AddElement(int type);
+  void Draw();
+  void SetISelect(int direction) { m_iSelect = direction; }
+  int GetISelect() { return m_iSelect; }
 };
