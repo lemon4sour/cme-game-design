@@ -78,6 +78,11 @@ Bitmap* _pPlayerRightBitmap;
 int _iCurrentLevel = 1;
 const int _iMaxLevel = 5;
 
+int _iBreatherTime = 0;
+bool _bLevelClear = false;
+
+int _iGameTime = 0;
+
 Player* _pPlayer;
 
 std::vector<Enemy*> _vEnemies;
@@ -93,7 +98,7 @@ void CreatePlayer(HDC hDC);
 void CreateEnemies(HDC hDC);
 void CreateInventory(HDC hDC);
 
-void NextLevel(HDC hDC, int level);
+void NextLevel(HDC hDC);
 
 void GameOver();
 void GameWin();

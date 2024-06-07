@@ -125,8 +125,8 @@ inline void Sprite::UpdateFrame()
 
 inline void Sprite::CalcCollisionRect()
 {
-  int iXShrink = (m_rcPosition.left - m_rcPosition.right) / 32;
-  int iYShrink = (m_rcPosition.top - m_rcPosition.bottom) / 32;
+  int iXShrink = (m_rcPosition.left - m_rcPosition.right) / 12;
+  int iYShrink = (m_rcPosition.top - m_rcPosition.bottom) / 12;
   CopyRect(&m_rcCollision, &m_rcPosition);
   InflateRect(&m_rcCollision, iXShrink, iYShrink);
 }

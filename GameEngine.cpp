@@ -430,7 +430,7 @@ Sprite* GameEngine::IsPointInSprite(int x, int y)
   // See if the point is in a sprite in the sprite vector
   vector<Sprite*>::reverse_iterator siSprite;
   for (siSprite = m_vSprites.rbegin(); siSprite != m_vSprites.rend(); siSprite++)
-    if (!(*siSprite)->IsHidden() && (*siSprite)->IsPointInside(x, y))
+    if (/*!(*siSprite)->IsHidden() && */ (*siSprite)->IsPointInside(x, y))
       return (*siSprite);
 
   // The point is not in a sprite

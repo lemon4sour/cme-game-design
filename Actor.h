@@ -143,6 +143,7 @@ public:
   static Bitmap* m_bmpBullet;
   static void SetBulletBitmap(Bitmap* pBulletBitmap) { m_bmpBullet = pBulletBitmap; };
   Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget);
+  Enemy::~Enemy();
   void 	Enemy::SetTargetVelocity(POINT ptVelocity) { m_ptTargetVelocity = ptVelocity; };
   POINT Enemy::GetTargetVelocity() { return m_ptTargetVelocity; };
   EnemyType Enemy::GetEnemyType() { return m_type; };
@@ -157,11 +158,14 @@ public:
   void Enemy::SetHealth(int iHealth) { m_pHealth = iHealth; };
   int Enemy::GetDamageCooldown() { return m_iDamageCooldown; };
   SPRITEACTION Enemy::Update() override;
+  static int Enemy::iEnemyCount;
 private:
   POINT FindNextDestination();
   void HandleStuck();
   long long GetCurrentTimeMillis();
 };
+
+
 
 //-----------------------------------------------------------------
 // Rock Class

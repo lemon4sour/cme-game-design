@@ -189,7 +189,7 @@ void Player::SubtractHealth(int value)
 {
   if (m_iCurrentHealth > 0 && m_iInvFrames <= 0)
   {
-    m_iInvFrames = 10;
+    m_iInvFrames = 60;
     m_iCurrentHealth = m_iCurrentHealth - value > 0 ? m_iCurrentHealth - value : 0;
   }
 }
@@ -295,6 +295,7 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
       m_enemySize = 24;
       m_speed = 2;
       m_pHealth = m_maxHealth = 500;
+      m_iAbilityTimer = 200;
       SetZOrder(7);
       SetNumFrames(4);
       SetFrameDelay(10);
@@ -321,6 +322,11 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
       break;
     }
   }
+  iEnemyCount++;
+}
+
+Enemy::~Enemy() {
+    iEnemyCount--;
 }
 
 //-----------------------------------------------------------------
@@ -355,6 +361,8 @@ void Enemy::ChangeBitmap()
 }
 */
 
+int Enemy::iEnemyCount = 0;
+
 void Enemy::HandleStuck()
 {
   if (GetCurrentTimeMillis() < m_lastPositionUpdateTime + 500)
@@ -367,13 +375,13 @@ void Enemy::HandleStuck()
   if (m_lastPosition.x == currentPosition.x
       && m_lastPosition.y == currentPosition.y)
   {
-    if (m_type != EnemyType::HUMONGUS)
+    if (true)
     {
       m_destination = FindNextDestination();
       m_state = EnemyState::PATROLLING;
     }
     else
-    {
+    {/*
       // Break the wall
       RECT ptPosition = GetPosition();
 
@@ -392,7 +400,7 @@ void Enemy::HandleStuck()
             m_pLevel->m_layout[yCoord][xCoord] = 0;
           }
         }
-      }
+      */
     }
   }
 }
@@ -658,14 +666,15 @@ SPRITEACTION Enemy::Update()
     {
       if (m_state == EnemyState::ATTACKING)
       {
-        if (m_pHealth >= 100)
+        if (m_pHealth >= 250)
         {
           m_pHealth = m_pHealth / 2;
           Enemy* enemy = CreateEnemy(EnemyType::GREEN_BLOB);
           enemy->SetPositionFromCenter(GetPositionFromCenter().x + (rand() % 50) - 25, GetPositionFromCenter().y + (rand() % 50) - 25);
           enemy->SetAbilityTimer(100);
           enemy->SetHealth(m_pHealth / 2);
-          m_iAbilityTimer = 100;
+          s_pGame->AddSprite(enemy);
+          m_iAbilityTimer = 200;
         }
       }
       else
@@ -689,6 +698,7 @@ SPRITEACTION Enemy::Update()
           Enemy* enemy = CreateEnemy(type);
           enemy->SetPosition(GetPositionFromCenter());
           enemy->SetVelocity((m_pTarget->GetPositionFromCenter().x - GetPositionFromCenter().x) / 8, (m_pTarget->GetPositionFromCenter().y - GetPositionFromCenter().y) / 8);
+          s_pGame->AddSprite(enemy);
 
           m_iAbilityTimer = 500;
         }
@@ -698,6 +708,12 @@ SPRITEACTION Enemy::Update()
         m_iAbilityTimer = 0;
       }
     }
+  }
+
+  if (m_type == EnemyType::GREEN_BLOB) {
+      if (m_state != EnemyState::ATTACKING) {
+          m_iAbilityTimer++;
+      }
   }
 
   return out;
@@ -979,7 +995,7 @@ SPRITEACTION Gust::Update()
 //-----------------------------------------------------------------
 Ice::Ice(Bitmap* _bmpBitmap, Level* pLevel) : Actor(_bmpBitmap, pLevel)
 {
-  m_iTime = 300;
+  m_iTime = 1500;
 }
 
 Ice::~Ice()
