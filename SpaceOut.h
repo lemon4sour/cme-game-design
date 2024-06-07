@@ -58,6 +58,12 @@ Bitmap* _pHealthBar75Bitmap;
 Bitmap* _pHealthBar50Bitmap;
 Bitmap* _pHealthBar25Bitmap;
 
+Bitmap* _pOrbHealthBitmap;
+Bitmap* _pOrbFireBitmap;
+Bitmap* _pOrbAirBitmap;
+Bitmap* _pOrbWaterBitmap;
+Bitmap* _pOrbEarthBitmap;
+
 Bitmap* _pFireResBitmap;
 Bitmap* _pWaterResBitmap;
 Bitmap* _pEarthResBitmap;
@@ -81,5 +87,7 @@ void EnemySpawnRoutine(HDC hDC);
 
 char PlayerDirectionUpdateRoutine();
 Enemy* CreateEnemy(EnemyType enemyType);
+Orb* CreateRandomOrb();
+Orb* CreateOrb(OrbType type);
 void SwingCombined(POINT targetPos, char direction);
 void ElementUseCombined(POINT targetPos, char direction);

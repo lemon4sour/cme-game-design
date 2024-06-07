@@ -46,6 +46,11 @@
 #define IDB_EYEBULLET         2514
 #define IDB_SLIME             2520
 #define IDB_HUMUNGOUSFRONT    2530
+#define IDB_ORBHEALTH         2600
+#define IDB_ORBEARTH          2601
+#define IDB_ORBWATER          2602
+#define IDB_ORBAIR            2603
+#define IDB_ORBFIRE           2604
 
 #define IDB_HEALTHBAR100      2540
 #define IDB_HEALTHBAR075      2541

@@ -85,6 +85,12 @@ void GameStart(HWND hWindow)
   _pHealthBar50Bitmap = new Bitmap(hDC, IDB_HEALTHBAR050, _hInstance);
   _pHealthBar25Bitmap = new Bitmap(hDC, IDB_HEALTHBAR025, _hInstance);
 
+  _pOrbHealthBitmap = new Bitmap(hDC, IDB_ORBHEALTH, _hInstance);
+  _pOrbFireBitmap = new Bitmap(hDC, IDB_ORBFIRE, _hInstance);
+  _pOrbAirBitmap = new Bitmap(hDC, IDB_ORBAIR, _hInstance);
+  _pOrbWaterBitmap = new Bitmap(hDC, IDB_ORBWATER, _hInstance);
+  _pOrbEarthBitmap = new Bitmap(hDC, IDB_ORBEARTH, _hInstance);
+
   _pPointBitmap = new Bitmap(hDC, IDB_POINT, _hInstance);
 
   _pLevel = new Level(32, 1);
@@ -701,6 +707,32 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
       }
     }
   }
+
+  Orb* orb = dynamic_cast<Orb*>(pSpriteHitter);
+  // ORB INTERACTION
+  if (orb) {
+    // ORB TO PLAYER
+      Player* player = dynamic_cast<Player*>(pSpriteHittee);
+      if (player) {
+          orb->Kill();
+          OrbType type = orb->GetType();
+          if (type == ORB_HEALTH) {
+              player->AddHealth(10);
+          }
+          else if (type == ORB_EARTH) {
+              _pInventory->AddElement(Earth);
+          }
+          else if (type == ORB_WATER) {
+              _pInventory->AddElement(Water);
+          }
+          else if (type == ORB_AIR) {
+              _pInventory->AddElement(Air);
+          }
+          else if (type == ORB_FIRE) {
+              _pInventory->AddElement(Fire);
+          }
+      }
+  }
 }
 
 //-----------------------------------------------------------------
@@ -857,8 +889,38 @@ Enemy* CreateEnemy(EnemyType type)
   return enemy;
 }
 
+Orb* CreateRandomOrb() {
+    // Set Random device
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, 3072);
 
+    OrbType type = { static_cast<OrbType>(dis(gen) % 5) };
 
+    return CreateOrb(type);
+}
+
+Orb* CreateOrb(OrbType type) {
+    Orb* orb;
+    if (type == OrbType::ORB_HEALTH) {
+        orb = new Orb(_pOrbHealthBitmap, _pLevel, type);
+    }
+    else if (type == OrbType::ORB_EARTH) {
+        orb = new Orb(_pOrbEarthBitmap, _pLevel, type);
+    }
+    else if (type == OrbType::ORB_WATER) {
+        orb = new Orb(_pOrbWaterBitmap, _pLevel, type);
+    }
+    else if (type == OrbType::ORB_AIR) {
+        orb = new Orb(_pOrbAirBitmap, _pLevel, type);
+    }
+    else if (type == OrbType::ORB_FIRE) {
+        orb = new Orb(_pOrbFireBitmap, _pLevel, type);
+    }
+    orb->SetZOrder(6);
+    _pGame->AddSprite(orb);
+    return orb;
+}
 
 
 char PlayerDirectionUpdateRoutine()

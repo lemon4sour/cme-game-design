@@ -14,6 +14,7 @@
 
 // Forward decl.
 Enemy* CreateEnemy(EnemyType type);
+Orb* CreateRandomOrb();
 
 GameEngine* Actor::s_pGame = nullptr;
 
@@ -191,6 +192,10 @@ void Player::SubtractHealth(int value)
     m_iInvFrames = 10;
     m_iCurrentHealth = m_iCurrentHealth - value > 0 ? m_iCurrentHealth - value : 0;
   }
+}
+
+void Player::AddHealth(int value) {
+    m_iCurrentHealth += value;
 }
 
 SPRITEACTION Player::Update()
@@ -569,7 +574,11 @@ void Enemy::DealDamage(int iDamage)
   {
     m_iDamageCooldown = 8;
     m_pHealth -= iDamage;
-    if (m_pHealth < 0) Kill();
+    if (m_pHealth < 0) {
+        Kill();
+        Orb* orb = CreateRandomOrb();
+        orb->SetPositionFromCenter(GetPositionFromCenter());
+    }
   }
 }
 
@@ -1001,3 +1010,9 @@ void Ice::SetPositionFromCenter(POINT ptPosition)
   m_pLevel->SetTile(m_pLevel->GetNodeFromPosition(ptPosition), 2);
 }
 
+//-----------------------------------------------------------------
+// Orb Constructor(s)/Destructor
+//-----------------------------------------------------------------
+Orb::Orb(Bitmap* _bmpBitmap, Level* pLevel, OrbType type) : Actor(_bmpBitmap, pLevel) {
+    orbType = type;
+}

@@ -70,10 +70,10 @@ Inventory::Inventory(HWND hWindow, HDC hDC, Bitmap* earth, Bitmap* fire, Bitmap*
     m_hWindow(hWindow), m_hDC(hDC), m_pElementBitmaps{earth, fire,water, air}, m_pPointBitmap(pointer), m_sElementNumber{0}
 {
 
-    m_mapInventory[ElementType::Earth] = 5;
-    m_mapInventory[ElementType::Fire] = 5;
-    m_mapInventory[ElementType::Water] = 5;
-    m_mapInventory[ElementType::Air] = 5;
+    m_mapInventory[ElementType::Earth] = 0;
+    m_mapInventory[ElementType::Fire] = 0;
+    m_mapInventory[ElementType::Water] = 0;
+    m_mapInventory[ElementType::Air] = 0;
 }
 
 //void Inventory::FillRandom() {

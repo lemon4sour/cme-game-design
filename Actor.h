@@ -70,6 +70,7 @@ public:
   int Player::GetCurrentHealth() { return m_iCurrentHealth; };
   int Player::GetInvFrames() { return m_iInvFrames; };
   void Player::SubtractHealth(int value);
+  void Player::AddHealth(int value);
   // void Player::SetMousePos(int x, int y) { m_ptMousePos = POINT{ x,y }; };
   SPRITEACTION Player::Update() override;
 };
@@ -274,4 +275,25 @@ public:
   Ice::~Ice();
   SPRITEACTION Ice::Update() override;
   void Ice::SetPositionFromCenter(POINT ptPosition) override;
+};
+
+//-----------------------------------------------------------------
+// Orb Class
+//-----------------------------------------------------------------
+
+enum OrbType : int {
+    ORB_HEALTH,
+    ORB_FIRE,
+    ORB_WATER,
+    ORB_EARTH,
+    ORB_AIR
+};
+
+class Orb : public Actor
+{
+private:
+    OrbType orbType;
+public:
+    Orb::Orb(Bitmap* bmpBitmap, Level* pLevel, OrbType type);
+    OrbType Orb::GetType() { return orbType; };
 };

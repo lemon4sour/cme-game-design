@@ -55,6 +55,11 @@ IDB_HEALTHBAR100      BITMAP       "assets/sprites/health100.bmp"
 IDB_HEALTHBAR075      BITMAP       "assets/sprites/health75.bmp"
 IDB_HEALTHBAR050      BITMAP       "assets/sprites/health50.bmp"
 IDB_HEALTHBAR025      BITMAP       "assets/sprites/health25.bmp"
+IDB_ORBHEALTH         BITMAP       "assets/sprites/health_orb.bmp"
+IDB_ORBWATER          BITMAP       "assets/sprites/water_orb.bmp"
+IDB_ORBAIR            BITMAP       "assets/sprites/air_orb.bmp"
+IDB_ORBEARTH          BITMAP       "assets/sprites/earth_orb.bmp"
+IDB_ORBFIRE           BITMAP       "assets/sprites/fire_orb.bmp"
 
 
 //-----------------------------------------------------------------
