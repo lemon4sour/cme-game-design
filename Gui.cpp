@@ -13,7 +13,37 @@ DWORD iTickStart = GetTickCount();
 TCHAR cpTimerText[10];
 RECT rTimerTextRect = {800, 50, 900, 70};
 
-int iSelect = 0;
+//Level Variables
+TCHAR cpLevel[2];
+RECT rLevelRect = { 816, 500, 976, 660};
+HFONT hFont = CreateFont(
+    128,                 // Height of font
+    64,                  // Width of font
+    0,                  // Angle of escapement
+    0,                  // Orientation angle
+    FW_NORMAL,          // Font weight
+    FALSE,              // Italic attribute option
+    FALSE,              // Underline attribute option
+    FALSE,              // Strikeout attribute option
+    DEFAULT_CHARSET,    // Character set identifier
+    OUT_DEFAULT_PRECIS, // Output precision
+    CLIP_DEFAULT_PRECIS,// Clipping precision
+    DEFAULT_QUALITY,    // Output quality
+    DEFAULT_PITCH | FF_SWISS, // Pitch and family
+    TEXT("Arial"));       // Font name
+
+void PrintLevel(HWND hWindow, HDC hDC, int currentLevel) {
+    HFONT hOldFont = (HFONT)SelectObject(hDC, hFont);
+    
+    SetTextColor(hDC, RGB(255,255,255));
+    SetBkMode(hDC, TRANSPARENT);
+
+    wsprintf(cpLevel, TEXT("%d"), currentLevel);
+    DrawText(hDC, cpLevel, -1, &rLevelRect, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+    
+    SelectObject(hDC, hOldFont);
+
+}
 
 void PaintHealthBar(HWND hWindow, HDC hDC, int maxHealth, int currentHealth) {   
     iPercentage = currentHealth * 192 / maxHealth;
@@ -30,84 +60,78 @@ void PrintTime(HWND hWindow, HDC hDC) {
         iTimer++;
     }
 
-    SetBkColor(hDC, RGB(41, 35, 35));
+    SetBkColor(hDC, TRANSPARENT);
     SetTextColor(hDC, RGB(255, 255, 255));
     wsprintf(cpTimerText, TEXT("Timer: %d"), iTimer);
     DrawText(hDC, cpTimerText, -1, &rTimerTextRect, DT_SINGLELINE | DT_LEFT | DT_VCENTER);
 }
 
-ElementQueue::ElementQueue(HWND hWindow, HDC hDC, Bitmap* earth, Bitmap* fire, Bitmap* water, Bitmap* air) {
-    m_hWindow = hWindow;
-    m_hDC = hDC;
+Inventory::Inventory(HWND hWindow, HDC hDC, Bitmap* earth, Bitmap* fire, Bitmap* water, Bitmap* air, Bitmap* pointer) :
+    m_hWindow(hWindow), m_hDC(hDC), m_pElementBitmaps{earth, fire,water, air}, m_pPointBitmap(pointer), m_sElementNumber{0}
+{
 
-    m_pElementBitmaps[0] = earth;
-    m_pElementBitmaps[1] = fire;
-    m_pElementBitmaps[2] = water;
-    m_pElementBitmaps[3] = air;
+    m_mapInventory[ElementType::Earth] = 5;
+    m_mapInventory[ElementType::Fire] = 5;
+    m_mapInventory[ElementType::Water] = 5;
+    m_mapInventory[ElementType::Air] = 5;
 }
 
-void ElementQueue::FillRandom() {
-    for (int i = 0; i < iQueueSize; i++) {
-        AddRandomElement();
-    }
+//void Inventory::FillRandom() {
+//    for (int i = 0; i < iQueueSize; i++) {
+//        AddRandomElement();
+//    }
+//}
+
+//void Inventory::AddRandomElement() {
+//    if (m_qElementBitmaps.size() >= iQueueSize)
+//        return;
+//
+//    int randomElement = rand() % 4;
+//    m_qElementBitmaps.push(m_pElementBitmaps[randomElement]);
+//    m_qElementTypes.push(static_cast<ElementType>(randomElement));
+//}
+
+void Inventory::AddElement(ElementType type) {
+    if (m_mapInventory[type] <= 10)
+        m_mapInventory[type]++;
 }
 
-void ElementQueue::AddRandomElement() {
-    if (m_qElementBitmaps.size() >= iQueueSize)
-        return;
-
-    int randomElement = rand() % 4;
-    m_qElementBitmaps.push(m_pElementBitmaps[randomElement]);
-    m_qElementTypes.push(static_cast<ElementType>(randomElement));
-}
-
-void ElementQueue::AddElement(ElementType type) {
-    if (m_qElementBitmaps.size() <= iQueueSize) {
-        m_qElementBitmaps.push(m_pElementBitmaps[type]);
-        m_qElementTypes.push(type);
-    }
-}
-
-void ElementQueue::AddElement(int type) {
+void Inventory::AddElement(int type) {
     AddElement(static_cast<ElementType>(type));
 }
 
-void ElementQueue::DrawQueue() {
+void Inventory::Draw() {
     FillRect(m_hDC, &m_rOutterQueue, hGreyBrush);
+    m_pPointBitmap->Draw(m_hDC,900,205 + (m_iSelect * 69), TRUE);
     
-    if (!m_qElementBitmaps.empty()) {
-        std::queue<Bitmap*> tempQueue;
-        Bitmap* tempBitmap;
+    RECT NumberRect = { 880, 250, 900, 270 };
+    int position = 205;
+    
+    
+    for (int i = 0; i < m_mapInventory.size(); i++) {
+        m_pElementBitmaps[i]->Draw(m_hDC, 821, position, TRUE);
+        position += 69;
 
-
-        int position = 205;
-        while (!m_qElementBitmaps.empty()) {
-            tempBitmap = m_qElementBitmaps.front();
-            tempBitmap->Draw(m_hDC, 821, position, TRUE);
-            tempQueue.push(tempBitmap);
-            m_qElementBitmaps.pop();
-            position += 69;
-        }
-
-        while (!tempQueue.empty()) {
-            m_qElementBitmaps.push(tempQueue.front());
-            tempQueue.pop();
-        }
+        SetBkColor(m_hDC, RGB(113, 112, 110));
+        SetTextColor(m_hDC, RGB(255, 255, 255));
+        wsprintf(m_sElementNumber, TEXT("%d"), m_mapInventory[static_cast<ElementType>(i)]);
+        DrawText(m_hDC, m_sElementNumber, -1, &NumberRect, DT_SINGLELINE | DT_LEFT | DT_VCENTER);
+        NumberRect.top += 69;
+        NumberRect.bottom += 69;
     }
 
-    m_pPointBitmap->Draw(m_hDC,900,205 + (iSelect * 69), TRUE);
 }
 
-ElementType ElementQueue::UseElement() {
+bool Inventory::UseElement(ElementType type) {
     
-    if (m_qElementBitmaps.empty()) {
-        return static_cast<ElementType>(-1);
-    }
+    if (m_mapInventory[type] <= 0)
+        return false;
 
-    ElementType type = m_qElementTypes.front();
-    m_qElementTypes.pop();
-    m_qElementBitmaps.pop();
-    
+    m_mapInventory[type]--;
 
-    return type;
+    return true;
+}
+
+bool Inventory::UseElement(int type) {
+    return UseElement(static_cast<ElementType>(type));
 }
