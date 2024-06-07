@@ -103,7 +103,7 @@ std::vector<std::vector<int>> Level::GenerateLevel() {
         for (int j = 1; j < 23; ++j) {
             random = std::rand() % 10;
 
-            if (random >= 9)
+            if (random >= 10 - m_iCurrentLevel)
                 layout[i][j] = 1;
         }
     }
@@ -116,6 +116,7 @@ std::vector<std::vector<int>> Level::GenerateLevel() {
                 layout[i][j] = 0;
         }
     }
+
 
     for (int i = 2; i < 23; ++i) {
         for (int j = 2; j < 23; ++j) {

@@ -69,8 +69,6 @@ Bitmap* _pPlayerUpBitmap;
 Bitmap* _pPlayerLeftBitmap;
 Bitmap* _pPlayerRightBitmap;
 
-int _iCurrentLevel = 1;
-const int _iMaxLevel = 5;
 
 Player* _pPlayer;
 
