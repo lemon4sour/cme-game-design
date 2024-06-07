@@ -53,7 +53,7 @@ protected:
   int m_iHeight;
 
 private:
-	int m_iCurrentLevel = 5;
+	int m_iCurrentLevel = 1;
 	const int m_iMaxLevel = 5;
 
 public:
