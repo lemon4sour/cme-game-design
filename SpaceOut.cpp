@@ -166,9 +166,9 @@ void GameCycle()
          _hOffscreenDC, 0, 0, SRCCOPY);
 
   // Paint the GUI
-  PaintHealthBar(hWindow, hDC, _pPlayer->GetMaxHealth(), _pPlayer->GetCurrentHealth());
-  PrintTime(hWindow, hDC);
-  PrintLevel(hWindow, hDC, _iCurrentLevel);
+  PaintHealthBar(hDC, _pPlayer->GetMaxHealth(), _pPlayer->GetCurrentHealth());
+  PrintTime(hDC);
+  PrintLevel(hDC, _pLevel->GetCurrentLevel());
   _pInventory->Draw();
 
   // Cleanup

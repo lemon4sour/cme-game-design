@@ -8,10 +8,10 @@
 //-----------------------------------------------------------------
 // Include files
 //-----------------------------------------------------------------
+#include <windows.h>
 #include <vector>
 #include <ctime>
 #include "Bitmap.h"
-#include <windows.h>
 
 //-----------------------------------------------------------------
 // Tile Class
@@ -52,6 +52,10 @@ protected:
   int m_iWidth;
   int m_iHeight;
 
+private:
+	int m_iCurrentLevel = 1;
+	const int m_iMaxLevel = 5;
+
 public:
   std::vector<std::vector<int>> m_layout;
 
@@ -69,6 +73,7 @@ public:
   POINT Level::GetNodeFromPosition(POINT ptPosition);
   void Level::SetTile(int x, int y, int tilenum) { m_layout[y][x] = tilenum; };
   void Level::SetTile(POINT ptPos, int tilenum) { m_layout[ptPos.y][ptPos.x] = tilenum; };
+  int GetCurrentLevel() { return m_iCurrentLevel; }
 };
 
 
