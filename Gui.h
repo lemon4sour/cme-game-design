@@ -26,10 +26,13 @@ extern HBRUSH hGreyBrush;
 //Timer Print Variables
 extern DWORD iTimer;
 extern DWORD wTickStart;
-extern TCHAR cpTimerText[10];
+extern TCHAR cpTimerText[4];
 extern RECT  rTimerTextRect;
 
-extern int iSelect;
+//Level Variables
+extern TCHAR cpLevel[1];
+extern RECT rLevelRect;
+extern HFONT hFont;
 
 enum ElementType
 {
@@ -49,17 +52,17 @@ class Inventory
 {
 private:
   std::map<ElementType, UINT8> m_mapInventory;
-  Bitmap* m_pElementBitmaps[4];
+  Bitmap* m_pElementBitmaps[2];
   Bitmap* m_pPointBitmap;
   const UINT8 m_i8MaxElementNumber = 10;
-  TCHAR m_sElementNumber[1];
+  TCHAR m_sElementNumber[2];
   int m_iSelect = 0;
 
   HDC m_hDC;
-  RECT m_rOutterQueue = { 816, 200, 976, 481 };
+  RECT m_rOutterQueue = { 300, 0, 436, 32 };
 
 public:
-  Inventory(HDC hDC, Bitmap* earth, Bitmap* fire, Bitmap* water, Bitmap* air, Bitmap* pointer);
+  Inventory(HDC hDC, Bitmap* earth, Bitmap* water);
 
   void FillRandom();
   bool UseElement(ElementType type);

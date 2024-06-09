@@ -10,15 +10,15 @@ HBRUSH hGreyBrush = CreateSolidBrush(RGB(113, 112, 110));
 //Timer Print Variables
 DWORD iTimer = 0;
 DWORD iTickStart = GetTickCount64();
-TCHAR cpTimerText[10];
-RECT rTimerTextRect = { 800, 50, 900, 70 };
+TCHAR cpTimerText[4];
+RECT rTimerTextRect = { 672, 0, 768, 32 };
 
 //Level Variables
-TCHAR cpLevel[2];
-RECT rLevelRect = { 816, 500, 976, 660 };
+TCHAR cpLevel[1];
+RECT rLevelRect = { 734, 734, 768,768 };
 HFONT hFont = CreateFont(
-  128,                 // Height of font
-  64,                  // Width of font
+  32,                 // Height of font
+  24,                  // Width of font
   0,                  // Angle of escapement
   0,                  // Orientation angle
   FW_NORMAL,          // Font weight
@@ -46,6 +46,7 @@ void PrintLevel(HDC hDC, int currentLevel)
 
 }
 
+//Obsolete
 void PaintHealthBar(HDC hDC, int maxHealth, int currentHealth)
 {
   iPercentage = currentHealth * 192 / maxHealth;
@@ -58,6 +59,8 @@ void PaintHealthBar(HDC hDC, int maxHealth, int currentHealth)
 
 void PrintTime(HDC hDC)
 {
+  HFONT hOldFont = (HFONT)SelectObject(hDC, hFont);
+  
   if (GetTickCount64() - iTickStart > 1000)
   {
     iTickStart = GetTickCount64();
@@ -66,18 +69,17 @@ void PrintTime(HDC hDC)
 
   SetBkColor(hDC, TRANSPARENT);
   SetTextColor(hDC, RGB(255, 255, 255));
-  wsprintf(cpTimerText, TEXT("Timer: %d"), iTimer);
-  DrawText(hDC, cpTimerText, -1, &rTimerTextRect, DT_SINGLELINE | DT_LEFT | DT_VCENTER);
+  wsprintf(cpTimerText, TEXT("%d"), iTimer);
+  DrawText(hDC, cpTimerText, -1, &rTimerTextRect, DT_SINGLELINE | DT_RIGHT | DT_VCENTER);
+  
+  SelectObject(hDC, hOldFont);
 }
 
-Inventory::Inventory(HDC hDC, Bitmap* earth, Bitmap* fire, Bitmap* water, Bitmap* air, Bitmap* pointer) :
-  m_hDC(hDC), m_pElementBitmaps{ earth, fire,water, air }, m_pPointBitmap(pointer), m_sElementNumber{ 0 }
+Inventory::Inventory(HDC hDC, Bitmap* earth,Bitmap* water) :
+  m_hDC(hDC), m_pElementBitmaps{earth, water}, m_sElementNumber{ 0 }
 {
-
     m_mapInventory[ElementType::Earth] = 8;
-    m_mapInventory[ElementType::Fire] = 8;
     m_mapInventory[ElementType::Water] = 8;
-    m_mapInventory[ElementType::Air] = 8;
 }
 
 //void Inventory::FillRandom() {
@@ -108,26 +110,26 @@ void Inventory::AddElement(int type)
 
 void Inventory::Draw()
 {
-  FillRect(m_hDC, &m_rOutterQueue, hGreyBrush);
-  m_pPointBitmap->Draw(m_hDC, 900, 205 + (m_iSelect * 69), TRUE);
+  //FillRect(m_hDC, &rOutterHealthBar, hGreyBrush);
+  
+  HFONT hOldFont = (HFONT)SelectObject(m_hDC, hFont);
 
-  RECT NumberRect = { 880, 250, 900, 270 };
-  int position = 205;
-
-
+  RECT NumberRect = {332,0,368,32};
+  int position = 300;
   for (int i = 0; i < m_mapInventory.size(); i++)
   {
-    m_pElementBitmaps[i]->Draw(m_hDC, 821, position, TRUE);
-    position += 69;
+    m_pElementBitmaps[i]->Draw(m_hDC, position, 0, TRUE);
+    position += 68;
 
-    SetBkColor(m_hDC, RGB(113, 112, 110));
+    SetBkColor(m_hDC, TRANSPARENT);
     SetTextColor(m_hDC, RGB(255, 255, 255));
-    wsprintf(m_sElementNumber, TEXT("%d"), m_mapInventory[static_cast<ElementType>(i)]);
+    wsprintf(m_sElementNumber, TEXT("x%d"), m_mapInventory[static_cast<ElementType>(i)]);
     DrawText(m_hDC, m_sElementNumber, -1, &NumberRect, DT_SINGLELINE | DT_LEFT | DT_VCENTER);
-    NumberRect.top += 69;
-    NumberRect.bottom += 69;
+    NumberRect.left += 100;
+    NumberRect.right += 100;
   }
 
+  SelectObject(m_hDC, hOldFont);
 }
 
 bool Inventory::UseElement(ElementType type)

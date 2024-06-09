@@ -15,7 +15,7 @@ BOOL GameInitialize(HINSTANCE hInstance)
 {
 	// Create the game engine
 	_pGame = new GameEngine(hInstance, TEXT("Space Out"),
-		TEXT("Space Out"), IDI_SPACEOUT, IDI_SPACEOUT_SM, 1024, 768);
+		TEXT("Space Out"), IDI_SPACEOUT, IDI_SPACEOUT_SM, 768, 768);
 	if (_pGame == NULL)
 		return FALSE;
 
@@ -113,7 +113,7 @@ void GamePaint(HDC hDC)
 
 	POINT pHealthBarPos = POINT{ centerX - 16, playerPos.top - 40 };
 
-	float percentage = _pPlayer->GetCurrentHealth() / (float)100;
+	float percentage = (float) _pPlayer->GetCurrentHealth() / (float)100;
 
 	if (percentage > 0.75)
 	{
@@ -165,6 +165,11 @@ void GamePaint(HDC hDC)
 			}
 		}
 	}
+
+	// Paint the GUI
+	PrintTime(hDC);
+	PrintLevel(hDC, _pLevel->GetCurrentLevel());
+	_pInventory->Draw();
 }
 
 void GameCycle()
@@ -213,11 +218,7 @@ void GameCycle()
 	BitBlt(hDC, 0, 0, _pGame->GetWidth(), _pGame->GetHeight(),
 		_hOffscreenDC, 0, 0, SRCCOPY);
 
-	// Paint the GUI
-	PaintHealthBar(hDC, _pPlayer->GetMaxHealth(), _pPlayer->GetCurrentHealth());
-	PrintTime(hDC);
-	PrintLevel(hDC, _pLevel->GetCurrentLevel());
-	_pInventory->Draw();
+	
 
 	// Cleanup
 	ReleaseDC(hWindow, hDC);
@@ -866,14 +867,7 @@ void CreateEnemies(HDC hDC)
 
 void CreateInventory(HDC hDC)
 {
-	_pInventory = new Inventory(
-		hDC,
-		_pEarthResBitmap,
-		_pFireResBitmap,
-		_pWaterResBitmap,
-		_pAirResBitmap,
-		_pPointBitmap
-	);
+	_pInventory = new Inventory(hDC, _pEarthResBitmap, _pWaterResBitmap);
 }
 
 
