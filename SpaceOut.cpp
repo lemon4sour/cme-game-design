@@ -104,6 +104,11 @@ void GamePaint(HDC hDC)
 {
 	_pLevel->Draw(hDC);
 
+	// Paint the GUI
+	PrintTime(hDC);
+	PrintLevel(hDC, _pLevel->GetCurrentLevel());
+	_pInventory->Draw(hDC);
+
 	// Draw the sprites
 	_pGame->DrawSprites(hDC);
 
@@ -127,9 +132,12 @@ void GamePaint(HDC hDC)
 	{
 		_pHealthBar50Bitmap->Draw(hDC, pHealthBarPos.x, pHealthBarPos.y, RGB(255, 0, 255));
 	}
-	else
+	else if (percentage > 0)
 	{
 		_pHealthBar25Bitmap->Draw(hDC, pHealthBarPos.x, pHealthBarPos.y, RGB(255, 0, 255));
+	}
+	else{
+		//TODO game end
 	}
 
 	// Draw healthbars
@@ -166,10 +174,7 @@ void GamePaint(HDC hDC)
 		}
 	}
 
-	// Paint the GUI
-	PrintTime(hDC);
-	PrintLevel(hDC, _pLevel->GetCurrentLevel());
-	_pInventory->Draw();
+	
 }
 
 void GameCycle()
@@ -279,7 +284,7 @@ void HandleKeys()
 	}
 
 	// Swings to direction character going
-	if (GetAsyncKeyState('J') < 0)
+	if (GetAsyncKeyState('M') < 0)
 	{
 		if (!swingKeyPressed)
 		{
@@ -1043,7 +1048,7 @@ void ElementUseCombined(POINT targetPos, char direction)
 
 		_pGame->AddSprite(pRock);
 	}
-	if (_pInventory->GetISelect() == 1 && _pInventory->UseElement(1))
+	if (_pInventory->GetISelect() == 2 && _pInventory->UseElement(2))
 	{
 		Fireball* pFireball = new Fireball(_pFireballBitmap, _pLevel);
 		pFireball->SetNumFrames(3);
@@ -1085,7 +1090,7 @@ void ElementUseCombined(POINT targetPos, char direction)
 
 		_pGame->AddSprite(pFireball);
 	}
-	if (_pInventory->GetISelect() == 2 && _pInventory->UseElement(2))
+	if (_pInventory->GetISelect() == 1 && _pInventory->UseElement(1))
 	{
 		Puddle* pPuddle = new Puddle(_pWaterBitmap, _pLevel);
 		pPuddle->SetPosition((_pPlayer->GetPositionFromCenter().x / 32) * 32, (_pPlayer->GetPositionFromCenter().y / 32) * 32);

@@ -76,7 +76,7 @@ void PrintTime(HDC hDC)
 }
 
 Inventory::Inventory(HDC hDC, Bitmap* earth,Bitmap* water) :
-  m_hDC(hDC), m_pElementBitmaps{earth, water}, m_sElementNumber{ 0 }
+  m_pElementBitmaps{earth, water}, m_sElementNumber{ 0 }
 {
     m_mapInventory[ElementType::Earth] = 8;
     m_mapInventory[ElementType::Water] = 8;
@@ -108,28 +108,32 @@ void Inventory::AddElement(int type)
   AddElement(static_cast<ElementType>(type));
 }
 
-void Inventory::Draw()
+void Inventory::Draw(HDC hDC)
 {
   //FillRect(m_hDC, &rOutterHealthBar, hGreyBrush);
   
-  HFONT hOldFont = (HFONT)SelectObject(m_hDC, hFont);
 
-  RECT NumberRect = {332,0,368,32};
+  RECT NumberRect = {348,0,380,32};
+  RECT XRECT = { 332, 0, 348,32 };
   int position = 300;
-  for (int i = 0; i < m_mapInventory.size(); i++)
+  for (int i = 0; i < 2; i++)
   {
-    m_pElementBitmaps[i]->Draw(m_hDC, position, 0, TRUE);
-    position += 68;
+    m_pElementBitmaps[i]->Draw(hDC, position, 0, TRUE);
+    position += 80;
 
-    SetBkColor(m_hDC, TRANSPARENT);
-    SetTextColor(m_hDC, RGB(255, 255, 255));
-    wsprintf(m_sElementNumber, TEXT("x%d"), m_mapInventory[static_cast<ElementType>(i)]);
-    DrawText(m_hDC, m_sElementNumber, -1, &NumberRect, DT_SINGLELINE | DT_LEFT | DT_VCENTER);
-    NumberRect.left += 100;
-    NumberRect.right += 100;
+    SetBkColor(hDC, TRANSPARENT);
+    SetTextColor(hDC, RGB(255, 255, 255));
+    DrawText(hDC, TEXT("x"), -1, &XRECT, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
+    HFONT hOldFont = (HFONT)SelectObject(hDC, hFont);
+    wsprintf(m_sElementNumber, TEXT("%d"), m_mapInventory[static_cast<ElementType>(i)]);
+    DrawText(hDC, m_sElementNumber, -1, &NumberRect, DT_SINGLELINE | DT_LEFT | DT_VCENTER);
+    SelectObject(hDC, hOldFont);
+    NumberRect.left += 80;
+    NumberRect.right += 80;
+    XRECT.left += 80;
+    XRECT.right += 80;
   }
 
-  SelectObject(m_hDC, hOldFont);
 }
 
 bool Inventory::UseElement(ElementType type)

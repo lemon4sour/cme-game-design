@@ -38,8 +38,8 @@ enum ElementType
 {
   EMPTY = -1,
   Earth = 0,
-  Fire = 1,
-  Water = 2,
+  Water = 1,
+  Fire = 2,
   Air = 3
 };
 
@@ -57,8 +57,6 @@ private:
   const UINT8 m_i8MaxElementNumber = 10;
   TCHAR m_sElementNumber[2];
   int m_iSelect = 0;
-
-  HDC m_hDC;
   RECT m_rOutterQueue = { 300, 0, 436, 32 };
 
 public:
@@ -70,7 +68,7 @@ public:
   void AddRandomElement();
   void AddElement(ElementType type);
   void AddElement(int type);
-  void Draw();
+  void Draw(HDC hDC);
   void SetISelect(int direction) { m_iSelect = direction; }
   int GetISelect() { return m_iSelect; }
 };
