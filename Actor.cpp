@@ -584,8 +584,6 @@ void Enemy::DealDamage(int iDamage)
     m_pHealth -= iDamage;
     if (m_pHealth < 0) {
         Kill();
-        Orb* orb = CreateRandomOrb();
-        orb->SetPositionFromCenter(GetPositionFromCenter());
     }
   }
 }

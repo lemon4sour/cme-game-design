@@ -54,7 +54,7 @@ private:
   std::map<ElementType, UINT8> m_mapInventory;
   Bitmap* m_pElementBitmaps[2];
   Bitmap* m_pPointBitmap;
-  const UINT8 m_i8MaxElementNumber = 10;
+  const UINT8 m_i8MaxElementNumber = 9;
   TCHAR m_sElementNumber[2];
   int m_iSelect = 0;
   RECT m_rOutterQueue = { 300, 0, 436, 32 };

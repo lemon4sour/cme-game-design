@@ -223,6 +223,8 @@ void GameCycle()
 	BitBlt(hDC, 0, 0, _pGame->GetWidth(), _pGame->GetHeight(),
 		_hOffscreenDC, 0, 0, SRCCOPY);
 
+	//Spawn Random Orbs
+	SpawnOrb();
 	
 
 	// Cleanup
@@ -732,12 +734,6 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
 			else if (type == ORB_WATER) {
 				_pInventory->AddElement(Water);
 			}
-			else if (type == ORB_AIR) {
-				_pInventory->AddElement(Air);
-			}
-			else if (type == ORB_FIRE) {
-				_pInventory->AddElement(Fire);
-			}
 		}
 	}
 }
@@ -889,7 +885,7 @@ void NextLevel(HDC hDC)
 	_pLevel->MapTile(1, _pWallBitmap);
 	_pLevel->MapTile(2, _pIceBitmap);
 	_pLevel->GetTile(2)->SetMeltable();
-
+	
 	// Player creation
 	CreatePlayer(hDC);
 
@@ -905,7 +901,7 @@ Orb* CreateRandomOrb() {
 	std::mt19937 gen(rd());
 	std::uniform_int_distribution<> dis(0, 3072);
 
-	OrbType type = { static_cast<OrbType>(dis(gen) % 5) };
+	OrbType type = { static_cast<OrbType>(dis(gen) % 3) };
 
 	return CreateOrb(type);
 }
@@ -921,15 +917,23 @@ Orb* CreateOrb(OrbType type) {
 	else if (type == OrbType::ORB_WATER) {
 		orb = new Orb(_pOrbWaterBitmap, _pLevel, type);
 	}
-	else if (type == OrbType::ORB_AIR) {
-		orb = new Orb(_pOrbAirBitmap, _pLevel, type);
-	}
-	else if (type == OrbType::ORB_FIRE) {
-		orb = new Orb(_pOrbFireBitmap, _pLevel, type);
-	}
 	orb->SetZOrder(6);
 	_pGame->AddSprite(orb);
 	return orb;
+}
+
+void SpawnOrb() {
+	static DWORD currentTime = GetTickCount();
+
+	if (GetTickCount() - currentTime >= 2000 && _iCurrentOrbNumber < _iMaxOrbNumber) {
+		currentTime = GetTickCount();
+		Orb* orb = CreateRandomOrb();
+		orb->SetPositionFromCenter((32 + rand()) % 736, (32 + rand()) % 736);
+		while (orb->AmIStuck()) {
+			orb->SetPositionFromCenter((32 + rand()) % 736, (32 + rand()) % 736);
+		}
+		_iCurrentOrbNumber++;
+	}
 }
 
 

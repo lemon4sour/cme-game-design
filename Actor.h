@@ -287,10 +287,8 @@ public:
 
 enum OrbType : int {
     ORB_HEALTH,
-    ORB_FIRE,
     ORB_WATER,
     ORB_EARTH,
-    ORB_AIR
 };
 
 class Orb : public Actor

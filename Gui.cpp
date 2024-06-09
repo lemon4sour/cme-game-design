@@ -99,7 +99,7 @@ Inventory::Inventory(HDC hDC, Bitmap* earth,Bitmap* water) :
 
 void Inventory::AddElement(ElementType type)
 {
-  if (m_mapInventory[type] <= 10)
+  if (m_mapInventory[type] <= m_i8MaxElementNumber)
     m_mapInventory[type]++;
 }
 

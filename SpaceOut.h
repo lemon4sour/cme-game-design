@@ -90,6 +90,9 @@ std::vector<Enemy*> _vEnemies;
 Inventory* _pInventory;
 
 char _lastDirection = 'R';
+
+const unsigned int _iMaxOrbNumber = 10;
+unsigned int _iCurrentOrbNumber;
 //-----------------------------------------------------------------
 // Function Declarations
 //-----------------------------------------------------------------
@@ -109,6 +112,8 @@ Orb* CreateRandomOrb();
 Orb* CreateOrb(OrbType type);
 void SwingCombined(POINT targetPos, char direction);
 void ElementUseCombined(POINT targetPos, char direction);
+
+void SpawnOrb();
 
 // INNER FUNCTIONS
 void ClearBeforeNextLevel();
