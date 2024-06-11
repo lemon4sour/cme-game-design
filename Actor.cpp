@@ -189,6 +189,7 @@ void Player::SubtractHealth(int value)
 {
   if (m_iCurrentHealth > 0 && m_iInvFrames <= 0)
   {
+    PlaySound("assets/sfx/player_hurt.wav", NULL, SND_FILENAME | SND_ASYNC);
     m_iInvFrames = 60;
     m_iCurrentHealth = m_iCurrentHealth - value > 0 ? m_iCurrentHealth - value : 0;
   }
@@ -580,10 +581,12 @@ void Enemy::DealDamage(int iDamage)
 {
   if (m_iDamageCooldown <= 0)
   {
+    PlaySound("assets/sfx/enemy_hit.wav", NULL, SND_FILENAME | SND_ASYNC);
     m_iDamageCooldown = 8;
     m_pHealth -= iDamage;
     if (m_pHealth < 0) {
-        Kill();
+      PlaySound("assets/sfx/enemy_dies.wav", NULL, SND_FILENAME | SND_ASYNC);
+      Kill();
     }
   }
 }

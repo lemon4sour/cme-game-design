@@ -206,7 +206,9 @@ void GameCycle()
 	GamePaint(_hOffscreenDC);
 
 	if (Enemy::iEnemyCount <= 0 && !_bLevelClear) {
-		_iBreatherTime = 50;
+		PlaySound("assets/sfx/level_cleared.wav", NULL, SND_FILENAME | SND_ASYNC);
+		_pGame->PauseMIDISong();
+		_iBreatherTime = 100;
 		_bLevelClear = true;
 	}
 
@@ -216,6 +218,7 @@ void GameCycle()
 		if (_iBreatherTime < 0) {
 			NextLevel(GetDC(_pGame->GetWindow()));
 			_bLevelClear = false;
+			_pGame->PlayMIDISong(TEXT("assets/sfx/Music.mid"));
 		}
 	}
 
@@ -290,6 +293,7 @@ void HandleKeys()
 	{
 		if (!swingKeyPressed)
 		{
+			PlaySound("assets/sfx/slash.wav",NULL, SND_FILENAME | SND_ASYNC);
 			RECT rtPlayerPos = _pPlayer->GetPosition();
 			POINT ptPlayerCenterPos = POINT{ (rtPlayerPos.left + rtPlayerPos.right) / 2, (rtPlayerPos.top + rtPlayerPos.bottom) / 2 };
 			POINT ptPlayerVelocity = _pPlayer->GetVelocity();
@@ -398,7 +402,7 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
 			{
 				rock->SetVelocity(swing->GetDirection().x * 30, (rock->GetPositionFromCenter().y - swing->GetPositionFromCenter().y) + (rand() % 5) - 2);
 			}
-
+			PlaySound("assets/sfx/earth_hit.wav", NULL, SND_FILENAME | SND_ASYNC);
 			return false;
 		}
 		Fireball* fireball = dynamic_cast<Fireball*>(pSpriteHittee);
@@ -532,6 +536,7 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
 		{
 			if (fireball->isEnemy())
 			{
+				
 				player->SubtractHealth(10);
 				fireball->Kill();
 			}
@@ -1017,6 +1022,7 @@ void ElementUseCombined(POINT targetPos, char direction)
 
 	if (_pInventory->GetISelect() == 0 && _pInventory->UseElement(0))
 	{
+
 		Rock* pRock = new Rock(_pRockBitmap, _pLevel);
 		pRock->SetZOrder(8);
 
@@ -1050,98 +1056,133 @@ void ElementUseCombined(POINT targetPos, char direction)
 			pRock->SetPositionFromCenter(ptPlayerPos);
 		}
 
+		PlaySound("assets/sfx/earth.wav", NULL, SND_FILENAME | SND_ASYNC);
 		_pGame->AddSprite(pRock);
 	}
-	if (_pInventory->GetISelect() == 2 && _pInventory->UseElement(2))
-	{
-		Fireball* pFireball = new Fireball(_pFireballBitmap, _pLevel);
-		pFireball->SetNumFrames(3);
-		pFireball->SetFrameDelay(3);
 
-		POINT fireballPos = ptPlayerPos;
-		if (direction == 'D')
-		{
-			fireballPos.y += _pPlayer->GetHeight();
-			pFireball->SetVelocity(POINT{ 0, 15 });
-			//DOWN
-		}
-		else if (direction == 'L')
-		{
-			fireballPos.x -= _pPlayer->GetWidth();
-			pFireball->SetVelocity(POINT{ -15, 0 });
-			//LEFT
-		}
-		else if (direction == 'R')
-		{
-			fireballPos.x += _pPlayer->GetWidth();
-			pFireball->SetVelocity(POINT{ 15, 0 });
-			//RIGHT
-		}
-		else
-		{
-			fireballPos.y -= _pPlayer->GetHeight();
-			pFireball->SetVelocity(POINT{ 0, -15 });
-			//UP
-		}
-
-		pFireball->SetPositionFromCenter(fireballPos);
-
-		// If fireball's position is impossible, place under player
-		if (pFireball->AmIStuck())
-		{
-			pFireball->SetPositionFromCenter(ptPlayerPos);
-		}
-
-		_pGame->AddSprite(pFireball);
-	}
 	if (_pInventory->GetISelect() == 1 && _pInventory->UseElement(1))
 	{
-		Puddle* pPuddle = new Puddle(_pWaterBitmap, _pLevel);
-		pPuddle->SetPosition((_pPlayer->GetPositionFromCenter().x / 32) * 32, (_pPlayer->GetPositionFromCenter().y / 32) * 32);
-		_pGame->AddSprite(pPuddle);
+		Ice* ice = new Ice(_pIceSpriteBitmap, _pLevel);
+		POINT icePos = { (ptPlayerPos.x / 32) * 32, (ptPlayerPos.y / 32) * 32 };
+		switch (direction)
+		{
+			case 'L':
+				if (icePos.x - 32 >= 32)  // Corrected comparison operator
+					icePos.x -= 32;
+				else
+					icePos.x += 32;
+				break;
+			case 'R':
+				if (icePos.x + 32 > 736)  // Corrected comparison operator
+					icePos.x += 32;
+				else
+					icePos.x -= 32;
+				break;
+			case 'U':
+				if (icePos.y - 32 >= 32)  // Corrected comparison operator
+					icePos.y -= 32;
+				else
+					icePos.y += 32;
+				break;
+			case 'D':
+				if (icePos.y + 32 > 736)  // Corrected comparison operator
+					icePos.y += 32;
+				else
+					icePos.y -= 32;
+				break;
+		}
+		ice->SetPositionFromCenter(icePos);
+		
+		PlaySound("assets/sfx/ice.wav", NULL, SND_FILENAME | SND_ASYNC);
+		_pGame->AddSprite(ice);
 	}
-	if (_pInventory->GetISelect() == 3 && _pInventory->UseElement(3))
-	{
-		Gust* pGust;
-		POINT ptGustVelocity;
-		SwingCombined(_pPlayer->GetVelocity(), 'D');
-		SwingCombined(_pPlayer->GetVelocity(), 'L');
-		SwingCombined(_pPlayer->GetVelocity(), 'U');
-		SwingCombined(_pPlayer->GetVelocity(), 'R');
 
-		if (direction == 'D')
-		{
-			pGust = new Gust(_pGustDownBitmap, _pLevel);
-			ptGustVelocity = POINT{ 0, 8 };
-			//DOWN
-		}
-		else if (direction == 'L')
-		{
-			pGust = new Gust(_pGustLeftBitmap, _pLevel);
-			ptGustVelocity = POINT{ -8, 0 };
-			//LEFT
-		}
-		else if (direction == 'R')
-		{
-			pGust = new Gust(_pGustRightBitmap, _pLevel);
-			ptGustVelocity = POINT{ 8, 0 };
-			//RIGHT
-		}
-		else
-		{
-			pGust = new Gust(_pGustUpBitmap, _pLevel);
-			ptGustVelocity = POINT{ 0, -8 };
-			//UP
-		}
+	//FIRE
+	//if (_pInventory->GetISelect() == 2 && _pInventory->UseElement(2))
+	//{
+	//	Fireball* pFireball = new Fireball(_pFireballBitmap, _pLevel);
+	//	pFireball->SetNumFrames(3);
+	//	pFireball->SetFrameDelay(3);
 
-		pGust->SetVelocity(ptGustVelocity);
-		pGust->SetBoundsAction(BA_DIE);
-		POINT ptPlayerVelocity = _pPlayer->GetVelocity();
-		_pPlayer->SetVelocity(POINT{ ptPlayerVelocity.x - (ptGustVelocity.x * 2),ptPlayerVelocity.y - (ptGustVelocity.y * 2) });
+	//	POINT fireballPos = ptPlayerPos;
+	//	if (direction == 'D')
+	//	{
+	//		fireballPos.y += _pPlayer->GetHeight();
+	//		pFireball->SetVelocity(POINT{ 0, 15 });
+	//		//DOWN
+	//	}
+	//	else if (direction == 'L')
+	//	{
+	//		fireballPos.x -= _pPlayer->GetWidth();
+	//		pFireball->SetVelocity(POINT{ -15, 0 });
+	//		//LEFT
+	//	}
+	//	else if (direction == 'R')
+	//	{
+	//		fireballPos.x += _pPlayer->GetWidth();
+	//		pFireball->SetVelocity(POINT{ 15, 0 });
+	//		//RIGHT
+	//	}
+	//	else
+	//	{
+	//		fireballPos.y -= _pPlayer->GetHeight();
+	//		pFireball->SetVelocity(POINT{ 0, -15 });
+	//		//UP
+	//	}
 
-		pGust->SetPositionFromCenter(ptPlayerPos);
-		_pGame->AddSprite(pGust);
-	}
+	//	pFireball->SetPositionFromCenter(fireballPos);
+
+	//	// If fireball's position is impossible, place under player
+	//	if (pFireball->AmIStuck())
+	//	{
+	//		pFireball->SetPositionFromCenter(ptPlayerPos);
+	//	}
+
+	//	_pGame->AddSprite(pFireball);
+	//}
+	//AIR
+	//if (_pInventory->GetISelect() == 3 && _pInventory->UseElement(3))
+	//{
+	//	Gust* pGust;
+	//	POINT ptGustVelocity;
+	//	SwingCombined(_pPlayer->GetVelocity(), 'D');
+	//	SwingCombined(_pPlayer->GetVelocity(), 'L');
+	//	SwingCombined(_pPlayer->GetVelocity(), 'U');
+	//	SwingCombined(_pPlayer->GetVelocity(), 'R');
+
+	//	if (direction == 'D')
+	//	{
+	//		pGust = new Gust(_pGustDownBitmap, _pLevel);
+	//		ptGustVelocity = POINT{ 0, 8 };
+	//		//DOWN
+	//	}
+	//	else if (direction == 'L')
+	//	{
+	//		pGust = new Gust(_pGustLeftBitmap, _pLevel);
+	//		ptGustVelocity = POINT{ -8, 0 };
+	//		//LEFT
+	//	}
+	//	else if (direction == 'R')
+	//	{
+	//		pGust = new Gust(_pGustRightBitmap, _pLevel);
+	//		ptGustVelocity = POINT{ 8, 0 };
+	//		//RIGHT
+	//	}
+	//	else
+	//	{
+	//		pGust = new Gust(_pGustUpBitmap, _pLevel);
+	//		ptGustVelocity = POINT{ 0, -8 };
+	//		//UP
+	//	}
+
+	//	pGust->SetVelocity(ptGustVelocity);
+	//	pGust->SetBoundsAction(BA_DIE);
+	//	POINT ptPlayerVelocity = _pPlayer->GetVelocity();
+	//	_pPlayer->SetVelocity(POINT{ ptPlayerVelocity.x - (ptGustVelocity.x * 2),ptPlayerVelocity.y - (ptGustVelocity.y * 2) });
+
+	//	pGust->SetPositionFromCenter(ptPlayerPos);
+	//	_pGame->AddSprite(pGust);
+	//}
 }
 
 
