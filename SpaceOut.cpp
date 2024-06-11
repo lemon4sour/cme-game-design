@@ -66,7 +66,7 @@ void GameStart(HWND hWindow)
 	CreateInventory(hDC);
 
 	// Play the background music
-	_pGame->PlayMIDISong(TEXT("Music.mid"));
+	_pGame->PlayMIDISong(TEXT("assets/sfx/Music.mid"));
 }
 
 void GameEnd()
