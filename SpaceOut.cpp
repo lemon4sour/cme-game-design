@@ -1067,25 +1067,25 @@ void ElementUseCombined(POINT targetPos, char direction)
 		switch (direction)
 		{
 			case 'L':
-				if (icePos.x - 32 >= 32)  // Corrected comparison operator
+				if (icePos.x - 32 >= 32)  
 					icePos.x -= 32;
 				else
 					icePos.x += 32;
 				break;
 			case 'R':
-				if (icePos.x + 32 > 736)  // Corrected comparison operator
+				if (icePos.x + 32 <= 730)  
 					icePos.x += 32;
 				else
 					icePos.x -= 32;
 				break;
 			case 'U':
-				if (icePos.y - 32 >= 32)  // Corrected comparison operator
+				if (icePos.y - 32 >= 32)  
 					icePos.y -= 32;
 				else
 					icePos.y += 32;
 				break;
 			case 'D':
-				if (icePos.y + 32 > 736)  // Corrected comparison operator
+				if (icePos.y + 32 <= 730)  
 					icePos.y += 32;
 				else
 					icePos.y -= 32;
