@@ -33,21 +33,14 @@ void Actor::LinkBitmapToState(int iState, Bitmap* bmpBitmap)
 
 SPRITEACTION Actor::Update()
 {
+  // Because we are using integer instead of float, we should add a buffer to the collision detection
+  constexpr int BUFFER{ 6 };
+
   if (m_ptVelocity.x > 0)
   {
     // We are moving right, do we collide with the right wall?
-
-    // X axis check
-    int nextPositionX = m_rcPosition.right + m_ptVelocity.x;
-
-    // Y axis check
-    int nextPositionUpperY = m_rcPosition.top;
-    int nextPositionMiddleY = (m_rcPosition.top + m_rcPosition.bottom) / 2;
-    int nextPositionBottomY = m_rcPosition.bottom;
-
-    if (m_pLevel->m_layout[nextPositionUpperY / 32][nextPositionX / 32] != 0 ||
-        m_pLevel->m_layout[nextPositionMiddleY / 32][nextPositionX / 32] != 0 ||
-        m_pLevel->m_layout[nextPositionBottomY / 32][nextPositionX / 32] != 0)
+    POINT nextPosition{ m_rcPosition.right + m_ptVelocity.x + BUFFER, (m_rcPosition.top + m_rcPosition.bottom) / 2 };
+    if (m_pLevel->m_layout[nextPosition.y / 32][nextPosition.x / 32] != 0)
     {
       // Yes, we do collide, zero out the x velocity
       m_ptVelocity.x = 0;
@@ -56,39 +49,18 @@ SPRITEACTION Actor::Update()
   else if (m_ptVelocity.x < 0)
   {
     // We are moving left, do we collide with the left wall?
-
-    // X axis check
-    int nextPositionX = m_rcPosition.left + m_ptVelocity.x;
-
-    // Y axis check
-    int nextPositionUpperY = m_rcPosition.top;
-    int nextPositionMiddleY = (m_rcPosition.top + m_rcPosition.bottom) / 2;
-    int nextPositionBottomY = m_rcPosition.bottom;
-
-    if (m_pLevel->m_layout[nextPositionUpperY / 32][nextPositionX / 32] != 0 ||
-        m_pLevel->m_layout[nextPositionMiddleY / 32][nextPositionX / 32] != 0 ||
-        m_pLevel->m_layout[nextPositionBottomY / 32][nextPositionX / 32] != 0)
+    POINT nextPosition{ m_rcPosition.left + m_ptVelocity.x - BUFFER, (m_rcPosition.top + m_rcPosition.bottom) / 2 };
+    if (m_pLevel->m_layout[nextPosition.y / 32][nextPosition.x / 32] != 0)
     {
       // Yes, we do collide, zero out the x velocity
       m_ptVelocity.x = 0;
     }
   }
-
   if (m_ptVelocity.y > 0)
   {
     // We are moving down, do we collide with the bottom wall?
-
-    // Y axis check
-    int nextPositionY = m_rcPosition.bottom + m_ptVelocity.y;
-
-    // X axis check
-    int nextPositionLeftX = m_rcPosition.left;
-    int nextPositionMiddleX = (m_rcPosition.left + m_rcPosition.right) / 2;
-    int nextPositionRightX = m_rcPosition.right;
-
-    if (m_pLevel->m_layout[nextPositionY / 32][nextPositionLeftX / 32] != 0 ||
-        m_pLevel->m_layout[nextPositionY / 32][nextPositionMiddleX / 32] != 0 ||
-        m_pLevel->m_layout[nextPositionY / 32][nextPositionRightX / 32] != 0)
+    POINT nextPosition{ (m_rcPosition.left + m_rcPosition.right) / 2, m_rcPosition.bottom + m_ptVelocity.y + BUFFER };
+    if (m_pLevel->m_layout[nextPosition.y / 32][nextPosition.x / 32] != 0)
     {
       // Yes, we do collide, zero out the y velocity
       m_ptVelocity.y = 0;
@@ -97,26 +69,14 @@ SPRITEACTION Actor::Update()
   else if (m_ptVelocity.y < 0)
   {
     // We are moving up, do we collide with the top wall?
-
-    // Y axis check
-    int nextPositionY = m_rcPosition.top + m_ptVelocity.y;
-
-    // X axis check
-    int nextPositionLeftX = m_rcPosition.left;
-    int nextPositionMiddleX = (m_rcPosition.left + m_rcPosition.right) / 2;
-    int nextPositionRightX = m_rcPosition.right;
-
-    if (m_pLevel->m_layout[nextPositionY / 32][nextPositionLeftX / 32] != 0 ||
-        m_pLevel->m_layout[nextPositionY / 32][nextPositionMiddleX / 32] != 0 ||
-        m_pLevel->m_layout[nextPositionY / 32][nextPositionRightX / 32] != 0)
+    POINT nextPosition{ (m_rcPosition.left + m_rcPosition.right) / 2, m_rcPosition.top + m_ptVelocity.y - BUFFER };
+    if (m_pLevel->m_layout[nextPosition.y / 32][nextPosition.x / 32] != 0)
     {
       // Yes, we do collide, zero out the y velocity
       m_ptVelocity.y = 0;
     }
   }
-
   SPRITEACTION out = Sprite::Update();
-
   return out;
 }
 
@@ -195,8 +155,9 @@ void Player::SubtractHealth(int value)
   }
 }
 
-void Player::AddHealth(int value) {
-    m_iCurrentHealth += value;
+void Player::AddHealth(int value)
+{
+  m_iCurrentHealth += value;
 }
 
 SPRITEACTION Player::Update()
@@ -295,7 +256,7 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
     {
       m_enemySize = 24;
       m_speed = 2;
-      m_pHealth = m_maxHealth = 500;
+      m_pHealth = m_maxHealth = 200;
       m_iAbilityTimer = 200;
       SetZOrder(7);
       SetNumFrames(4);
@@ -326,13 +287,24 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
   iEnemyCount++;
 }
 
-Enemy::~Enemy() {
-    iEnemyCount--;
+Enemy::~Enemy()
+{
+  iEnemyCount--;
 }
 
 //-----------------------------------------------------------------
 // Enemy General Methods
 //-----------------------------------------------------------------
+
+void Enemy::BombPlanted()
+{
+  PlaySound("assets/sfx/bomb_clock.wav", NULL, SND_FILENAME | SND_ASYNC);
+  bombCooldown = bombMaxCooldown;
+  isBombPlanted = true;
+  m_state = EnemyState::ESCAPING;
+  m_destination = FindNextDestination();
+}
+
 /*
 void Enemy::ChangeBitmap()
 {
@@ -445,53 +417,56 @@ void Enemy::UpdateState()
     }
   }
 
-  if (m_state == EnemyState::PATROLLING)
+  if (!isBombPlanted)
   {
-    // Check distance to target
-    POINT playerPos = m_pTarget->GetPositionFromCenter();
-    POINT enemyPos = GetPositionFromCenter();
-    int distance = sqrt(pow(playerPos.x - enemyPos.x, 2) + pow(playerPos.y - enemyPos.y, 2));
-    if (distance <= 128)
+    if (m_state == EnemyState::PATROLLING)
+    {
+      // Check distance to target
+      POINT playerPos = m_pTarget->GetPositionFromCenter();
+      POINT enemyPos = GetPositionFromCenter();
+      int distance = sqrt(pow(playerPos.x - enemyPos.x, 2) + pow(playerPos.y - enemyPos.y, 2));
+      if (distance <= 128)
+      {
+        if (m_type == EnemyType::DEAD_EYE)
+        {
+          m_state = EnemyState::ESCAPING;
+        }
+        else
+        {
+          m_state = EnemyState::ATTACKING;
+        }
+      }
+    }
+    else if (m_state == EnemyState::ATTACKING)
+    {
+      if (m_type != EnemyType::FIRE_SKULL)
+      {
+        // Check distance to target
+        POINT playerPos = m_pTarget->GetPositionFromCenter();
+        POINT enemyPos = GetPositionFromCenter();
+        int distance = sqrt(pow(playerPos.x - enemyPos.x, 2) + pow(playerPos.y - enemyPos.y, 2));
+        if (distance > 128)
+        {
+          // Set last known position as target
+          m_destination = m_pLevel->GetNodeFromPosition(playerPos);
+          m_state = EnemyState::PATROLLING;
+        }
+      }
+    }
+    else if (m_state == EnemyState::ESCAPING)
     {
       if (m_type == EnemyType::DEAD_EYE)
       {
-        m_state = EnemyState::ESCAPING;
-      }
-      else
-      {
-        m_state = EnemyState::ATTACKING;
-      }
-    }
-  }
-  else if (m_state == EnemyState::ATTACKING)
-  {
-    if (m_type != EnemyType::FIRE_SKULL)
-    {
-      // Check distance to target
-      POINT playerPos = m_pTarget->GetPositionFromCenter();
-      POINT enemyPos = GetPositionFromCenter();
-      int distance = sqrt(pow(playerPos.x - enemyPos.x, 2) + pow(playerPos.y - enemyPos.y, 2));
-      if (distance > 128)
-      {
-        // Set last known position as target
-        m_destination = m_pLevel->GetNodeFromPosition(playerPos);
-        m_state = EnemyState::PATROLLING;
-      }
-    }
-  }
-  else if (m_state == EnemyState::ESCAPING)
-  {
-    if (m_type == EnemyType::DEAD_EYE)
-    {
-      // Check distance to target
-      POINT playerPos = m_pTarget->GetPositionFromCenter();
-      POINT enemyPos = GetPositionFromCenter();
-      int distance = sqrt(pow(playerPos.x - enemyPos.x, 2) + pow(playerPos.y - enemyPos.y, 2));
-      if (distance > 128)
-      {
-        // Set last known position as target
-        m_destination = m_pLevel->GetNodeFromPosition(playerPos);
-        m_state = EnemyState::PATROLLING;
+        // Check distance to target
+        POINT playerPos = m_pTarget->GetPositionFromCenter();
+        POINT enemyPos = GetPositionFromCenter();
+        int distance = sqrt(pow(playerPos.x - enemyPos.x, 2) + pow(playerPos.y - enemyPos.y, 2));
+        if (distance > 128)
+        {
+          // Set last known position as target
+          m_destination = m_pLevel->GetNodeFromPosition(playerPos);
+          m_state = EnemyState::PATROLLING;
+        }
       }
     }
   }
@@ -584,7 +559,8 @@ void Enemy::DealDamage(int iDamage)
     PlaySound("assets/sfx/enemy_hit.wav", NULL, SND_FILENAME | SND_ASYNC);
     m_iDamageCooldown = 8;
     m_pHealth -= iDamage;
-    if (m_pHealth < 0) {
+    if (m_pHealth < 0)
+    {
       PlaySound("assets/sfx/enemy_dies.wav", NULL, SND_FILENAME | SND_ASYNC);
       Kill();
     }
@@ -711,13 +687,85 @@ SPRITEACTION Enemy::Update()
     }
   }
 
-  if (m_type == EnemyType::GREEN_BLOB) {
-      if (m_state != EnemyState::ATTACKING) {
-          m_iAbilityTimer++;
+  if (m_type == EnemyType::GREEN_BLOB)
+  {
+    if (m_state != EnemyState::ATTACKING)
+    {
+      m_iAbilityTimer++;
+    }
+  }
+
+  if (isBombPlanted)
+  {
+    if (bombCooldown == 20)
+    {
+      PlaySound("assets/sfx/bomb.wav", NULL, SND_FILENAME | SND_ASYNC);
+    }
+    if (--bombCooldown <= 0)
+    {
+      Bomb();
+    }
+  }
+
+  for (auto& sprite : GameEngine::GetEngine()->GetSprites())
+  {
+    Ice* ice = dynamic_cast<Ice*>(sprite);
+    if (ice)
+    {
+      // Check if the ice is near the enemy (2 tiles)
+      RECT icePosition = ice->GetPosition();
+      RECT enemyPosition = GetPosition();
+
+      if (icePosition.left / 32 >= enemyPosition.left / 32 - 2 && icePosition.left / 32 <= enemyPosition.left / 32 + 2 &&
+          icePosition.top / 32 >= enemyPosition.top / 32 - 2 && icePosition.top / 32 <= enemyPosition.top / 32 + 2)
+      {
+        DealDamage(20);
       }
+    }
   }
 
   return out;
+}
+
+void Enemy::Bomb()
+{
+  // Break the wall
+  RECT ptPosition = GetPosition();
+
+  int x = ptPosition.left / 32;
+  int y = ptPosition.top / 32;
+
+  for (int xPlus = -1; xPlus < 4; xPlus++)
+  {
+    for (int yPlus = -1; yPlus < 4; yPlus++)
+    {
+      int xCoord = x + xPlus;
+      int yCoord = y + yPlus;
+      if (m_pLevel->m_layout.size() - 1 > yCoord && yCoord > 0 &&
+          m_pLevel->m_layout[0].size() - 1 > xCoord && xCoord > 0)
+      {
+        m_pLevel->m_layout[yCoord][xCoord] = 0;
+      }
+    }
+  }
+
+  // Kill surrounding enemies
+  for (auto& sprite : s_pGame->GetSprites())
+  {
+    Enemy* enemy = dynamic_cast<Enemy*>(sprite);
+    if (enemy)
+    {
+      RECT enemyPosition = enemy->GetPosition();
+
+      // Check if enemy is in blast radius (4 tiles)
+
+      if (enemyPosition.left / 32 >= x - 4 && enemyPosition.left / 32 <= x + 4 &&
+          enemyPosition.top / 32 >= y - 4 && enemyPosition.top / 32 <= y + 4)
+      {
+        enemy->Kill();
+      }
+    }
+  }
 }
 
 long long Enemy::GetCurrentTimeMillis()
@@ -1030,6 +1078,7 @@ void Ice::SetPositionFromCenter(POINT ptPosition)
 //-----------------------------------------------------------------
 // Orb Constructor(s)/Destructor
 //-----------------------------------------------------------------
-Orb::Orb(Bitmap* _bmpBitmap, Level* pLevel, OrbType type) : Actor(_bmpBitmap, pLevel) {
-    orbType = type;
+Orb::Orb(Bitmap* _bmpBitmap, Level* pLevel, OrbType type) : Actor(_bmpBitmap, pLevel)
+{
+  orbType = type;
 }

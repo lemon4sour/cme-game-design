@@ -124,6 +124,10 @@ enum GreenBlobState : int
 
 class Enemy : public Actor
 {
+public:
+  bool isBombPlanted{ false };
+  int bombMaxCooldown{ 100 };
+  int bombCooldown;
 protected:
   int m_pHealth;
   int m_maxHealth;
@@ -141,6 +145,8 @@ protected:
   int m_iAbilityTimer;
 public:
   static Bitmap* m_bmpBullet;
+  void Enemy::BombPlanted();
+  void Enemy::Bomb();
   static void SetBulletBitmap(Bitmap* pBulletBitmap) { m_bmpBullet = pBulletBitmap; };
   Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget);
   Enemy::~Enemy();
@@ -285,17 +291,18 @@ public:
 // Orb Class
 //-----------------------------------------------------------------
 
-enum OrbType : int {
-    ORB_HEALTH,
-    ORB_WATER,
-    ORB_EARTH,
+enum OrbType : int
+{
+  ORB_HEALTH,
+  ORB_WATER,
+  ORB_EARTH,
 };
 
 class Orb : public Actor
 {
 private:
-    OrbType orbType;
+  OrbType orbType;
 public:
-    Orb::Orb(Bitmap* bmpBitmap, Level* pLevel, OrbType type);
-    OrbType Orb::GetType() { return orbType; };
+  Orb::Orb(Bitmap* bmpBitmap, Level* pLevel, OrbType type);
+  OrbType Orb::GetType() { return orbType; };
 };
