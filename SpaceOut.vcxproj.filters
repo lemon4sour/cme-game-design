@@ -76,6 +76,141 @@
     <Image Include="SpaceOut_sm.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="assets\sprites\bitmap1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\player\player.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\tiles\wall.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\tiles\empty.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\rock.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\fireball.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\flame.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\gustup.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\gustdown.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\gustleft.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\gustright.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\mud.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\water.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\ice.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\water_resource.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\air_resource.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\earth_resource.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\fire_resource.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\player\playermoveup.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\player\playermovedown.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\player\playermoveleft.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\player\playermoveright.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\player\swingup.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\player\swingdown.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\player\swingleft.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\player\swingright.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\point.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\enemy\skullleft.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\enemy\skullright.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\enemy\eyeleft.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\enemy\eyeright.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\enemy\eyebackleft.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\enemy\eyebackright.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\enemy\eyebullet.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\enemy\slime.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\enemy\humungousfront.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\health100.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\health75.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\health50.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\health25.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\health_orb.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\water_orb.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\air_orb.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\earth_orb.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="assets\sprites\fire_orb.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="SpaceOut.rc">

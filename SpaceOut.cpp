@@ -107,6 +107,7 @@ void GamePaint(HDC hDC)
   // Paint the GUI
   PrintTime(hDC);
   PrintLevel(hDC, _pLevel->GetCurrentLevel());
+  PrintLifes(hDC, _pPlayer->GetLifeNumber() + 1, _pPlayerBitmap);
   _pInventory->Draw(hDC);
 
   // Draw the sprites
@@ -116,86 +117,23 @@ void GamePaint(HDC hDC)
 
   int centerX = (playerPos.left + playerPos.right) / 2;
 
-  POINT pHealthBarPos = POINT{ centerX - 16, playerPos.top - 40 };
-
-  float percentage = (float)_pPlayer->GetCurrentHealth() / (float)100;
-
-  if (percentage > 0.75)
-  {
-    _pHealthBar100Bitmap->Draw(hDC, pHealthBarPos.x, pHealthBarPos.y, RGB(255, 0, 255));
-  }
-  else if (percentage > 0.5)
-  {
-    _pHealthBar75Bitmap->Draw(hDC, pHealthBarPos.x, pHealthBarPos.y, RGB(255, 0, 255));
-  }
-  else if (percentage > 0.25)
-  {
-    _pHealthBar50Bitmap->Draw(hDC, pHealthBarPos.x, pHealthBarPos.y, RGB(255, 0, 255));
-  }
-  else if (percentage > 0)
-  {
-    _pHealthBar25Bitmap->Draw(hDC, pHealthBarPos.x, pHealthBarPos.y, RGB(255, 0, 255));
-  }
-  else
-  {
-    //TODO game end
-  }
 
   // Draw healthbars
+  PaintHealthBar(hDC, _pPlayer->GetMaxHealth(), _pPlayer->GetCurrentHealth(), _pPlayer->GetPositionFromCenter());
+  
   for (Sprite* sprite : _pGame->GetSprites())
   {
     Enemy* enemy = dynamic_cast<Enemy*>(sprite);
 
     if (enemy)
     {
-      RECT enemyPos = enemy->GetPosition();
-      int centerX = (enemyPos.left + enemyPos.right) / 2;
-      POINT healthBarPos = POINT{ centerX - 16, enemyPos.top - 40 };
-
-      if (enemy->isBombPlanted)
-      {
-        float percentage = enemy->bombCooldown / (float)enemy->bombMaxCooldown;
-
-        if (enemy->bombCooldown % 4 == 0)
-        {
-          if (percentage > 0.75)
-          {
-            _pHealthBar100Bitmap->Draw(hDC, healthBarPos.x, healthBarPos.y, RGB(255, 0, 255));
-          }
-          else if (percentage > 0.5)
-          {
-            _pHealthBar75Bitmap->Draw(hDC, healthBarPos.x, healthBarPos.y, RGB(255, 0, 255));
-          }
-          else if (percentage > 0.25)
-          {
-            _pHealthBar50Bitmap->Draw(hDC, healthBarPos.x, healthBarPos.y, RGB(255, 0, 255));
-          }
-          else
-          {
-            _pHealthBar25Bitmap->Draw(hDC, healthBarPos.x, healthBarPos.y, RGB(255, 0, 255));
-          }
-        }
+      if (enemy->isBombPlanted){
+        if(enemy->bombCooldown % 4 == 0)
+          PaintHealthBar(hDC, enemy->GetMaxHealth(), enemy->GetHealth(), enemy->GetPositionFromCenter()); 
+      
       }
-      else
-      {
-        float percentage = enemy->GetHealth() / (float)enemy->GetMaxHealth();
-
-        if (percentage >= 0.75)
-        {
-          _pHealthBar100Bitmap->Draw(hDC, healthBarPos.x, healthBarPos.y, RGB(255, 0, 255));
-        }
-        else if (percentage >= 0.5)
-        {
-          _pHealthBar75Bitmap->Draw(hDC, healthBarPos.x, healthBarPos.y, RGB(255, 0, 255));
-        }
-        else if (percentage >= 0.25)
-        {
-          _pHealthBar50Bitmap->Draw(hDC, healthBarPos.x, healthBarPos.y, RGB(255, 0, 255));
-        }
-        else
-        {
-          _pHealthBar25Bitmap->Draw(hDC, healthBarPos.x, healthBarPos.y, RGB(255, 0, 255));
-        }
+      else{
+        PaintHealthBar(hDC, enemy->GetMaxHealth(), enemy->GetHealth(), enemy->GetPositionFromCenter());
       }
     }
   }
@@ -230,6 +168,7 @@ void GameCycle()
     _pPlayer->SetHidden(false);
   }
 
+  
   // Paint the game to the offscreen device context
   GamePaint(_hOffscreenDC);
 
@@ -247,9 +186,30 @@ void GameCycle()
 
     if (_iBreatherTime < 0)
     {
-      NextLevel(GetDC(_pGame->GetWindow()));
+      NextLevel(GetDC(_pGame->GetWindow()), true);
       _bLevelClear = false;
       _pGame->PlayMIDISong(TEXT("assets/sfx/Music.mid"));
+    }
+  }
+
+  if (_pPlayer->IsDead()) {
+    PlaySound("assets/sfx/player_dies.wav", NULL, SND_FILENAME | SND_ASYNC);
+    if (_pPlayer->TakeLifeOrKill()) { //true->dead false->alive
+      Sleep(5000);
+      NextLevel(GetDC(_pGame->GetWindow()), false);
+      _pPlayer->Restart();
+    }
+    else {
+      std::random_device rd;
+      std::mt19937 gen(rd());
+      std::uniform_int_distribution<> dis(0, 3072);
+
+      _pPlayer->SetPosition(POINT{ dis(gen), dis(gen) });
+
+      while (_pPlayer->AmIStuck())
+      {
+        _pPlayer->SetPosition(POINT{ dis(gen), dis(gen) });
+      }
     }
   }
 
@@ -260,7 +220,10 @@ void GameCycle()
   //Spawn Random Orbs
   SpawnOrb();
 
-
+  if (GetTickCount() - _iSpawnEnemyTime >= 8000) {
+    SpawnRandomEnemy(hDC);
+    _iSpawnEnemyTime = GetTickCount();
+  }
   // Cleanup
   ReleaseDC(hWindow, hDC);
 }
@@ -333,7 +296,7 @@ void HandleKeys()
     }
   }
 
-  // Element use
+  // Earth use
   if (GetAsyncKeyState('K') < 0)
   {
     if (!abilityKeyPressed)
@@ -342,7 +305,28 @@ void HandleKeys()
       POINT ptPlayerCenterPos = POINT{ (rtPlayerPos.left + rtPlayerPos.right) / 2, (rtPlayerPos.top + rtPlayerPos.bottom) / 2 };
       POINT ptPlayerVelocity = _pPlayer->GetVelocity();
 
-      ElementUseCombined(ptPlayerVelocity, direction);
+      UseEarth(ptPlayerVelocity, direction);
+      abilityKeyPressed = true;
+    }
+  }
+  else
+  {
+    if (abilityKeyPressed)
+    {
+      abilityKeyPressed = false;
+    }
+  }
+
+  // Ice use
+  if (GetAsyncKeyState('L') < 0)
+  {
+    if (!abilityKeyPressed)
+    {
+      RECT rtPlayerPos = _pPlayer->GetPosition();
+      POINT ptPlayerCenterPos = POINT{ (rtPlayerPos.left + rtPlayerPos.right) / 2, (rtPlayerPos.top + rtPlayerPos.bottom) / 2 };
+      POINT ptPlayerVelocity = _pPlayer->GetVelocity();
+
+      UseIce(ptPlayerVelocity, direction);
       abilityKeyPressed = true;
     }
   }
@@ -435,23 +419,23 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
       ice->Kill();
       return false;
     }
-    Fireball* fireball = dynamic_cast<Fireball*>(pSpriteHittee);
-    // SWING TO FIREBALL
-    if (fireball)
-    {
-      if (fireball->isEnemy())
-      {
-        if (swing->GetDirection().x == 0)
-        {
-          fireball->SetVelocity(((fireball->GetPositionFromCenter().x - swing->GetPositionFromCenter().x) / 3) + (rand() % 5) - 2, swing->GetDirection().y * 10);
-        }
-        else
-        {
-          fireball->SetVelocity(swing->GetDirection().x * 10, ((fireball->GetPositionFromCenter().y - swing->GetPositionFromCenter().y) / 3) + (rand() % 5) - 2);
-        }
-        fireball->parry();
-      }
-    }
+    //Fireball* fireball = dynamic_cast<Fireball*>(pSpriteHittee);
+    //// SWING TO FIREBALL
+    //if (fireball)
+    //{
+    //  if (fireball->isEnemy())
+    //  {
+    //    if (swing->GetDirection().x == 0)
+    //    {
+    //      fireball->SetVelocity(((fireball->GetPositionFromCenter().x - swing->GetPositionFromCenter().x) / 3) + (rand() % 5) - 2, swing->GetDirection().y * 10);
+    //    }
+    //    else
+    //    {
+    //      fireball->SetVelocity(swing->GetDirection().x * 10, ((fireball->GetPositionFromCenter().y - swing->GetPositionFromCenter().y) / 3) + (rand() % 5) - 2);
+    //    }
+    //    fireball->parry();
+    //  }
+    //}
   }
 
   Rock* rock = dynamic_cast<Rock*>(pSpriteHitter);
@@ -524,7 +508,7 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
     }
     Rock* rock = dynamic_cast<Rock*>(pSpriteHittee);
     // FIREBALL TO ROCK
-    if (rock)
+    /*if (rock)
     {
       rock->Kill();
 
@@ -550,7 +534,7 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
 
       fireball->Kill();
       return false;
-    }
+    }*/
     Puddle* puddle = dynamic_cast<Puddle*>(pSpriteHittee);
     // FIREBALL TO PUDDLE
     if (puddle)
@@ -759,10 +743,11 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
     if (player)
     {
       orb->Kill();
+      _iCurrentOrbNumber--;
       OrbType type = orb->GetType();
       if (type == ORB_HEALTH)
       {
-        player->AddHealth(10);
+        player->AddHealth(25);
       }
       else if (type == ORB_EARTH)
       {
@@ -826,6 +811,7 @@ void InitializeResources(HDC hDC)
   _pPlayerUpBitmap = new Bitmap(hDC, IDB_PLAYERMOVEUP, _hInstance);
   _pPlayerLeftBitmap = new Bitmap(hDC, IDB_PLAYERMOVELEFT, _hInstance);
   _pPlayerRightBitmap = new Bitmap(hDC, IDB_PLAYERMOVERIGHT, _hInstance);
+  _pPlayerBitmap = new Bitmap(hDC, IDB_PLAYER, _hInstance);
 
   // Enemy resources
   _pSkullLeftBitmap = new Bitmap(hDC, IDB_SKULLLEFT, _hInstance);
@@ -866,11 +852,11 @@ void CreatePlayer(HDC hDC)
 }
 
 static std::vector<std::vector<int>> enemyMap = {
-  {0, 4, 0, 2 },
-  { 2, 3, 0, 3 },
-  { 3, 2, 1, 2 },
-  { 3, 3, 1, 3 },
-  { 2, 3, 3, 2 }
+  {0, 4, 2, 0 },
+  { 2, 3, 3, 0 },
+  { 3, 2, 2, 1 },
+  { 3, 3, 3, 1 },
+  { 2, 3, 2, 3 }
 };
 
 void CreateEnemies(HDC hDC)
@@ -884,9 +870,6 @@ void CreateEnemies(HDC hDC)
     for (int j = 0; j < enemyMap[_iCurrentLevel - 1][i]; j++)
     {
       Enemy* enemy = CreateEnemy(static_cast<EnemyType>(i));
-
-      bool iAmStuck = true;
-
 
       // Random position between 0 and 1024
       enemy->SetPosition(POINT{ dis(gen), dis(gen) });
@@ -904,19 +887,37 @@ void CreateEnemies(HDC hDC)
   }
 }
 
+void SpawnRandomEnemy(HDC hDC) {
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_int_distribution<> dis(0, 3072);
+
+  Enemy* enemy = CreateEnemy(static_cast<EnemyType>(rand() % 3));
+  
+  enemy->SetPosition(POINT{ dis(gen), dis(gen) });
+
+  while (enemy->AmIStuck())
+  {
+    enemy->SetPosition(POINT{ dis(gen), dis(gen) });
+  }
+
+  _pGame->AddSprite(enemy);
+  _vEnemies.push_back(enemy);
+}
+
 void CreateInventory(HDC hDC)
 {
   _pInventory = new Inventory(hDC, _pEarthResBitmap, _pWaterResBitmap);
 }
 
 
-void NextLevel(HDC hDC)
+void NextLevel(HDC hDC, bool isNew)
 {
   // Clear current level
   ClearBeforeNextLevel();
 
   // Level Creation
-  _iCurrentLevel++;
+  _iCurrentLevel = isNew ? _iCurrentLevel++: 1;
   _pLevel = new Level(32, 1, _iCurrentLevel);
   _pLevel->MapTile(0, _pEmptyBitmap);
   _pLevel->GetTile(0)->SetCollidable();
@@ -935,12 +936,21 @@ void NextLevel(HDC hDC)
 
 Orb* CreateRandomOrb()
 {
-  // Set Random device
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_int_distribution<> dis(0, 3072);
-
-  OrbType type = { static_cast<OrbType>(dis(gen) % 3) };
+  int random = rand() % 5;
+  OrbType type;
+  switch(random){
+  case 0:
+    type = ORB_HEALTH;
+    break;
+  case 1:
+  case 2:
+    type = ORB_EARTH;
+    break;
+  case 3:
+  case 4:
+    type = ORB_WATER;
+    break;
+  }
 
   return CreateOrb(type);
 }
@@ -969,7 +979,7 @@ void SpawnOrb()
 {
   static DWORD currentTime = GetTickCount64();
 
-  if (GetTickCount64() - currentTime >= 2000 && _iCurrentOrbNumber < _iMaxOrbNumber)
+  if (GetTickCount64() - currentTime >= 1000 && _iCurrentOrbNumber < _iMaxOrbNumber)
   {
     currentTime = GetTickCount64();
     Orb* orb = CreateRandomOrb();
@@ -1057,6 +1067,91 @@ void SwingCombined(POINT targetPos, char direction)
   _pGame->AddSprite(pSwingSprite);
 }
 
+
+void UseEarth(POINT targetPos, char direction) {
+  POINT ptPlayerPos = _pPlayer->GetPositionFromCenter();
+
+  if (_pInventory->UseElement(0))
+  {
+
+    Rock* pRock = new Rock(_pRockBitmap, _pLevel);
+    pRock->SetZOrder(8);
+
+    POINT rockPos = ptPlayerPos;
+    if (direction == 'D')
+    {
+      rockPos.y += _pPlayer->GetHeight();
+      //DOWN
+    }
+    else if (direction == 'L')
+    {
+      rockPos.x -= _pPlayer->GetWidth();
+      //LEFT
+    }
+    else if (direction == 'R')
+    {
+      rockPos.x += _pPlayer->GetWidth();
+      //RIGHT
+    }
+    else
+    {
+      rockPos.y -= _pPlayer->GetHeight();
+      //UP
+    }
+
+    pRock->SetPositionFromCenter(rockPos);
+
+    // If rock's position is impossible, place under player
+    if (pRock->AmIStuck())
+    {
+      pRock->SetPositionFromCenter(ptPlayerPos);
+    }
+
+    PlaySound("assets/sfx/earth.wav", NULL, SND_FILENAME | SND_ASYNC);
+    _pGame->AddSprite(pRock);
+  }
+}
+
+void UseIce(POINT targetPos, char  direction) {
+  POINT ptPlayerPos = _pPlayer->GetPositionFromCenter();
+
+  if (_pInventory->UseElement(1))
+  {
+    Ice* ice = new Ice(_pIceSpriteBitmap, _pLevel);
+    POINT icePos = { (ptPlayerPos.x / 32) * 32, (ptPlayerPos.y / 32) * 32 };
+    switch (direction)
+    {
+    case 'L':
+      if (icePos.x - 32 >= 32)
+        icePos.x -= 32;
+      else
+        icePos.x += 32;
+      break;
+    case 'R':
+      if (icePos.x + 32 <= 730)
+        icePos.x += 32;
+      else
+        icePos.x -= 32;
+      break;
+    case 'U':
+      if (icePos.y - 32 >= 32)
+        icePos.y -= 32;
+      else
+        icePos.y += 32;
+      break;
+    case 'D':
+      if (icePos.y + 32 <= 730)
+        icePos.y += 32;
+      else
+        icePos.y -= 32;
+      break;
+    }
+    ice->SetPositionFromCenter(icePos);
+
+    PlaySound("assets/sfx/ice.wav", NULL, SND_FILENAME | SND_ASYNC);
+    _pGame->AddSprite(ice);
+  }
+}
 void ElementUseCombined(POINT targetPos, char direction)
 {
   POINT ptPlayerPos = _pPlayer->GetPositionFromCenter();
@@ -1230,7 +1325,6 @@ void ElementUseCombined(POINT targetPos, char direction)
 // INNER FUNCTIONS
 void ClearBeforeNextLevel()
 {
-  Enemy::iEnemyCount = 0;
   _pGame->CleanupSprites();
 }
 
@@ -1277,6 +1371,6 @@ Enemy* CreateEnemy(EnemyType type)
 
     enemy->SetZOrder(7);
   }
-
+ 
   return enemy;
 }

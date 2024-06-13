@@ -43,10 +43,12 @@ enum ElementType
   Air = 3
 };
 
-void PaintHealthBar(HDC hDC, int maxHealth, int currentHealth);
+
+void PaintHealthBar(HDC hDC, int maxHealth, int currentHealth, POINT position);
 void PrintTime(HDC hDC);
 void printScore(HDC hDC);
 void PrintLevel(HDC hDC, int currentLevel);
+void PrintLifes(HDC hDC, int currentLifeNumber, Bitmap* playerBitmap);
 
 class Inventory
 {

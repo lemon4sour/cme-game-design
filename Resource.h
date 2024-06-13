@@ -32,6 +32,7 @@
 #define IDB_PLAYERMOVEDOWN    2211
 #define IDB_PLAYERMOVELEFT    2212
 #define IDB_PLAYERMOVERIGHT   2213
+#define IDB_PLAYER            2214
 #define IDB_SWINGUP           2220
 #define IDB_SWINGDOWN         2221
 #define IDB_SWINGLEFT         2222

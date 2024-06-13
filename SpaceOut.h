@@ -70,6 +70,7 @@ Bitmap* _pEarthResBitmap;
 Bitmap* _pAirResBitmap;
 Bitmap* _pPointBitmap;
 
+Bitmap* _pPlayerBitmap;
 Bitmap* _pPlayerDownBitmap;
 Bitmap* _pPlayerUpBitmap;
 Bitmap* _pPlayerLeftBitmap;
@@ -80,9 +81,10 @@ const int _iMaxLevel = 5;
 
 int _iBreatherTime = 0;
 bool _bLevelClear = false;
+int _iEnemyCounter = 0;
 
 int _iGameTime = 0;
-
+int _iSpawnEnemyTime = 0;
 Player* _pPlayer;
 
 std::vector<Enemy*> _vEnemies;
@@ -91,7 +93,7 @@ Inventory* _pInventory;
 
 char _lastDirection = 'R';
 
-const unsigned int _iMaxOrbNumber = 10;
+const unsigned int _iMaxOrbNumber = 100;
 unsigned int _iCurrentOrbNumber;
 //-----------------------------------------------------------------
 // Function Declarations
@@ -101,7 +103,7 @@ void CreatePlayer(HDC hDC);
 void CreateEnemies(HDC hDC);
 void CreateInventory(HDC hDC);
 
-void NextLevel(HDC hDC);
+void NextLevel(HDC hDC, bool isNew);
 
 void GameOver();
 void GameWin();
@@ -114,6 +116,11 @@ void SwingCombined(POINT targetPos, char direction);
 void ElementUseCombined(POINT targetPos, char direction);
 
 void SpawnOrb();
+void SpawnRandomEnemy(HDC hDC);
+
+void UseIce(POINT targetPos, char  direction);
+void UseEarth(POINT targetPos, char  direction);
+
 
 // INNER FUNCTIONS
 void ClearBeforeNextLevel();

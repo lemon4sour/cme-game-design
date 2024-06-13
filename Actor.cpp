@@ -102,8 +102,6 @@ Player::Player(Bitmap* bmpBitmap, Level* pLevel) : Actor(bmpBitmap, pLevel)
   m_ptTargetVelocity = POINT{ 0,0 };
   m_iState = 0;
   m_iSize = 24;
-  m_iMaxHealth = 100;
-  m_iCurrentHealth = m_iMaxHealth;
   m_iInvFrames = 0;
 
   m_pSpriteStates[0] = bmpBitmap;
@@ -157,7 +155,7 @@ void Player::SubtractHealth(int value)
 
 void Player::AddHealth(int value)
 {
-  m_iCurrentHealth += value;
+  m_iCurrentHealth = m_iCurrentHealth + value > m_iMaxHealth ? m_iMaxHealth : m_iCurrentHealth + value;
 }
 
 SPRITEACTION Player::Update()
@@ -196,6 +194,21 @@ SPRITEACTION Player::Update()
   if (m_iInvFrames > 0) m_iInvFrames--;
 
   return out;
+}
+
+bool Player::TakeLifeOrKill() {
+  if (m_iLifeNumber > 0) {
+    m_iLifeNumber--;
+    m_iCurrentHealth = m_iMaxHealth;
+    return false;
+  }
+
+  return true;
+}
+
+void Player::Restart() {
+  m_iCurrentHealth = m_iMaxHealth;
+  m_iLifeNumber = m_iMaxLifeNumber;
 }
 
 //-----------------------------------------------------------------
@@ -245,8 +258,8 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
     case EnemyType::FIRE_SKULL:
     {
       m_iAbilityTimer = 30;
-      m_speed = 3;
-      m_pHealth = m_maxHealth = 100;
+      m_speed = 1;
+      m_pHealth = m_maxHealth = 300;
       SetZOrder(7);
       SetNumFrames(4);
       SetFrameDelay(10);
@@ -256,7 +269,7 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
     {
       m_enemySize = 24;
       m_speed = 2;
-      m_pHealth = m_maxHealth = 200;
+      m_pHealth = m_maxHealth = 100;
       m_iAbilityTimer = 200;
       SetZOrder(7);
       SetNumFrames(4);
@@ -276,8 +289,8 @@ Enemy::Enemy(Bitmap* bmpBitmap, Level* pLevel, EnemyType type, Player* pTarget)
     case EnemyType::DEAD_EYE:
     {
       m_enemySize = 20;
-      m_speed = 4;
-      m_pHealth = m_maxHealth = 150;
+      m_speed = 2;
+      m_pHealth = m_maxHealth = 100;
       SetZOrder(7);
       SetNumFrames(3);
       SetFrameDelay(10);
@@ -431,7 +444,7 @@ void Enemy::UpdateState()
         {
           m_state = EnemyState::ESCAPING;
         }
-        else
+        else if(m_type != EnemyType::GREEN_BLOB)
         {
           m_state = EnemyState::ATTACKING;
         }
@@ -641,23 +654,22 @@ SPRITEACTION Enemy::Update()
     }
     if (m_type == EnemyType::GREEN_BLOB)
     {
-      if (m_state == EnemyState::ATTACKING)
+      //if (m_state == EnemyState::ATTACKING)
+      
+      if (m_pHealth >= 250)
       {
-        if (m_pHealth >= 250)
-        {
-          m_pHealth = m_pHealth / 2;
-          Enemy* enemy = CreateEnemy(EnemyType::GREEN_BLOB);
-          enemy->SetPositionFromCenter(GetPositionFromCenter().x + (rand() % 50) - 25, GetPositionFromCenter().y + (rand() % 50) - 25);
-          enemy->SetAbilityTimer(100);
-          enemy->SetHealth(m_pHealth / 2);
-          s_pGame->AddSprite(enemy);
-          m_iAbilityTimer = 200;
-        }
+        m_pHealth = m_pHealth / 2;
+        Enemy* enemy = CreateEnemy(EnemyType::GREEN_BLOB);
+        enemy->SetPositionFromCenter(GetPositionFromCenter().x + (rand() % 50) - 25, GetPositionFromCenter().y + (rand() % 50) - 25);
+        enemy->SetAbilityTimer(100);
+        enemy->SetHealth(m_pHealth / 2);
+        s_pGame->AddSprite(enemy);
+        m_iAbilityTimer = 200;
       }
+
       else
-      {
         m_iAbilityTimer = 0;
-      }
+      
     }
     if (m_type == EnemyType::HUMONGUS)
     {
@@ -688,12 +700,8 @@ SPRITEACTION Enemy::Update()
   }
 
   if (m_type == EnemyType::GREEN_BLOB)
-  {
-    if (m_state != EnemyState::ATTACKING)
-    {
-      m_iAbilityTimer++;
-    }
-  }
+    m_iAbilityTimer++;
+  
 
   if (isBombPlanted)
   {
@@ -735,19 +743,6 @@ void Enemy::Bomb()
   int x = ptPosition.left / 32;
   int y = ptPosition.top / 32;
 
-  for (int xPlus = -1; xPlus < 4; xPlus++)
-  {
-    for (int yPlus = -1; yPlus < 4; yPlus++)
-    {
-      int xCoord = x + xPlus;
-      int yCoord = y + yPlus;
-      if (m_pLevel->m_layout.size() - 1 > yCoord && yCoord > 0 &&
-          m_pLevel->m_layout[0].size() - 1 > xCoord && xCoord > 0)
-      {
-        m_pLevel->m_layout[yCoord][xCoord] = 0;
-      }
-    }
-  }
 
   // Kill surrounding enemies
   for (auto& sprite : s_pGame->GetSprites())

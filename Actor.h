@@ -51,13 +51,15 @@ enum enumPlayer : int
 class Player : public Actor
 {
 protected:
-  int m_iMaxHealth;
-  int m_iCurrentHealth;
+  int m_iMaxHealth = 100;
+  int m_iCurrentHealth = m_iMaxHealth;
   POINT m_ptTargetVelocity;
   // POINT m_ptMousePos;
   int m_iInvFrames;
   int m_iSwingCooldown;
   int m_iAbilityCooldown;
+  int m_iMaxLifeNumber = 2;
+  int m_iLifeNumber = m_iMaxLifeNumber;
 public:
   Player::Player(Bitmap* bmpBitmap, Level* pLevel);
   void Player::SetTargetVelocity(POINT ptVelocity)
@@ -71,6 +73,10 @@ public:
   int Player::GetInvFrames() { return m_iInvFrames; };
   void Player::SubtractHealth(int value);
   void Player::AddHealth(int value);
+  bool Player::IsDead() { return (m_iCurrentHealth <= 0);};
+  int Player::GetLifeNumber() { return m_iLifeNumber; };
+  bool Player::TakeLifeOrKill();
+  void Player::Restart();
   // void Player::SetMousePos(int x, int y) { m_ptMousePos = POINT{ x,y }; };
   SPRITEACTION Player::Update() override;
 };
@@ -97,8 +103,8 @@ enum class EnemyType : std::uint8_t
 {
   FIRE_SKULL,
   GREEN_BLOB,
-  HUMONGUS,
-  DEAD_EYE
+  DEAD_EYE,
+  HUMONGUS
 };
 
 enum class EnemyState : std::uint8_t

@@ -2,10 +2,10 @@
 
 //Health Bar Variables
 int iPercentage;
-RECT rOutterHealthBar = { 796, 20, 996, 50 };
+RECT rOutterHealthBar;
 RECT rInnerHealthBar;
-HBRUSH hRedBrush = CreateSolidBrush(RGB(153, 3, 3));
-HBRUSH hGreyBrush = CreateSolidBrush(RGB(113, 112, 110));
+HBRUSH hGreenBrush = CreateSolidBrush(RGB(157, 222, 139));
+HBRUSH hGreyBrush = CreateSolidBrush(RGB(0, 103, 105));
 
 //Timer Print Variables
 DWORD iTimer = 0;
@@ -32,6 +32,15 @@ HFONT hFont = CreateFont(
   DEFAULT_PITCH | FF_SWISS, // Pitch and family
   TEXT("Arial"));       // Font name
 
+
+void PrintLifes(HDC hDC, int currentLifeNumber, Bitmap* playerBitmap) {
+  int y = 4, x = 4;
+
+  for (int i = 0; i < currentLifeNumber; i++) {
+    playerBitmap->Draw(hDC, x, y, TRUE);
+    x += 36;
+  }
+}
 void PrintLevel(HDC hDC, int currentLevel)
 {
   HFONT hOldFont = (HFONT)SelectObject(hDC, hFont);
@@ -47,14 +56,15 @@ void PrintLevel(HDC hDC, int currentLevel)
 }
 
 //Obsolete
-void PaintHealthBar(HDC hDC, int maxHealth, int currentHealth)
+void PaintHealthBar(HDC hDC, int maxHealth, int currentHealth, POINT position)
 {
-  iPercentage = currentHealth * 192 / maxHealth;
+  iPercentage = currentHealth * 100 / maxHealth;
 
-  SetRect(&rInnerHealthBar, 800, 24, 800 + iPercentage, 46);
+  SetRect(&rInnerHealthBar, position.x - 25, position.y -30 , position.x - 25 + iPercentage /2, position.y - 30 + 3);
+  SetRect(&rOutterHealthBar, position.x - 25, position.y - 30, position.x - 25 + 50, position.y - 30 + 3);
 
   FillRect(hDC, &rOutterHealthBar, hGreyBrush);
-  FillRect(hDC, &rInnerHealthBar, hRedBrush);
+  FillRect(hDC, &rInnerHealthBar, hGreenBrush);
 }
 
 void PrintTime(HDC hDC)
