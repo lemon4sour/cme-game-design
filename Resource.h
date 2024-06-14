@@ -58,6 +58,25 @@
 #define IDB_HEALTHBAR050      2542
 #define IDB_HEALTHBAR025      2543
 
+//-----------------------------------------------------------------
+// Sound Effects              Range : 4000 - 4999
+//-----------------------------------------------------------------
+#define IDW_BOMB							4000
+#define IDW_BOMB_CLOCK				4001
+#define IDW_EARTH							4002
+#define IDW_EARTH_HIT					4003
+#define IDW_ENEMY_DIES				4004
+#define IDW_ENEMY_HIT					4005
+#define IDW_ICE								4006
+#define IDW_LEVEL_CLEARED			4007
+#define IDW_PLAYER_DIES				4008
+#define IDW_PLAYER_HURT				4009
+#define IDW_SLASH							4010
+
+#define IDM_MUSIC							4500
+
+
+
 //#define IDB_DESERT            2000
 //#define IDB_CAR               2001
 //#define IDB_SMCAR             2002

@@ -167,6 +167,22 @@
   <ItemGroup>
     <ResourceCompile Include="SpaceOut.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="assets\sfx\bomb.wav" />
+    <Media Include="assets\sfx\bomb_clock.wav" />
+    <Media Include="assets\sfx\earth.wav" />
+    <Media Include="assets\sfx\earth_hit.wav" />
+    <Media Include="assets\sfx\enemy_dies.wav" />
+    <Media Include="assets\sfx\enemy_hit.wav" />
+    <Media Include="assets\sfx\ice.wav" />
+    <Media Include="assets\sfx\level_cleared.wav" />
+    <Media Include="assets\sfx\player_dies.wav" />
+    <Media Include="assets\sfx\player_hurt.wav" />
+    <Media Include="assets\sfx\slash.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\sfx\Music.mid" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

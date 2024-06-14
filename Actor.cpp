@@ -147,7 +147,7 @@ void Player::SubtractHealth(int value)
 {
   if (m_iCurrentHealth > 0 && m_iInvFrames <= 0)
   {
-    PlaySound("assets/sfx/player_hurt.wav", NULL, SND_FILENAME | SND_ASYNC);
+    PlaySound((LPCSTR)IDW_PLAYER_HURT, NULL, SND_RESOURCE | SND_ASYNC);
     m_iInvFrames = 60;
     m_iCurrentHealth = m_iCurrentHealth - value > 0 ? m_iCurrentHealth - value : 0;
   }
@@ -311,7 +311,7 @@ Enemy::~Enemy()
 
 void Enemy::BombPlanted()
 {
-  PlaySound("assets/sfx/bomb_clock.wav", NULL, SND_FILENAME | SND_ASYNC);
+  PlaySound((LPCSTR)IDW_BOMB_CLOCK, NULL, SND_RESOURCE | SND_ASYNC);
   bombCooldown = bombMaxCooldown;
   isBombPlanted = true;
   m_state = EnemyState::ESCAPING;
@@ -569,12 +569,12 @@ void Enemy::DealDamage(int iDamage)
 {
   if (m_iDamageCooldown <= 0)
   {
-    PlaySound("assets/sfx/enemy_hit.wav", NULL, SND_FILENAME | SND_ASYNC);
+    PlaySound((LPCSTR)IDW_ENEMY_HIT, NULL, SND_RESOURCE | SND_ASYNC);
     m_iDamageCooldown = 8;
     m_pHealth -= iDamage;
     if (m_pHealth < 0)
     {
-      PlaySound("assets/sfx/enemy_dies.wav", NULL, SND_FILENAME | SND_ASYNC);
+      PlaySound((LPCSTR)IDW_ENEMY_DIES, NULL, SND_RESOURCE | SND_ASYNC);
       Kill();
     }
   }
@@ -707,7 +707,7 @@ SPRITEACTION Enemy::Update()
   {
     if (bombCooldown == 20)
     {
-      PlaySound("assets/sfx/bomb.wav", NULL, SND_FILENAME | SND_ASYNC);
+      PlaySound((LPCSTR)IDW_BOMB, NULL, SND_RESOURCE | SND_ASYNC);
     }
     if (--bombCooldown <= 0)
     {

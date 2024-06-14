@@ -174,7 +174,7 @@ void GameCycle()
 
   if (Enemy::iEnemyCount <= 0 && !_bLevelClear)
   {
-    PlaySound("assets/sfx/level_cleared.wav", NULL, SND_FILENAME | SND_ASYNC);
+    PlaySound((LPCSTR)IDW_LEVEL_CLEARED, NULL, SND_RESOURCE | SND_ASYNC);
     _pGame->PauseMIDISong();
     _iBreatherTime = 100;
     _bLevelClear = true;
@@ -193,7 +193,7 @@ void GameCycle()
   }
 
   if (_pPlayer->IsDead()) {
-    PlaySound("assets/sfx/player_dies.wav", NULL, SND_FILENAME | SND_ASYNC);
+    PlaySound((LPCSTR)IDW_PLAYER_DIES, NULL, SND_RESOURCE | SND_ASYNC);
     if (_pPlayer->TakeLifeOrKill()) { //true->dead false->alive
       Sleep(5000);
       NextLevel(GetDC(_pGame->GetWindow()), false);
@@ -279,7 +279,7 @@ void HandleKeys()
   {
     if (!swingKeyPressed)
     {
-      PlaySound("assets/sfx/slash.wav", NULL, SND_FILENAME | SND_ASYNC);
+      PlaySound((LPCSTR)IDW_SLASH, NULL, SND_RESOURCE | SND_ASYNC);
       RECT rtPlayerPos = _pPlayer->GetPosition();
       POINT ptPlayerCenterPos = POINT{ (rtPlayerPos.left + rtPlayerPos.right) / 2, (rtPlayerPos.top + rtPlayerPos.bottom) / 2 };
       POINT ptPlayerVelocity = _pPlayer->GetVelocity();
@@ -409,7 +409,7 @@ BOOL SpriteCollision(Sprite* pSpriteHitter, Sprite* pSpriteHittee)
       {
         rock->SetVelocity(swing->GetDirection().x * 30, (rock->GetPositionFromCenter().y - swing->GetPositionFromCenter().y) + (rand() % 5) - 2);
       }
-      PlaySound("assets/sfx/earth_hit.wav", NULL, SND_FILENAME | SND_ASYNC);
+      PlaySound((LPCSTR)IDW_EARTH_HIT, NULL, SND_RESOURCE | SND_ASYNC);
       return false;
     }
     // SWING TO ICE
@@ -1107,7 +1107,7 @@ void UseEarth(POINT targetPos, char direction) {
       pRock->SetPositionFromCenter(ptPlayerPos);
     }
 
-    PlaySound("assets/sfx/earth.wav", NULL, SND_FILENAME | SND_ASYNC);
+    PlaySound((LPCSTR)IDW_EARTH, NULL, SND_RESOURCE | SND_ASYNC);
     _pGame->AddSprite(pRock);
   }
 }
@@ -1148,7 +1148,7 @@ void UseIce(POINT targetPos, char  direction) {
     }
     ice->SetPositionFromCenter(icePos);
 
-    PlaySound("assets/sfx/ice.wav", NULL, SND_FILENAME | SND_ASYNC);
+    PlaySound((LPCSTR)IDW_ICE, NULL, SND_RESOURCE | SND_ASYNC);
     _pGame->AddSprite(ice);
   }
 }
@@ -1192,7 +1192,7 @@ void ElementUseCombined(POINT targetPos, char direction)
       pRock->SetPositionFromCenter(ptPlayerPos);
     }
 
-    PlaySound("assets/sfx/earth.wav", NULL, SND_FILENAME | SND_ASYNC);
+    PlaySound((LPCSTR)IDW_EARTH, NULL, SND_RESOURCE | SND_ASYNC);
     _pGame->AddSprite(pRock);
   }
 
@@ -1229,7 +1229,7 @@ void ElementUseCombined(POINT targetPos, char direction)
     }
     ice->SetPositionFromCenter(icePos);
 
-    PlaySound("assets/sfx/ice.wav", NULL, SND_FILENAME | SND_ASYNC);
+    PlaySound((LPCSTR)IDW_ICE, NULL, SND_RESOURCE | SND_ASYNC);
     _pGame->AddSprite(ice);
   }
 

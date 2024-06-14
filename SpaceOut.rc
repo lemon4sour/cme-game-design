@@ -62,6 +62,23 @@ IDB_ORBAIR            BITMAP       "assets/sprites/air_orb.bmp"
 IDB_ORBEARTH          BITMAP       "assets/sprites/earth_orb.bmp"
 IDB_ORBFIRE           BITMAP       "assets/sprites/fire_orb.bmp"
 
+//-----------------------------------------------------------------
+// Sound Effects
+//-----------------------------------------------------------------
+IDW_BOMB							WAVE				"assets/sfx/bomb.wav"
+IDW_BOMB_CLOCK				WAVE				"assets/sfx/bomb_clock.wav"
+IDW_EARTH							WAVE				"assets/sfx/earth.wav"
+IDW_EARTH_HIT					WAVE				"assets/sfx/earth_hit.wav"
+IDW_ENEMY_DIES				WAVE				"assets/sfx/enemy_dies.wav"
+IDW_ENEMY_HIT					WAVE				"assets/sfx/enemy_hit.wav"
+IDW_ICE								WAVE				"assets/sfx/ice.wav"
+IDW_LEVEL_CLEARED			WAVE				"assets/sfx/level_cleared.wav"
+IDW_PLAYER_DIES				WAVE				"assets/sfx/player_dies.wav"
+IDW_PLAYER_HURT				WAVE				"assets/sfx/player_hurt.wav"
+IDW_SLASH							WAVE				"assets/sfx/slash.wav"
+
+IDM_MUSIC							MIDI				"assets/sfx/Music.mid"
+
 
 //-----------------------------------------------------------------
 // Wave Sounds

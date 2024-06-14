@@ -217,4 +217,44 @@
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="assets\sfx\bomb.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="assets\sfx\bomb_clock.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="assets\sfx\earth.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="assets\sfx\earth_hit.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="assets\sfx\enemy_dies.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="assets\sfx\enemy_hit.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="assets\sfx\ice.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="assets\sfx\level_cleared.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="assets\sfx\player_dies.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="assets\sfx\player_hurt.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="assets\sfx\slash.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\sfx\Music.mid">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>
